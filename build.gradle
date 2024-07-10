@@ -24,14 +24,13 @@ dependencies {
 
     //Web
     implementation 'org.springframework.boot:spring-boot-starter-web'
-//    // Security
+    // Security
 //    implementation 'org.springframework.boot:spring-boot-starter-security'
 //    testImplementation 'org.springframework.security:spring-security-test'
     // JWT
-    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5', 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-    // JDBC
-    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
     // MySQL
     runtimeOnly 'com.mysql:mysql-connector-j'
     // JPA
@@ -41,12 +40,12 @@ dependencies {
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    // AWS SDK for S3
-    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.261'
-    // Spring Cloud AWS Starter
-    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
-    // OAuth2 Client
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+//    // AWS SDK for S3
+//    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.261'
+//    // Spring Cloud AWS Starter
+//    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+//    // OAuth2 Client
+////    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     // QueryDSL
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
