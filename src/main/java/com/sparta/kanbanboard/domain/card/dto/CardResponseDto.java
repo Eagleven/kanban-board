@@ -8,5 +8,14 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class CardResponseDto {
+    public Long id;
+    public String title;
+    public String contents;
+
+    public CardResponseDto(Long id, String title, String contents) {
+        this.id = id;
+        this.title = title;
+        this.contents = contents;
+    }
 
 }
