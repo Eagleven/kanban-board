@@ -7,6 +7,7 @@ import com.sparta.kanbanboard.common.ResponseUtils;
 import com.sparta.kanbanboard.domain.comment.dto.CommentDto;
 import com.sparta.kanbanboard.domain.comment.dto.CommentResponseDto;
 import com.sparta.kanbanboard.domain.comment.service.CommentService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,13 +32,17 @@ public class CommentController {
         if (result == null) {
             return ResponseUtils.of(ResponseExceptionEnum.CREATE_COMMENT_FAILURE);
         }
-        return ResponseUtils.of(ResponseCodeEnum.CREATE_COMMENT_SUCCESS, commentService.createComment(cardId, commentDto));
+        return ResponseUtils.of(ResponseCodeEnum.CREATE_COMMENT_SUCCESS, result);
     }
 
-//    @GetMapping("/{cardId}")
-//    public ResponseEntity<HttpResponseDto> getCommentsList(@PathVariable("cardId") Long cardId) {
-//        return ResponseUtils.of(ResponseCodeEnum.COMMENT_CREATED, commentService.getCommentsList(cardId));
-//    }
+    @GetMapping("/{cardId}")
+    public ResponseEntity<HttpResponseDto> getCommentsList(@PathVariable("cardId") Long cardId) {
+        List<CommentResponseDto> result = commentService.getCommentsList(cardId);
+        if (result == null) {
+            return ResponseUtils.of(ResponseExceptionEnum.CARD_NOT_FOUND);
+        }
+        return ResponseUtils.of(ResponseCodeEnum.GET_COMMENTS, result);
+    }
 //
 //    @PutMapping("/{commentId}")
 //    public ResponseEntity<HttpResponseDto> updateComment(@PathVariable("commentId") Long commentId, @RequestBody CommentDto requestDto) {
