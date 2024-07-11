@@ -7,13 +7,15 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum ResponseCodeEnum {
-    // 유저
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다"),
-    USER_DELETED(HttpStatus.UNAUTHORIZED, "탈퇴한 사용자입니다"),
+    // 성공 처리 하는 곳(Controller에서 쓰일 예정)
 
     // 카드
-    INVALID_CARD_DATA(HttpStatus.NOT_FOUND, "카드 필수 데이터가 없습니다.")
-    ;
+    CARD_CREATE_SUCCESS(HttpStatus.CREATED, "카드 생성을 성공하셨습니다."),
+    CARD_GET_ALL_SUCCESS(HttpStatus.OK, "모든 카드 조회에 성공하셨습니다."),
+    CARD_GET_USER_SUCCESS(HttpStatus.OK, "작업자별 카드 조회에 성공하셨습니다."),
+    CARD_GET_STATUS_SUCCESS(HttpStatus.OK, "상태별 카드 조회에 성공하셨습니다."),
+    CARD_UPDATE_SUCCESS(HttpStatus.OK, "카드 업데이트에 성공하셨습니다."),
+    CARD_DELETE_SUCCESS(HttpStatus.OK, "카드 삭제에 성공하셨습니다.");
     private final HttpStatus httpStatus;
     private final String message;
 }
