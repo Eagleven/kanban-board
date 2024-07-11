@@ -1,6 +1,8 @@
 package com.sparta.kanbanboard.domain.user.controller;
 
+import com.sparta.kanbanboard.common.HttpResponseDto;
 import com.sparta.kanbanboard.common.ResponseCodeEnum;
+import com.sparta.kanbanboard.common.ResponseUtils;
 import com.sparta.kanbanboard.domain.user.dto.SignupRequestDto;
 import com.sparta.kanbanboard.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +20,10 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<String> signup(
+    public ResponseEntity<HttpResponseDto> signup(
             @RequestBody SignupRequestDto requestDto
     ){
         String username = userService.signup(requestDto);
-        return ResponseEntity.status(ResponseCodeEnum.USER_SUCCESS_SIGNUP.getHttpStatus()).body( username + ResponseCodeEnum.USER_SUCCESS_SIGNUP.getMessage());
+        return ResponseUtils.of(ResponseCodeEnum.USER_SUCCESS_SIGNUP, username);
     }
-
 }

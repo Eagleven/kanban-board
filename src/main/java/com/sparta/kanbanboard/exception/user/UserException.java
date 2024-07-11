@@ -1,6 +1,5 @@
 package com.sparta.kanbanboard.exception.user;
 
-import com.sparta.kanbanboard.common.ResponseCodeEnum;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import lombok.Getter;
 
