@@ -11,14 +11,14 @@ public class HttpResponseDto {
     private String message;
     private Object data;
 
-    public HttpResponseDto(ResponseCodeEnum responseCodeEnum, Object data) {
-        this.statusCode = responseCodeEnum.getHttpStatus().value();
-        this.message = responseCodeEnum.getMessage();
-        this.data = data;
+    public HttpResponseDto(Integer statusCode, String message) {
+        this.statusCode = statusCode;
+        this.message = message;
     }
 
-    public HttpResponseDto(ResponseCodeEnum responseCodeEnum) {
-        this.statusCode = responseCodeEnum.getHttpStatus().value();
-        this.message = responseCodeEnum.getMessage();
+    public HttpResponseDto(Integer statusCode, String message, Object data) {
+        this.statusCode = statusCode;
+        this.message = message;
+        this.data = data;
     }
 }
