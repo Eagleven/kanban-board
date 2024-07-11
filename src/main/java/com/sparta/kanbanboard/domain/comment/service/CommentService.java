@@ -10,6 +10,7 @@ import com.sparta.kanbanboard.domain.comment.repository.CommentAdapter;
 import com.sparta.kanbanboard.domain.comment.repository.CommentRepository;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -41,18 +42,17 @@ public class CommentService {
         }
     }
 
-//    public HttpResponseDto getCommentsList(Long cardId) {
-////        Optional<Card> card = cardRepository.findById(cardId);
-////        if (card.isPresent()) {
-////            List<CommentDto> comments = card.getComments();
-////            httpResponseDto = new HttpResponseDto(HttpStatus.OK, "", comments);
-////        } else {
-////            httpResponseDto = new HttpResponseDto(HttpStatus.NOT_FOUND, "해당 카드를 찾을 수 없습니다.");
-////        }
-////        return httpResponseDto;
-//
-//        return null;
-//    }
+    public List<CommentResponseDto> getCommentsList(Long cardId) {
+        Optional<Card> card = cardRepository.findById(cardId);
+        if (card.isPresent()) {
+            List<Comment> comments = commentRepository.findByCard(card.get());
+            return comments.stream()
+                    .map(CommentResponseDto::new)
+                    .collect(Collectors.toList());
+        } else {
+            return null;
+        }
+    }
 //
 //    public HttpResponseDto updateComment(Long commentId, CommentDto commentDto) {
 //        Optional<Comment> optionalComment = commentRepository.findById(commentId);

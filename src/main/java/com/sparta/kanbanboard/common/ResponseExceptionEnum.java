@@ -14,7 +14,10 @@ public enum ResponseExceptionEnum {
     USER_DELETED(HttpStatus.UNAUTHORIZED, "탈퇴한 사용자입니다"),
 
     // 댓글
-    CREATE_COMMENT_FAILURE(HttpStatus.CREATED, "댓글 작성에 실패하였습니다.")
+    CREATE_COMMENT_FAILURE(HttpStatus.CREATED, "댓글 작성에 실패하였습니다."),
+
+    // 카드
+    CARD_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 카드를 찾을 수 없습니다.")
     ;
     private final HttpStatus httpStatus;
     private final String message;
