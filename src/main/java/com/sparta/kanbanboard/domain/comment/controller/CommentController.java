@@ -6,6 +6,7 @@ import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import com.sparta.kanbanboard.common.ResponseUtils;
 import com.sparta.kanbanboard.domain.comment.dto.CommentDto;
 import com.sparta.kanbanboard.domain.comment.dto.CommentResponseDto;
+import com.sparta.kanbanboard.domain.comment.entity.Comment;
 import com.sparta.kanbanboard.domain.comment.service.CommentService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -43,14 +44,28 @@ public class CommentController {
         }
         return ResponseUtils.of(ResponseCodeEnum.GET_COMMENTS, result);
     }
-//
-//    @PutMapping("/{commentId}")
-//    public ResponseEntity<HttpResponseDto> updateComment(@PathVariable("commentId") Long commentId, @RequestBody CommentDto requestDto) {
-//        return ResponseUtils.of(ResponseCodeEnum.COMMENT_CREATED, commentService.updateComment(commentId, requestDto));
-//    }
-//
-//    @PatchMapping("/{commentId}")
-//    public ResponseEntity<HttpResponseDto> deleteComment(@PathVariable("commentId") Long commentId) {
-//        return ResponseUtils.of(ResponseCodeEnum.COMMENT_CREATED, commentService.deleteComment(commentId));
-//    }
+
+    @PutMapping("/{commentId}")
+    public ResponseEntity<HttpResponseDto> updateComment(@PathVariable("commentId") Long commentId, @RequestBody CommentDto commentDto) {
+        CommentResponseDto result = commentService.updateComment(commentId, commentDto);
+        if (result == null) {
+            if (commentDto.getContent() == null) {
+                return ResponseUtils.of(ResponseExceptionEnum.COMMENT_CONTENT_REQUIRED);
+            } else {
+                return ResponseUtils.of(ResponseExceptionEnum.COMMENT_NOT_FOUND);
+            }
+        }
+
+        return ResponseUtils.of(ResponseCodeEnum.UPDATE_COMMENT_SUCCESS, result);
+    }
+
+    @PatchMapping("/{commentId}")
+    public ResponseEntity<HttpResponseDto> deleteComment(@PathVariable("commentId") Long commentId) {
+        Comment result = commentService.deleteComment(commentId);
+        if (result == null) {
+            return ResponseUtils.of(ResponseExceptionEnum.COMMENT_NOT_FOUND);
+        }
+
+        return ResponseUtils.of(ResponseCodeEnum.DELETE_COMMENT_SUCCESS);
+    }
 }
