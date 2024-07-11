@@ -42,7 +42,7 @@ public class CardAdapter {
             throw new InvailCardDataException(ResponseExceptionEnum.INVALID_CARD_DATA);
             // 컬럼 ID를 통해 컬럼이 존재하는지 확인
             // Column column = columnRepository.findById(card.getColumnId())
-            //     .orElseThrow(() -> new ColumnNotFoundException("Column not found"));
+            //     .orElseThrow(() -> new ColumnNotFoundException(리스폰스익셉션으로받아서.컬럼낫파운드(이건 컬럼에서 지정해야할 것 같아서 따로 안만듦)));
 
         }
         return cardRepository.save(card);
