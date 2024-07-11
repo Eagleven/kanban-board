@@ -6,24 +6,17 @@ import org.springframework.http.ResponseEntity;
 
 public class ResponseUtils {
 
-    public static ResponseEntity<HttpResponseDto> of(ResponseExceptionEnum responseCodeEnum) {
+    public static ResponseEntity<HttpResponseDto> of(ResponseCodeEnum responseCodeEnum){
         return ResponseEntity.status(responseCodeEnum.getHttpStatus())
-                .body(new HttpResponseDto(
-                        responseCodeEnum.getHttpStatus(), responseCodeEnum.getMessage()
-                ));
+                .body(new HttpResponseDto(responseCodeEnum));
     }
 
-    public static ResponseEntity<HttpResponseDto> of(HttpStatus httpStatus, String message) {
-        return ResponseEntity.status(httpStatus)
-                .body(new HttpResponseDto(
-                        httpStatus, message
-                ));
+    public static ResponseEntity<HttpResponseDto> of(ResponseExceptionEnum responseExceptionEnum){
+        return ResponseEntity.status(responseExceptionEnum.getHttpStatus())
+                .body(new HttpResponseDto(responseExceptionEnum));
     }
-
-    public static <T> ResponseEntity<HttpResponseDto> of(HttpStatus httpStatus, String message, Object data) {
-        return ResponseEntity.status(httpStatus)
-                .body(new HttpResponseDto(
-                        httpStatus, message, data
-                ));
+    public static ResponseEntity<HttpResponseDto> of(ResponseCodeEnum responseCodeEnum, Object data){
+        return ResponseEntity.status(responseCodeEnum.getHttpStatus())
+                .body(new HttpResponseDto(responseCodeEnum, data));
     }
 }

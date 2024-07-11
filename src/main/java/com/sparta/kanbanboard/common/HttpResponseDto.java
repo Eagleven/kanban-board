@@ -21,4 +21,9 @@ public class HttpResponseDto {
         this.statusCode = responseCodeEnum.getHttpStatus().value();
         this.message = responseCodeEnum.getMessage();
     }
+
+    public HttpResponseDto(ResponseExceptionEnum responseExceptionEnum) {
+        this.statusCode = responseExceptionEnum.getHttpStatus().value();
+        this.message = responseExceptionEnum.getMessage();
+    }
 }
