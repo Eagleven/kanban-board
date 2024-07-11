@@ -1,7 +1,5 @@
 package com.sparta.kanbanboard.common;
 
-import org.springframework.http.HttpStatus;
-
 import org.springframework.http.ResponseEntity;
 
 public class ResponseUtils {
