@@ -1,5 +1,6 @@
 package com.sparta.kanbanboard.domain.comment.service;
 
+import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.common.HttpResponseDto;
 import com.sparta.kanbanboard.domain.card.entity.Card;
 import com.sparta.kanbanboard.domain.card.repository.CardRepository;
@@ -45,7 +46,7 @@ public class CommentService {
     public List<CommentResponseDto> getCommentsList(Long cardId) {
         Optional<Card> card = cardRepository.findById(cardId);
         if (card.isPresent()) {
-            List<Comment> comments = commentRepository.findByCard(card.get());
+            List<Comment> comments = commentRepository.findByCardAndStatus(card.get(), CommonStatusEnum.ACTIVE);
             return comments.stream()
                     .map(CommentResponseDto::new)
                     .collect(Collectors.toList());
@@ -53,36 +54,30 @@ public class CommentService {
             return null;
         }
     }
-//
-//    public HttpResponseDto updateComment(Long commentId, CommentDto commentDto) {
-//        Optional<Comment> optionalComment = commentRepository.findById(commentId);
-//        if (optionalComment.isPresent()) {
-//            Comment comment = optionalComment.get();
-//            /*
-//            * if (!user.getId().equals(comment.getUser().getId()) {
-//            *   httpResponseDto = new HttpResponseDto(HttpStatus.NOT_FOUND, "적합하지 않은 접근입니다.");
-//            * } else {
-//            *
-//            * }
-//            * */
-//            comment.updateComment(commentDto);
-//            httpResponseDto = new HttpResponseDto(HttpStatus.OK, "댓글이 수정되었습니다.", comment);
-//        } else {
-//            httpResponseDto = new HttpResponseDto(HttpStatus.NOT_FOUND, "해당 댓글을 찾을 수 없습니다.");
-//        }
-//        return httpResponseDto;
-//    }
-//
-//    public HttpResponseDto deleteComment(Long commentId) {
-//        Optional<Comment> optionalComment = commentRepository.findById(commentId);
-//
-//        if (optionalComment.isPresent()) {
-//            Comment comment = optionalComment.get();
-//            comment.setStatus("deleted");
-//            httpResponseDto = new HttpResponseDto(HttpStatus.OK, "댓글이 삭제되었습니다.");
-//        } else {
-//            httpResponseDto = new HttpResponseDto(HttpStatus.NOT_FOUND, "해당 댓글을 찾을 수 없습니다.");
-//        }
-//        return httpResponseDto;
-//    }
+
+    public CommentResponseDto updateComment(Long commentId, CommentDto commentDto) {
+        Optional<Comment> commentOptional = commentRepository.findById(commentId);
+        if (commentOptional.isPresent()) {
+            Comment comment = commentOptional.get();
+            if (commentDto.getContent() == null) {
+                return null;
+            }
+            comment.updateComment(commentDto);
+            return new CommentResponseDto(commentAdapter.save(comment));
+        } else {
+            return null;
+        }
+    }
+
+    public Comment deleteComment(Long commentId) {
+        Optional<Comment> optionalComment = commentRepository.findById(commentId);
+
+        if (optionalComment.isPresent()) {
+            Comment comment = optionalComment.get();
+            comment.setStatus(CommonStatusEnum.DELETED);
+            return commentAdapter.save(comment);
+        } else {
+            return null;
+        }
+    }
 }
