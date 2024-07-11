@@ -3,14 +3,11 @@ package com.sparta.kanbanboard.domain.card.entity;
 import com.sparta.kanbanboard.common.TimeStampEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -33,7 +30,6 @@ public class Card extends TimeStampEntity {
     @Column(nullable = false)
     private String contents;
 
-
 //    @OneToMany(mappedBy = "card")
 //    private User user;
 //
@@ -42,12 +38,17 @@ public class Card extends TimeStampEntity {
 //    private Column column;
 
 
+    @Builder
+    public Card(String title, String contents /*, Long columnId*/) {
+        this.title = title;
+        this.contents = contents;
+        // this.columnId = columnId;
+    }
+
     public void update(String title, String contents) {
         this.title = title;
         this.contents = contents;
     }
-
-
 
 
 }
