@@ -8,7 +8,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class CardRequestDto {
+
     public String title;
     public String contents;
-
+// private Long columnId;
 }
