@@ -3,10 +3,10 @@ package com.sparta.kanbanboard.domain.user.repository;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import com.sparta.kanbanboard.domain.user.User;
 import com.sparta.kanbanboard.exception.user.UserDuplicatedException;
-import com.sparta.kanbanboard.exception.user.UserException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -23,7 +23,12 @@ public class UserAdapter {
         }
     }
 
-    public User save(User user) {
-        return userRepository.save(user);
+    public User findUserByUsername(String username){
+        return userRepository.findUserByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("This \"%s\" does not exist.", username)));
+    }
+
+    public void save(User user) {
+        userRepository.save(user);
     }
 }

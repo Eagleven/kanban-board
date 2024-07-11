@@ -6,9 +6,9 @@ import com.sparta.kanbanboard.domain.user.dto.SignupRequestDto;
 import com.sparta.kanbanboard.domain.user.repository.UserAdapter;
 import com.sparta.kanbanboard.exception.user.UserDuplicatedException;
 import com.sparta.kanbanboard.exception.user.UserException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -17,18 +17,18 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserAdapter adapter;
+    private final PasswordEncoder passwordEncoder;
 
-    @Transactional
     public String signup(SignupRequestDto requestDto) {
         try {
             log.info("/users, 회원가입 실행 중~");
 
             adapter.findDuplicatedUser(requestDto.getUsername());
-            log.info(requestDto.getUsername() + "정보 잘 들어가는 중~");
+            log.info("{} 정보 잘 들어가는 중~", requestDto.getUsername());
 
             User user = User.builder()
                     .username(requestDto.getUsername())
-                    .password(requestDto.getPassword())
+                    .password(passwordEncoder.encode(requestDto.getPassword()))
                     .name(requestDto.getName())
                     .email(requestDto.getEmail())
                     .build();
@@ -36,9 +36,9 @@ public class UserService {
             adapter.save(user);
             return user.getName();
         } catch(UserDuplicatedException e){
-            throw e;
+            throw new UserException(ResponseExceptionEnum.USER_ALREADY_EXIST);
         }
-         catch (RuntimeException e) {
+        catch (RuntimeException e) {
             throw new UserException(ResponseExceptionEnum.USER_FAIL_SIGNUP);
         }
     }
