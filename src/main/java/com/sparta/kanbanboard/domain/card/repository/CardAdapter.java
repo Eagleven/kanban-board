@@ -1,8 +1,10 @@
 package com.sparta.kanbanboard.domain.card.repository;
 
+import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import com.sparta.kanbanboard.domain.card.entity.Card;
+import com.sparta.kanbanboard.exception.card.CardNotFoundException;
+import com.sparta.kanbanboard.exception.card.InvailCardDataException;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -14,11 +16,12 @@ public class CardAdapter {
 
     private final CardRepository cardRepository;
 
-    // 예외처리도 이곳에서 해줘야함!
+    // 모든 카드 조회
     public List<Card> findAll() {
         return cardRepository.findAll();
     }
 
+    // 사용자 ID로 카드 조회
     public List<Card> findByUserId(Long userId) {
         return cardRepository.findByUserId(userId);
     }
@@ -27,15 +30,27 @@ public class CardAdapter {
 //    return cardRepository.findByStatus(status);
 //}
 
-    public Optional<Card> findById(Long cardId) {
-        return cardRepository.findById(cardId);
+    // ID로 카드 조회 (없으면 예외 발생)
+    public Card findById(Long cardId) {
+        return cardRepository.findById(cardId)
+                .orElseThrow(() -> new CardNotFoundException(ResponseExceptionEnum.CARD_NOT_FOUND));
     }
 
+    // 카드 저장 (유효성 검사 포함)
     public Card save(Card card) {
+        if (card.getTitle() == null && card.getContents() == null/* && card.getStatus() == null*/) {
+            throw new InvailCardDataException(ResponseExceptionEnum.INVALID_CARD_DATA);
+            // 컬럼 ID를 통해 컬럼이 존재하는지 확인
+            // Column column = columnRepository.findById(card.getColumnId())
+            //     .orElseThrow(() -> new ColumnNotFoundException("Column not found"));
+
+        }
         return cardRepository.save(card);
     }
 
-    public void delete(Card card) {
+    // 카드 삭제
+    public void delete(Long cardId) {
+        Card card = findById(cardId);
         cardRepository.delete(card);
     }
 
