@@ -12,6 +12,6 @@ public class CommentResponseDto {
 
     public CommentResponseDto(Comment comment) {
         this.username = comment.getUser().getUsername();
-        this.content = comment.getContent();
+        this.content = getContent();
     }
 }
