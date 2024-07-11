@@ -11,36 +11,33 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class CardAdapter {
-private final CardRepository cardRepository;
 
-// 예외처리도 이곳에서 해줘야함!
-public List<Card> findAll() {
-    return cardRepository.findAll();
-}
+    private final CardRepository cardRepository;
 
-public List<Card> findByUserId(Long userId) {
-    return cardRepository.findByUserId(userId);
-}
+    // 예외처리도 이곳에서 해줘야함!
+    public List<Card> findAll() {
+        return cardRepository.findAll();
+    }
 
-//    public List<Card> findByStatus(CardStatusEnum status) {
+    public List<Card> findByUserId(Long userId) {
+        return cardRepository.findByUserId(userId);
+    }
+
+//    public List<Card> findByStatus(CardStatus status) {
 //    return cardRepository.findByStatus(status);
 //}
 
-public Optional<Card> findById(Long cardId) {
-    return cardRepository.findById(cardId);
-}
+    public Optional<Card> findById(Long cardId) {
+        return cardRepository.findById(cardId);
+    }
 
-public Card save(Card card) {
-    return cardRepository.save(card);
-}
+    public Card save(Card card) {
+        return cardRepository.save(card);
+    }
 
-public void delete(Card card) {
-    cardRepository.delete(card);
-}
-
-
-
-
+    public void delete(Card card) {
+        cardRepository.delete(card);
+    }
 
 
 }
