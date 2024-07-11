@@ -7,14 +7,13 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum ResponseExceptionEnum {
-    // common
-    INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 입력입니다."),
-
     // 유저
-    SUCCESS_LOGIN(HttpStatus.OK, "로그인을 완료했습니다."),
-    USER_SUCCESS_SIGNUP(HttpStatus.OK, "님의 회원가입을 완료 했습니다."),
-    REISSUE_ACCESS_TOKEN(HttpStatus.OK, "억세스 토큰 재발급을 완료했습니다."),
-
+    REFRESH_TOKEN_UNAVAILABLE(HttpStatus.BAD_REQUEST, "유효하지 않은 리프레쉬토큰 입니다."),
+    USER_FAIL_SIGNUP(HttpStatus.BAD_REQUEST, "회원가입에 실패했습니다."),
+    USER_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "중복된 아이디 입니다."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다"),
+    USER_DELETED(HttpStatus.UNAUTHORIZED, "탈퇴한 사용자입니다"),
+    NOT_FOUND_AUTHENTICATION_INFO(HttpStatus.BAD_REQUEST, "사용자 정보가 일치하지 않습니다. 다시 시도해 주세요 :)" ),
     // board
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 보드입니다."),
     BOARD_ALREADY_DELETED(HttpStatus.GONE, "이미 삭제된 보드입니다.")
