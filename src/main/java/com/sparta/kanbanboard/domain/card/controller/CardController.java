@@ -62,7 +62,7 @@ public class CardController {
     @PutMapping("/{cardId}")
     public ResponseEntity<?> updateCard(@PathVariable Long cardId,
             @RequestBody CardRequestDto cardRequestDto) {
-        Card updatedCard = cardService.updateCard(cardId, toEntity(cardRequestDto));
+        Card updatedCard = cardService.UpdateCard(cardId, toEntity(cardRequestDto));
         return ResponseUtils.of(ResponseCodeEnum.CARD_UPDATE_SUCCESS, updatedCard);
     }
 
