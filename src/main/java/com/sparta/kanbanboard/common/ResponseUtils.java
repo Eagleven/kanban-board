@@ -1,5 +1,7 @@
 package com.sparta.kanbanboard.common;
 
+import org.springframework.http.HttpStatus;
+
 import org.springframework.http.ResponseEntity;
 
 public class ResponseUtils {
@@ -15,6 +17,5 @@ public class ResponseUtils {
     }
     public static ResponseEntity<HttpResponseDto> of(ResponseCodeEnum responseCodeEnum, Object data){
         return ResponseEntity.status(responseCodeEnum.getHttpStatus())
-                .body(new HttpResponseDto(responseCodeEnum.getHttpStatus().value(), responseCodeEnum.getMessage(), data));
-    }
+                .body(new HttpResponseDto(responseCodeEnum.getHttpStatus().value(), responseCodeEnum.getMessage(), data));}
 }
