@@ -2,6 +2,7 @@ package com.sparta.kanbanboard.domain.board.entity;
 
 import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.common.TimeStampEntity;
+import com.sparta.kanbanboard.domain.board.dto.BoardRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -39,6 +40,15 @@ public class Board extends TimeStampEntity {
     public Board(String name, String explanation) {
         this.name = name;
         this.explanation = explanation;
-        this.status=CommonStatusEnum.ACTIVE;
+        this.status = CommonStatusEnum.ACTIVE;
+    }
+
+    public void update(BoardRequestDto requestDto) {
+        this.name = requestDto.getName();
+        this.explanation = requestDto.getExplanation();
+    }
+
+    public void delete() {
+        this.status = CommonStatusEnum.DELETED;
     }
 }
