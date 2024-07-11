@@ -1,15 +1,16 @@
 package com.sparta.kanbanboard.exception.card;
 
 import com.sparta.kanbanboard.common.ResponseCodeEnum;
+import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import lombok.Getter;
 
 @Getter
 public class CardException extends RuntimeException {
-    private final ResponseCodeEnum responseCodeEnum;
+    private final ResponseExceptionEnum responseExceptionEnum;
 
-    public CardException(ResponseCodeEnum responseCodeEnum) {
-        super(responseCodeEnum.getMessage());
-        this.responseCodeEnum = responseCodeEnum;
+    public CardException(ResponseExceptionEnum responseExceptionEnum) {
+        super(responseExceptionEnum.getMessage());
+        this.responseExceptionEnum = responseExceptionEnum;
     }
 
 }
