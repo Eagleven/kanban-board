@@ -1,5 +1,7 @@
 package com.sparta.kanbanboard.domain.card.dto;
 
+import com.sparta.kanbanboard.domain.column.entity.Column;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,7 +11,11 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CardRequestDto {
 
+    @NotBlank(message = "카드 제목을 입력해주세요.")
     public String title;
+
+    @NotBlank(message = "카드 내용을 입력해주세요.")
     public String contents;
-// private Long columnId;
+
+    private Column columnId;
 }
