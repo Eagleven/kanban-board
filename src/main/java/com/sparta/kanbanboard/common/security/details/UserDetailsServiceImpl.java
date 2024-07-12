@@ -1,4 +1,4 @@
-package com.sparta.kanbanboard.common.security;
+package com.sparta.kanbanboard.common.security.details;
 
 import com.sparta.kanbanboard.domain.user.User;
 import com.sparta.kanbanboard.domain.user.repository.UserAdapter;
