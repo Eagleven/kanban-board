@@ -3,6 +3,8 @@ package com.sparta.kanbanboard.domain.card.repository;
 import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import com.sparta.kanbanboard.domain.card.entity.Card;
+import com.sparta.kanbanboard.domain.column.entity.Column;
+import com.sparta.kanbanboard.domain.column.repository.ColumnAdapter;
 import com.sparta.kanbanboard.exception.card.CardNotFoundException;
 import com.sparta.kanbanboard.exception.card.ColumnNotFoundException;
 import com.sparta.kanbanboard.exception.card.InvailCardDataException;
@@ -17,7 +19,7 @@ import org.springframework.stereotype.Component;
 public class CardAdapter {
 
     private final CardRepository cardRepository;
-//    private final ColumnAdapter columnAdapter;
+    private final ColumnAdapter columnAdapter;
 
     // 모든 카드 조회
     public List<Card> findAll() {
@@ -29,7 +31,12 @@ public class CardAdapter {
         return cardRepository.findByUserId(userId);
     }
 
-    // 카드 상태별 조회(columnId 필요)
+    // 컬럼별 카드 상태 조회 (시작 전 진행중 완료)
+    public List<Card> findByColumn(Long columnId) {
+        validateColumnExists(columnId);
+        Column column = columnAdapter.findById(columnId);
+        return cardRepository.findByColumn(column);
+    }
 
     // 카드 ID로 카드 조회
     public Card findById(Long cardId) {
@@ -52,7 +59,7 @@ public class CardAdapter {
         return cardRepository.findByStatusAndUserId(CommonStatusEnum.ACTIVE, userId);
     }
 
-    // 카드 저장 (validateCard선언 부분에 Column없어서 일단 주석처리)
+    // 카드 저장
     public Card save(Card card) {
         validateCard(card);
         return cardRepository.save(card);
@@ -65,7 +72,7 @@ public class CardAdapter {
         cardRepository.save(card);
     }
 
-    // 카드 수정(save 주석처리 중이라 일단 주석처리 함)
+    // 카드 수정
     public Card update(Long cardId, Card updatedCard) {
         Card existingCard = findById(cardId);
         if (existingCard.getStatus() == CommonStatusEnum.DELETED) {
@@ -76,32 +83,30 @@ public class CardAdapter {
     }
 
 
-    // 카드 순서 바꾸기 (Column Id 필요, save 주석처리 되어서 일단 주석해놓음!)
-    public void updateCardOrder(Long cardId, /*Long newColumnId,*/ int newPosition) {
+    // 카드 순서 변경
+    public void updateCardOrder(Long cardId, Column newColumn, int newSequence) {
         Card card = findById(cardId);
         if (card.getStatus() == CommonStatusEnum.DELETED) {
             throw new CardNotFoundException(ResponseExceptionEnum.CARD_NOT_FOUND);
         }
-
-        validateColumnExists(newColumnId);
-        card.setColumnId(newColumnId);
-
-        card.setPosition(newPosition);
+        validateColumnExists(newColumn.getId());
+        card.setColumn(newColumn);
+        card.setSequence(newSequence);
         save(card);
     }
 
     // 유효한 카드
     private void validateCard(Card card) {
-        if (card.getTitle() == null || card.getContents() == null || card.getColumnId() == null) {
+        if (card.getTitle() == null || card.getContents() == null || card.getColumn() == null) {
             throw new InvailCardDataException(ResponseExceptionEnum.INVALID_CARD_DATA);
         }
-        validateColumnExists(card.getColumnId());
+        validateColumnExists(card.getColumn().getId());
     }
 
 
     // 유효한 컬럼인가 -> 컬럼 로직에 있을 것 같아서 *삭제할지 말 지 보류* -> 이거 Card 에도 필요할까요?
     private void validateColumnExists(Long columnId) {
-        if (!columnAdapter.existsById(columnId)) {
+        if (!columnAdapter.existById(columnId)) {
             throw new ColumnNotFoundException(ResponseExceptionEnum.COLUMN_NOT_FOUND);
         }
     }
@@ -121,9 +126,9 @@ public class CardAdapter {
             existingCard.setUser(updatedCard.getUser());
         }
 
-        if (updatedCard.getColumnId() != null) {
-            validateColumnExists(updatedCard.getColumnId());
-            existingCard.setColumnId(updatedCard.getColumnId());
+        if (updatedCard.getColumn() != null) {
+            validateColumnExists(updatedCard.getColumn().getId());
+            existingCard.setColumn(updatedCard.getColumn());
         }
 
 

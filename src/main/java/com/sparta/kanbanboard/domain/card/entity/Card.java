@@ -26,7 +26,6 @@ import lombok.Setter;
 @Table(name = "cards")
 public class Card extends TimeStampEntity {
 
-    @Column
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,9 +37,7 @@ public class Card extends TimeStampEntity {
     private String contents;
 
     @Column
-    private int position;
-
-    private Long assigneeId;
+    private int sequence;
 
     // 마감 기한
     private LocalDateTime dueDate;
@@ -53,30 +50,31 @@ public class Card extends TimeStampEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    // Column : Card는 1:N 추가해야함
-    // @OneToMany
+    @Getter
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "column_id")
+    private com.sparta.kanbanboard.domain.column.entity.Column column;
 
     @Builder
-    public Card(String title, String contents, User user, /* Long columnId,*/ int position,
+    public Card(String title, String contents, User user,
+            com.sparta.kanbanboard.domain.column.entity.Column column, int sequence,
             LocalDateTime dueDate) {
         this.title = title;
         this.contents = contents;
         this.user = user;
-        /*
-        this.columnId = columnId;
-         */
-        this.position = position;
+        this.column = column;
+        this.sequence = sequence;
         this.dueDate = dueDate;
     }
 
-    public void update(String title, String contents, /* Long columnId,*/ int position,
+    public void update(String title, String contents,
+            com.sparta.kanbanboard.domain.column.entity.Column column, int sequence,
             LocalDateTime dueDate) {
         this.title = title;
         this.contents = contents;
-        /*
-        this.columnId = columnId;
-        */
-        this.position = position;
+        this.column = column;
+        this.sequence = sequence;
         this.dueDate = dueDate;
     }
 
