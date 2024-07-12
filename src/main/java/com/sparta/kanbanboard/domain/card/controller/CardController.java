@@ -1,5 +1,6 @@
 package com.sparta.kanbanboard.domain.card.controller;
 
+import com.sparta.kanbanboard.common.HttpResponseDto;
 import com.sparta.kanbanboard.common.ResponseCodeEnum;
 import com.sparta.kanbanboard.common.ResponseUtils;
 import com.sparta.kanbanboard.domain.card.dto.CardRequestDto;
@@ -26,41 +27,39 @@ import org.springframework.web.bind.annotation.RestController;
 public class CardController {
 
     private final CardService cardService;
-// ResponseCodeEnum추가하고(o), 로직 추가하고(o), url 확인해서 추가하고, builder빨간줄 해결!
 
     // 카드 생성
     @PostMapping
-    public ResponseEntity<?> createCard(@RequestBody CardRequestDto cardRequestDto) {
+    public ResponseEntity<HttpResponseDto> createCard(@RequestBody CardRequestDto cardRequestDto) {
         Card card = cardService.createCard(toEntity(cardRequestDto));
         return ResponseUtils.of(ResponseCodeEnum.CARD_CREATE_SUCCESS, card);
     }
 
     // 모든 카드 조회
     @GetMapping
-    public ResponseEntity<?> getAllcards() {
+    public ResponseEntity<HttpResponseDto> getAllcards() {
         List<Card> cards = cardService.getAllCards();
         return ResponseUtils.of(ResponseCodeEnum.CARD_GET_ALL_SUCCESS, cards);
     }
 
     // 작업자별 카드 조회
-    @GetMapping("/{userId}")
-    public ResponseEntity<?> getCardsByUser(@PathVariable Long userId) {
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<HttpResponseDto> getCardsByUser(@PathVariable Long userId) {
         List<Card> cards = cardService.getCardByUser(userId);
         return ResponseUtils.of(ResponseCodeEnum.CARD_GET_USER_SUCCESS, cards);
     }
 
     // 상태별 카드 조회 (Column과 합친 후에 완성 가능)
-    /*
-    @GetMapping("/{columnId}")
-    public ResponseEntity<?> getCardsByStatus(@PathVariable ColumnStatus status) {
-        List<Card> cards = cardService.getCardByStatus(status);
-        return ResponseUtils.of(ResponseCodeEnum.CARD_GET_STATUS_SUCCESS, cards);
+    @GetMapping("/column/{columnId}")
+    public ResponseEntity<HttpResponseDto> getCardsByColumn(@PathVariable Long columnId) {
+        List<Card> cards = cardService.getCardsByColumn(columnId);
+        return ResponseUtils.of(ResponseCodeEnum.CARD_COLUMN_GET_STATUS_SUCCESS, cards);
     }
-     */
+
 
     // 카드 수정
     @PutMapping("/{cardId}")
-    public ResponseEntity<?> updateCard(@PathVariable Long cardId,
+    public ResponseEntity<HttpResponseDto> updateCard(@PathVariable Long cardId,
             @RequestBody CardRequestDto cardRequestDto) {
         Card updatedCard = cardService.updateCard(cardId, toEntity(cardRequestDto));
         return ResponseUtils.of(ResponseCodeEnum.CARD_UPDATE_SUCCESS, updatedCard);
@@ -68,7 +67,7 @@ public class CardController {
 
     // 카드 삭제
     @DeleteMapping("/{cardId}")
-    public ResponseEntity<?> deleteCard(@PathVariable Long cardId) {
+    public ResponseEntity<HttpResponseDto> deleteCard(@PathVariable Long cardId) {
         cardService.deleteCard(cardId);
         return ResponseUtils.of(ResponseCodeEnum.CARD_DELETE_SUCCESS);
     }
@@ -78,7 +77,7 @@ public class CardController {
         return Card.builder()
                 .title(dto.getTitle())
                 .contents(dto.getContents())
-//                .columnId(dto.getColumnId())
+                .column(dto.getColumnId())
                 .build();
     }
 }
