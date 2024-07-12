@@ -63,4 +63,13 @@ public class BoardController {
         return ResponseUtils.of(ResponseCodeEnum.BOARD_DELETED);
     }
 
+    // 보드에 사용자 초대
+    @PostMapping("/{boardId}/invite/{userId}")
+    public ResponseEntity<HttpResponseDto> inviteBoard(@PathVariable("boardId") Long boardId,
+            @PathVariable("userId") Long userId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails){
+        boardService.inviteBoard(boardId, userId, userDetails.getUser());
+        return ResponseUtils.of(ResponseCodeEnum.USER_INVITED);
+    }
+
 }

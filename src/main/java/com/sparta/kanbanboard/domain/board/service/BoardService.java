@@ -2,17 +2,23 @@ package com.sparta.kanbanboard.domain.board.service;
 
 import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
+
 import static com.sparta.kanbanboard.domain.user.utils.Role.MANAGER;
+
 import com.sparta.kanbanboard.domain.board.dto.BoardRequestDto;
 import com.sparta.kanbanboard.domain.board.dto.BoardResponseDto;
 import com.sparta.kanbanboard.domain.board.entity.Board;
 import com.sparta.kanbanboard.domain.board.repository.BoardAdapter;
 import com.sparta.kanbanboard.domain.user.User;
+import com.sparta.kanbanboard.domain.user.repository.UserAdapter;
 import com.sparta.kanbanboard.domain.userandboard.entity.UserAndBoard;
 import com.sparta.kanbanboard.domain.userandboard.repository.UserAndBoardAdapter;
 import com.sparta.kanbanboard.exception.board.BoardAlreadyDeletedException;
 import com.sparta.kanbanboard.exception.board.BoardForbiddenException;
+import com.sparta.kanbanboard.exception.userandboard.UserAlreadyBoardMemberException;
+import com.sparta.kanbanboard.exception.userandboard.UserNotBoardMemberException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +38,7 @@ public class BoardService {
     private static final int PAGE_SIZE = 10;
     private final BoardAdapter boardAdapter;
     private final UserAndBoardAdapter userAndBoardAdapter;
+    private final UserAdapter userAdapter;
 
 
     // 보드 생성
@@ -65,16 +72,24 @@ public class BoardService {
     // 보드 수정
     @Transactional
     public BoardResponseDto updateBoard(Long boardId, BoardRequestDto requestDto, User user) {
+        // 보드가 존재하는지 확인
         Board board = boardAdapter.findById(boardId);
 
+        // manager 권한인지 확인
+        if (!user.getUserRole().equals(MANAGER)) {
+            throw new BoardForbiddenException(ResponseExceptionEnum.FORBIDDEN_UPDATE_BOARD);
+        }
+
+        // 삭제 처리된 보드인지 확인
         if (board.getStatus().equals(CommonStatusEnum.DELETED)) {
             throw new BoardAlreadyDeletedException(ResponseExceptionEnum.BOARD_ALREADY_DELETED);
         }
 
-        UserAndBoard userAndBoard = userAndBoardAdapter.findByUserIdAndBoardId(user.getId(),
-                boardId);
-        if (!user.getUserRole().equals(MANAGER)) {
-            throw new BoardForbiddenException(ResponseExceptionEnum.FORBIDDEN_UPDATE_BOARD);
+        // 사용자가 보드에 참여중인지 확인 -> userAndBoard에 없으면 예외 처리
+        Optional<UserAndBoard> userAndBoard = userAndBoardAdapter.findByUserIdAndBoardId(
+                user.getId(), boardId);
+        if (userAndBoard.isEmpty()) {
+            throw new UserNotBoardMemberException(ResponseExceptionEnum.USER_NOT_BOARD_MEMBER);
         }
 
         board.update(requestDto);
@@ -86,18 +101,52 @@ public class BoardService {
         // 보드가 존재하는지 확인
         Board board = boardAdapter.findById(boardId);
 
+        // manager 권한인지 확인
+        if (!user.getUserRole().equals(MANAGER)) {
+            throw new BoardForbiddenException(ResponseExceptionEnum.FORBIDDEN_DELETE_BOARD);
+        }
+
         // 삭제 처리된 보드인지 확인
         if (board.getStatus().equals(CommonStatusEnum.DELETED)) {
             throw new BoardAlreadyDeletedException(ResponseExceptionEnum.BOARD_ALREADY_DELETED);
         }
 
-        // 보드에 참여중인지 확인
-        UserAndBoard userAndBoard = userAndBoardAdapter.findByUserIdAndBoardId(user.getId(),
-                boardId);
+        // 사용자가 보드에 참여중인지 확인 -> userAndBoard에 없으면 예외 처리
+        Optional<UserAndBoard> userAndBoard = userAndBoardAdapter.findByUserIdAndBoardId(
+                user.getId(), boardId);
+        if (userAndBoard.isEmpty()) {
+            throw new UserNotBoardMemberException(ResponseExceptionEnum.USER_NOT_BOARD_MEMBER);
+        }
+        board.delete();
+    }
+
+    @Transactional
+    public void inviteBoard(Long boardId, Long userId, User user) {
+        // 초대할 사용자 정보를 가져옴
+        User invitedUser = userAdapter.findById(userId);
+
+        // 보드가 존재하는지 확인
+        Board board = boardAdapter.findById(boardId);
+
+        // manager 권한인지 확인
         if (!user.getUserRole().equals(MANAGER)) {
-            throw new BoardForbiddenException(ResponseExceptionEnum.FORBIDDEN_DELETE_BOARD);
+            throw new BoardForbiddenException(ResponseExceptionEnum.FORBIDDEN_INVITE_BOARD);
         }
 
-        board.delete();
+        // 삭제 처리된 보드인지 확인
+        if (board.getStatus().equals(CommonStatusEnum.DELETED)) {
+            throw new BoardAlreadyDeletedException(ResponseExceptionEnum.BOARD_ALREADY_DELETED);
+        }
+
+        // 이미 보드에 초대된 사용자인 경우 예외 처리
+        Optional<UserAndBoard> userAndBoard = userAndBoardAdapter.findByUserIdAndBoardId(
+                userId, boardId);
+        if (userAndBoard.isPresent()) {
+            throw new UserAlreadyBoardMemberException(
+                    ResponseExceptionEnum.USER_ALREADY_BOARD_MEMBER);
+        }
+
+        UserAndBoard newUserAndBoard = new UserAndBoard(board, invitedUser);
+        userAndBoardAdapter.save(newUserAndBoard);
     }
 }

@@ -5,6 +5,7 @@ import com.sparta.kanbanboard.domain.userandboard.entity.UserAndBoard;
 import com.sparta.kanbanboard.exception.board.BoardForbiddenException;
 import com.sparta.kanbanboard.exception.userandboard.UserNotBoardMemberException;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,8 +25,7 @@ public class UserAndBoardAdapter {
         return userAndBoardRepository.findByUserId(userId);
     }
 
-    public UserAndBoard findByUserIdAndBoardId(Long userId, Long boardId) {
-        return userAndBoardRepository.findByUserIdAndBoardId(userId, boardId).orElseThrow(
-                () -> new UserNotBoardMemberException(ResponseExceptionEnum.USER_NOT_BOARD_MEMBER));
+    public Optional<UserAndBoard> findByUserIdAndBoardId(Long userId, Long boardId) {
+        return userAndBoardRepository.findByUserIdAndBoardId(userId, boardId);
     }
 }
