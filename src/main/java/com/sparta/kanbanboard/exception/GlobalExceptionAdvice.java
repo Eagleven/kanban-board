@@ -15,6 +15,6 @@ public class GlobalExceptionAdvice {
     @ExceptionHandler(UserException.class)
     public ResponseEntity<HttpResponseDto> handleUserException(UserException e) {
         log.error("에러 메세지: ", e);
-        return ResponseUtils.of(e.getResponseCodeEnum());
+        return ResponseUtils.of(e.getResponseExceptionEnum());
     }
 }

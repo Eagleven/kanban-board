@@ -1,6 +1,5 @@
 package com.sparta.kanbanboard.domain.user.dto;
 
-import com.sparta.kanbanboard.domain.user.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

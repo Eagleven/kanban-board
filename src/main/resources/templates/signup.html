@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+	<title>Trello</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" integrity="sha512-8bHTC73gkZ7rZ7vpqUQThUDhqcNFyYi2xgDgPDHc+GXVGHXq+xPjynxIopALmOPqzo9JZj0k6OqqewdGO3EsrQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css"/>
+	<link rel="stylesheet" href="./css/reset.css">
+	<link rel="stylesheet" href="./css/bootstrap-grid.css">
+	<link rel="stylesheet" href="./css/main.css">
+	<link rel="stylesheet" href="./css/responsive.css">
+	<link rel="icon" href="./images/favicon.ico.svg">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.6.6/dragula.min.css">
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.6.6/dragula.min.js" integrity="sha512-MrA7WH8h42LMq8GWxQGmWjrtalBjrfIzCQ+i2EZA26cZ7OBiBd/Uct5S3NP9IBqKx5b+MMNH1PhzTsk6J9nPQQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<style>
+		body {
+			font-family: 'Noto Sans KR', sans-serif;
+			font-weight: 300;
+			color: #87817F;
+			background-color: #EDEFF3;
+			margin: 0;
+			padding: 0;
+		}
+		.login-signup-section {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			min-height: 100vh;
+			text-align: center;
+			padding: 20px;
+		}
+		.login-signup__wrapper {
+			width: 400px;
+			padding: 30px;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			background-color: #f9f9f9;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+			margin-bottom: 100px;
+		}
+		.login-signup__wrapper h2 {
+			margin-bottom: 20px;
+			font-size: 24px;
+		}
+		.login-signup__wrapper p {
+			margin-bottom: 30px;
+			color: #555;
+			font-size: 16px;
+		}
+		.login-form {
+			display: flex;
+			flex-direction: column;
+			gap: 20px;
+		}
+		.login-form input,
+		.login-form button {
+			width: 100%;
+			padding: 12px;
+			border: 1px solid #ddd;
+			border-radius: 5px;
+			font-size: 16px;
+			box-sizing: border-box;
+		}
+		.login-form button {
+			background-color: #007bff;
+			color: white;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+		}
+		.login-form button:hover {
+			background-color: #0056b3;
+		}
+		.signup-link {
+			text-align: center;
+			font-size: 14px;
+		}
+		.signup-link a {
+			color: #007bff;
+			text-decoration: none;
+			transition: color 0.3s ease;
+		}
+		.signup-link a:hover {
+			color: #0056b3;
+		}
+	</style>
+</head>
+
+<body>
+<header class="header-area">
+	<div class="header__wrapper">
+		<a href="" class="header__logo">
+			<img src="images/logo.png" alt="logo" class="header__logo">
+		</a>
+	</div>
+</header>
+
+<section class="login-signup-section">
+	<div class="login-signup__wrapper">
+		<h2>Trello에 오신 것을 환영합니다</h2>
+		<form class="login-form">
+			<input type="text" id="username" placeholder="username" required>
+			<input type="password" id="password" placeholder="password" required>
+			<input type="text" id="name" placeholder="name" required>
+			<input type="email" id="email" placeholder="email" required>
+			<button type="button" onclick=signup()>회원가입</button>
+		</form>
+	</div>
+</section>
+
+
+
+<script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
+<script src="./js/main.js" type="module"></script>
+<script>
+	function signup() {
+
+		event.preventDefault();
+
+		let username = $('#username').val();
+		let password = $('#password').val();
+		let name = $('#name').val();
+		let email = $('#email').val();
+
+		let data = {'username': username, 'password': password, 'name': name, 'email': email};
+
+		$.ajax({
+			type: "POST",
+			url: "/users",
+			contentType: "application/json",
+			data: JSON.stringify(data),
+			success: function (response) {
+				console.log('Response:', response);
+				alert('회원가입 되었습니다.');
+				window.location.href = '/index';
+			},
+			error: function (xhr, status, error) {
+				console.error('Response Status:', xhr.status);
+				console.error('Error:', xhr.responseText);
+				alert('회원가입에 실패하였습니다.');
+			}
+		});
+	}
+
+</script>
+</body>
+</html>
+
+
+

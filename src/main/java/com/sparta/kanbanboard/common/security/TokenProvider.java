@@ -36,7 +36,11 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class TokenProvider {
 
+    private final RedisTemplate<String, String> redisTemplate;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final ObjectMapper objectMapper;
     private final UserAdapter userAdapter;
+
     @Value("${JWT-KEY}")
     private String secretKey;
 
@@ -45,10 +49,6 @@ public class TokenProvider {
 
     @Value("${REFRESH-EXPIRATION}")
     private long refreshExpirationHours;
-
-    private final RedisTemplate<String, String> redisTemplate;
-    private final RefreshTokenRepository refreshTokenRepository;
-    private final ObjectMapper objectMapper;
 
     private Key key;
     private long reissueLimit;
