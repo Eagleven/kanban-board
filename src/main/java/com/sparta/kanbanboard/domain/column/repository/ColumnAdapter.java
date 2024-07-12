@@ -4,7 +4,6 @@ import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import com.sparta.kanbanboard.domain.column.entity.Column;
 import com.sparta.kanbanboard.domain.column.entity.ColumnStatus;
 import com.sparta.kanbanboard.exception.column.ColumnAlreadyDeletedException;
-import com.sparta.kanbanboard.exception.column.ColumnException;
 import com.sparta.kanbanboard.exception.column.ColumnNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
