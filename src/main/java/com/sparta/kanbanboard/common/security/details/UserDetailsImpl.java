@@ -1,14 +1,20 @@
-package com.sparta.kanbanboard.common.security;
+package com.sparta.kanbanboard.common.security.details;
 
 import com.sparta.kanbanboard.domain.user.User;
 import com.sparta.kanbanboard.domain.user.utils.Role;
 import java.util.ArrayList;
 import java.util.Collection;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public record UserDetailsImpl(User user) implements UserDetails {
+@Getter
+@RequiredArgsConstructor
+public class UserDetailsImpl implements UserDetails {
+
+    private final User user;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -51,5 +57,6 @@ public record UserDetailsImpl(User user) implements UserDetails {
     public boolean isEnabled() {
         return UserDetails.super.isEnabled();
     }
+
 
 }
