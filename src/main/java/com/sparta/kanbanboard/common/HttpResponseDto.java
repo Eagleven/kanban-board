@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class HttpResponseDto {
+public class HttpResponseDto extends Throwable {
 
     private Integer statusCode;
     private String message;

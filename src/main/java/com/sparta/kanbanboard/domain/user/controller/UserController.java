@@ -7,13 +7,11 @@ import static com.sparta.kanbanboard.common.ResponseCodeEnum.USER_SUCCESS_SIGNUP
 import com.sparta.kanbanboard.common.HttpResponseDto;
 import com.sparta.kanbanboard.common.ResponseCodeEnum;
 import com.sparta.kanbanboard.common.ResponseUtils;
-import com.sparta.kanbanboard.common.security.config.TokenProvider;
 import com.sparta.kanbanboard.common.security.details.UserDetailsImpl;
 import com.sparta.kanbanboard.domain.user.dto.GetUserResponseDto;
 import com.sparta.kanbanboard.domain.user.dto.PageableResponse;
 import com.sparta.kanbanboard.domain.user.dto.SignupRequestDto;
 import com.sparta.kanbanboard.domain.user.service.UserService;
-import com.sparta.kanbanboard.domain.user.utils.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
-    private final TokenProvider tokenProvider;
 
     @PostMapping
     public ResponseEntity<HttpResponseDto> signup(

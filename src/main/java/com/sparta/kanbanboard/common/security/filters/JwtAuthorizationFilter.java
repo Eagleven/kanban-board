@@ -1,14 +1,18 @@
 package com.sparta.kanbanboard.common.security.filters;
 
 import static com.sparta.kanbanboard.common.ResponseCodeEnum.SUCCESS_LOGOUT;
+import static com.sparta.kanbanboard.common.ResponseExceptionEnum.INVALID_REFRESHTOKEN;
 import static com.sparta.kanbanboard.common.ResponseExceptionEnum.NOT_FOUND_AUTHENTICATION_INFO;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.kanbanboard.common.HttpResponseDto;
-import com.sparta.kanbanboard.common.ResponseExceptionEnum;
+import com.sparta.kanbanboard.common.ResponseCodeEnum;
 import com.sparta.kanbanboard.common.security.config.TokenProvider;
+import com.sparta.kanbanboard.common.security.config.TokenService;
 import com.sparta.kanbanboard.common.security.details.UserDetailsImpl;
 import com.sparta.kanbanboard.common.security.details.UserDetailsServiceImpl;
+import com.sparta.kanbanboard.domain.refreshToken.RefreshTokenRepository;
+import com.sparta.kanbanboard.domain.refreshToken.UserRefreshToken;
 import com.sparta.kanbanboard.domain.user.User;
 import com.sparta.kanbanboard.domain.user.utils.Role;
 import com.sparta.kanbanboard.exception.user.UserException;
@@ -17,6 +21,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -35,27 +40,29 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final TokenProvider tokenProvider;
+    private final TokenService tokenService;
     private final UserDetailsServiceImpl userDetailsService;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     @SneakyThrows
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
             FilterChain filterChain) {
-        if (!(request.getRequestURI().equals("/users") && request.getMethod().equals("POST"))) {
-            String accessToken = tokenProvider.getAccessTokenFromHeader(request);
-            String requestUri = request.getRequestURI();
 
-            if (StringUtils.hasText(accessToken)) {
-                if (tokenProvider.validateToken(accessToken)) {
-                    validToken(accessToken);
-                    if ("/users/logout".equals(requestUri)) {
-                        handleLogout(request, response);
-                        return;
-                    }
-                } else {
-                    invalidToken(request, response);
+        String requestUri = request.getRequestURI();
+
+        if (!(requestUri.equals("/users") && request.getMethod().equals("POST"))) {
+            String accessToken = tokenProvider.getAccessTokenFromHeader(request);
+
+            if (StringUtils.hasText(accessToken) && tokenProvider.validateToken(accessToken)) {
+                validToken(accessToken);
+                if ("/users/logout".equals(requestUri)) {
+                    handleLogout(request, response);
+                    return;
                 }
+            } else {
+                invalidToken(request, response);
             }
         }
         filterChain.doFilter(request, response);
@@ -74,29 +81,30 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     }
 
     private void invalidToken(HttpServletRequest request, HttpServletResponse response)
-            throws IllegalAccessException {
+            throws HttpResponseDto {
         String refreshToken = tokenProvider.getRefreshTokenFromHeader(request);
 
-        if (StringUtils.hasText(refreshToken)) {
-            if (tokenProvider.validateToken(refreshToken) && tokenProvider.validateToken(
-                    refreshToken)) {
-                Claims info = tokenProvider.getUserInfoFromToken(refreshToken);
-                Role role = Role.valueOf(info.get("auth").toString());
+        if (StringUtils.hasText(refreshToken) && tokenProvider.validateToken(refreshToken)) {
+            Claims info = tokenProvider.getUserInfoFromToken(refreshToken);
+            Role role = Role.valueOf(info.get("auth").toString());
 
-                String newAccessToken = tokenProvider.reissueAccessToken(info.getSubject(), role);
+            log.info("새로운 토큰 발급 중 ~");
+            String refreshTokenFromRedis = tokenService.getRefreshToken(info.getSubject());
 
-                tokenProvider.setHeaderAccessToken(response, newAccessToken);
-
-                try {
-                    setAuthentication(info.getSubject());
-                } catch (Exception e) {
-                    log.error("username = {}, message = {}", info.getSubject(),
-                            "인증 정보를 찾을 수 없습니다.");
-                    throw new UserException(NOT_FOUND_AUTHENTICATION_INFO);
-                }
-            } else {
-                throw new UserException(ResponseExceptionEnum.INVALID_REFRESHTOKEN);
+            if (!Objects.equals(refreshToken, refreshTokenFromRedis)) {
+                throw new HttpResponseDto(INVALID_REFRESHTOKEN.getHttpStatus().value(), INVALID_REFRESHTOKEN.getMessage());
             }
+
+            String newAccessToken = tokenProvider.createAccessToken(info.getSubject(), role);
+            tokenProvider.setHeaderAccessToken(response, newAccessToken);
+            try {
+                setAuthentication(info.getSubject());
+            } catch (Exception e) {
+                log.error("username = {}, message = {}", info.getSubject(), "인증 정보를 찾을 수 없습니다.");
+                throw new UserException(NOT_FOUND_AUTHENTICATION_INFO);
+            }
+        } else {
+            throw new UserException(INVALID_REFRESHTOKEN);
         }
     }
 
@@ -116,22 +124,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         SecurityContextHolder.setContext(context);
     }
 
-    private void handleLogout(HttpServletRequest request, HttpServletResponse response) {
-        try {
-            processLogout(request, response);
-        } catch (IOException e) {
-            log.error("Logout failed", e);
-        }
-    }
-
-    private void processLogout(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+    private void handleLogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
             User user = userDetails.getUser();
 
-            String accessToken = request.getHeader("Authorization");
+            String accessToken = request.getHeader("AccessToken");
             if (accessToken != null && accessToken.startsWith("Bearer ")) {
                 String token = accessToken.substring(7);
                 tokenProvider.invalidateTokens(user.getUsername(), token);
@@ -144,11 +143,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(objectMapper.writeValueAsString(new HttpResponseDto(
-                SUCCESS_LOGOUT.getHttpStatus().value(), SUCCESS_LOGOUT.getMessage())));
+                ResponseCodeEnum.SUCCESS_LOGOUT.getHttpStatus().value(), ResponseCodeEnum.SUCCESS_LOGOUT.getMessage())));
         response.getWriter().flush();
         response.getWriter().close();
 
-        // Log logout action
         log.info("User logged out successfully");
     }
 }

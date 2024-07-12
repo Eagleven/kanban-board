@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionAdvice {
+
     @ExceptionHandler(BoardException.class)
     public ResponseEntity<HttpResponseDto> handleBoardException(BoardException e) {
         log.error("에러 메세지: ", e);
@@ -33,12 +34,13 @@ public class GlobalExceptionAdvice {
     public ResponseEntity<HttpResponseDto> handleValidationExceptions(
             MethodArgumentNotValidException e) {
         List<String> errorMessageList = new ArrayList<>();
-        e.getBindingResult().getAllErrors().forEach(v -> errorMessageList.add(v.getDefaultMessage()));
+        e.getBindingResult().getAllErrors()
+                .forEach(v -> errorMessageList.add(v.getDefaultMessage()));
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new HttpResponseDto(HttpStatus.BAD_REQUEST.value(), "유효성 검사 실패", errorMessageList));
+                .body(new HttpResponseDto(HttpStatus.BAD_REQUEST.value(), "유효성 검사 실패",
+                        errorMessageList));
     }
-
 
     @ExceptionHandler(UserException.class)
     public ResponseEntity<HttpResponseDto> handleUserException(UserException e) {

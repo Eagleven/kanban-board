@@ -1,29 +1,20 @@
 package com.sparta.kanbanboard.domain.user.service;
 
-import static com.sparta.kanbanboard.domain.user.utils.Role.MANAGER;
-import static com.sparta.kanbanboard.domain.user.utils.Role.USER;
-
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
-import com.sparta.kanbanboard.common.security.config.TokenProvider;
 import com.sparta.kanbanboard.common.security.details.UserDetailsImpl;
-import com.sparta.kanbanboard.domain.refreshToken.RefreshTokenRepository;
 import com.sparta.kanbanboard.domain.user.User;
 import com.sparta.kanbanboard.domain.user.dto.GetUserResponseDto;
 import com.sparta.kanbanboard.domain.user.dto.SignupRequestDto;
 import com.sparta.kanbanboard.domain.user.repository.UserAdapter;
 import com.sparta.kanbanboard.domain.user.repository.UserRepository;
-import com.sparta.kanbanboard.domain.user.utils.Role;
 import com.sparta.kanbanboard.exception.user.UserDuplicatedException;
 import com.sparta.kanbanboard.exception.user.UserException;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,45 +25,36 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserAdapter adapter;
-    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final TokenProvider tokenProvider;
-    private final RefreshTokenRepository refreshTokenRepository;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final UserRepository userRepository;
 
     public String signup(SignupRequestDto requestDto) {
+        log.info("/users, 회원가입 실행 중~");
+
         try {
-            log.info("/users, 회원가입 실행 중~");
-
-            adapter.findDuplicatedUser(requestDto.getUsername());
             log.info("{} 정보 잘 들어가는 중~", requestDto.getUsername());
+            adapter.findDuplicatedUser(requestDto);
 
-            User user = User.builder()
+            User userEntity = User.builder()
                     .username(requestDto.getUsername())
                     .password(passwordEncoder.encode(requestDto.getPassword()))
                     .name(requestDto.getName())
                     .email(requestDto.getEmail())
                     .build();
 
-            adapter.save(user);
-            return user.getName();
+            userRepository.save(userEntity);
+            return userEntity.getUsername();
         } catch (UserDuplicatedException e) {
             throw new UserException(ResponseExceptionEnum.USER_ALREADY_EXIST);
         } catch (RuntimeException e) {
             throw new UserException(ResponseExceptionEnum.USER_FAIL_SIGNUP);
         }
+
     }
 
     @Transactional
     public void subscription(UserDetailsImpl user) {
-        User findedUser = adapter.findById(user.getUser().getId());
-
-        if (!Objects.equals(user.getUsername(), findedUser.getUsername())) {
-            throw new UserException(ResponseExceptionEnum.USER_NOT_FOUND);
-        }
-
-        findedUser.setUserRole(findedUser.getUserRole().equals(USER) ? MANAGER : USER);
-        adapter.save(findedUser);
+        adapter.findById(user.getUser().getId());
     }
 
     @Transactional(readOnly = true)
