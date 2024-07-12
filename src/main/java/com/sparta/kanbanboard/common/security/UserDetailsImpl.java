@@ -4,6 +4,7 @@ import com.sparta.kanbanboard.domain.user.User;
 import com.sparta.kanbanboard.domain.user.utils.Role;
 import java.util.ArrayList;
 import java.util.Collection;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -52,4 +53,5 @@ public record UserDetailsImpl(User user) implements UserDetails {
         return UserDetails.super.isEnabled();
     }
 
+    public User getUser() { return user;}
 }

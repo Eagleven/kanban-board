@@ -17,7 +17,13 @@ public enum ResponseExceptionEnum {
 
     // 카드
     INVALID_CARD_DATA(HttpStatus.NOT_FOUND, "카드 필수 데이터가 없습니다."),
-    CARD_NOT_FOUND(HttpStatus.NOT_FOUND, "카드를 찾을 수 없습니다.");
+    CARD_NOT_FOUND(HttpStatus.NOT_FOUND, "카드를 찾을 수 없습니다."),
+
+    // 댓글
+    CREATE_COMMENT_FAILURE(HttpStatus.BAD_REQUEST, "댓글 작성에 실패하였습니다."),
+    DELETE_COMMENT_FAILURE(HttpStatus.BAD_REQUEST, "해당 댓글을 삭제할 수 없습니다"),
+    COMMENT_NOT_FOUND(HttpStatus.BAD_REQUEST, "댓글을 찾을 수 없습니다."),
+    COMMENT_CONTENT_REQUIRED(HttpStatus.BAD_REQUEST, "댓글을 입력하세요.");
     
     private final HttpStatus httpStatus;
     private final String message;
