@@ -1,4 +1,4 @@
-package com.sparta.kanbanboard.common.security;
+package com.sparta.kanbanboard.common.security.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,6 +16,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.Instant;
@@ -23,6 +24,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +35,7 @@ import org.springframework.util.StringUtils;
 
 @Slf4j
 @Service
+@Getter
 @RequiredArgsConstructor
 public class TokenProvider {
 
@@ -62,7 +65,7 @@ public class TokenProvider {
 
 
     public String createAccessToken(String username, Role role) {
-        return Jwts.builder()
+        return  "Bearer " + Jwts.builder()
                 .signWith(key, SignatureAlgorithm.HS256)
                 .setSubject(username)
                 .claim("auth", role.name())
@@ -72,6 +75,7 @@ public class TokenProvider {
     }
 
     public String createRefreshToken(String username, Role role) {
+
         String refreshToken = Jwts.builder()
                 .signWith(key, SignatureAlgorithm.HS256)
                 .setSubject(username)
@@ -85,7 +89,7 @@ public class TokenProvider {
         redisTemplate.opsForValue().set("refreshToken:" + username, refreshToken,
                 ChronoUnit.HOURS.getDuration().multipliedBy(refreshExpirationHours));
         refreshTokenRepository.save(userRefreshToken);
-        return refreshToken;
+        return "Bearer " + refreshToken;
     }
 
     public boolean validateToken(String token) {
@@ -145,17 +149,37 @@ public class TokenProvider {
     }
 
 
-    public String extractToken(String headerValue) {
-        if (StringUtils.hasText(headerValue) && headerValue.startsWith("Bearer ")) {
-            return headerValue.substring(7);
+    public String getAccessTokenFromHeader(HttpServletRequest request)
+            throws IllegalAccessException {
+        String accessToken = request.getHeader("AccessToken");
+        if (StringUtils.hasText(accessToken) && accessToken.startsWith("Bearer ")) {
+            return accessToken.substring(7); // 헤더인 Bearer 을 잘라서 가져온다.
+        }else{
+            Role role = Role.valueOf(getUserInfoFromToken(accessToken).get("auth").toString());
+            reissueAccessToken(getUserInfoFromToken(accessToken).getSubject(), role);
         }
-        return headerValue;
+        return accessToken;
+    }
+
+    // 헤더에서 refresh 토큰 가져오기
+    public String getRefreshTokenFromHeader(HttpServletRequest request) {
+        String refreshToken = request.getHeader("RefreshToken");
+        if (StringUtils.hasText(refreshToken) && refreshToken.startsWith("Bearer ")) {
+            return refreshToken.substring(7);
+        }else{
+            reissueRefreshToken(getUserInfoFromToken(refreshToken).getSubject());
+        }
+        return refreshToken;
     }
 
 
     // 토큰에서 사용자 정보 가져오기
     public Claims getUserInfoFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+    }
+
+    public void setHeaderAccessToken(HttpServletResponse response, String newAccessToken) {
+        response.setHeader("AccessToken", newAccessToken);
     }
 }
 
