@@ -1,5 +1,7 @@
 package com.sparta.kanbanboard.domain.user.controller;
 
+import static com.sparta.kanbanboard.common.ResponseCodeEnum.SUCCESS_GET_USER;
+import static com.sparta.kanbanboard.common.ResponseCodeEnum.SUCCESS_GET_USERS;
 import static com.sparta.kanbanboard.common.ResponseCodeEnum.SUCCESS_SUBSCRIPTION;
 import static com.sparta.kanbanboard.common.ResponseCodeEnum.USER_SUCCESS_SIGNUP;
 import static com.sparta.kanbanboard.common.ResponseExceptionEnum.FAIL_TO_CHANGE_ROLE;
@@ -70,6 +72,14 @@ public class UserController {
         } catch (IllegalAccessException e) {
             return ResponseUtils.of(FAIL_TO_CHANGE_ROLE);
         }
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<HttpResponseDto> getUser(
+            @RequestParam Long userId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ){
+        return ResponseUtils.of(SUCCESS_GET_USER, userService.getUser(userId, userDetails));
     }
 
     @GetMapping

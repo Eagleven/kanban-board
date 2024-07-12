@@ -1,7 +1,9 @@
 package com.sparta.kanbanboard.domain.user.repository;
 
+import com.sparta.kanbanboard.common.HttpResponseDto;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import com.sparta.kanbanboard.domain.user.User;
+import com.sparta.kanbanboard.domain.user.dto.GetUserResponseDto;
 import com.sparta.kanbanboard.exception.user.UserDuplicatedException;
 import com.sparta.kanbanboard.exception.user.UserException;
 import java.util.List;
@@ -41,4 +43,11 @@ public class UserAdapter {
     }
 
 
+    public GetUserResponseDto getUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new UserException(ResponseExceptionEnum.USER_NOT_FOUND)
+        );
+
+        return new GetUserResponseDto(user);
+    }
 }

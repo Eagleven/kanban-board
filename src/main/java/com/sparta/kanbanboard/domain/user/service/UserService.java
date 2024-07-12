@@ -4,6 +4,7 @@ import static com.sparta.kanbanboard.domain.user.utils.Role.MANAGER;
 import static com.sparta.kanbanboard.domain.user.utils.Role.USER;
 
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
+import com.sparta.kanbanboard.common.security.details.UserDetailsImpl;
 import com.sparta.kanbanboard.domain.user.User;
 import com.sparta.kanbanboard.domain.user.dto.GetUserResponseDto;
 import com.sparta.kanbanboard.domain.user.dto.SignupRequestDto;
@@ -57,6 +58,8 @@ public class UserService {
         }
     }
 
+
+
     @Transactional
     public Role subscription(User user) {
         User findedUser = adapter.findById(user.getId());
@@ -73,5 +76,9 @@ public class UserService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return userRepository.findAll(pageable)
                 .map(GetUserResponseDto::new);
+    }
+
+    public GetUserResponseDto getUser(Long userId, UserDetailsImpl userDetails) {
+        return adapter.getUser(userId);
     }
 }
