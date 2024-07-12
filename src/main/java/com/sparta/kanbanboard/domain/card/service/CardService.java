@@ -1,5 +1,6 @@
 package com.sparta.kanbanboard.domain.card.service;
 
+import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.domain.card.entity.Card;
 import com.sparta.kanbanboard.domain.card.repository.CardAdapter;
 import java.util.List;
@@ -30,13 +31,24 @@ public class CardService {
         return cardAdapter.findByUserId(userId);
     }
 
-    // 카드 상태별 조회 -> Column 데려와서 수정
+    // 카드 상태별 조회 -> Column 데려와서 수정 (ex.시작전, 진행중, 완료 등)
    /*
    @Transactional(readOnly = true)
     public List<Card> getCardsByStatus(CardStatus status) {
         return cardAdapter.findByStatus(status);}
     */
 
+    // 사용자별 ACTIVE 상태의 카드 조회
+    @Transactional(readOnly = true)
+    public List<Card> getActiveCardsByUser(Long userId) {
+        return cardAdapter.findActiveCardsByUserId(userId);
+    }
+
+    // 모든 ACTIVE 카드 조회
+    @Transactional(readOnly = true)
+    public List<Card> getAllActiveCards() {
+        return cardAdapter.findActiveCards();
+    }
 
     // 카드 생성
     @Transactional
@@ -58,8 +70,17 @@ public class CardService {
     // 카드 삭제
     @Transactional
     public void deleteCard(Long cardId) {
-        cardAdapter.delete(cardId);
+        Card card = cardAdapter.findById(cardId);
+        card.delete();  // 소프트 삭제
+        cardAdapter.save(card);
     }
 
+    // 카드 삭제 여부 상태별 조회 (ACTIVE or DELETE)
+    @Transactional(readOnly = true)
+    public List<Card> getCardsByStatus(CommonStatusEnum status) {
+        return cardAdapter.findByStatus(status);
+    }
 
 }
+
+
