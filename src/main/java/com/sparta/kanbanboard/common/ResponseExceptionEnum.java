@@ -37,10 +37,7 @@ public enum ResponseExceptionEnum {
     USER_NOT_BOARD_MEMBER(HttpStatus.FORBIDDEN, "보드의 멤버가 아닙니다."),
     USER_ALREADY_BOARD_MEMBER(HttpStatus.FORBIDDEN, "이미 보드에 초대된 사용자입니다."),
 
-    // 칼럼
-    COLUMN_NOT_FOUND(HttpStatus.NOT_FOUND, "칼럼을 찾을 수 없습니다"),
-    DELETED_COLUMN(HttpStatus.BAD_REQUEST, "삭제된 칼람 입니다.");
-    FORBIDDEN_CREATE_BOARD(HttpStatus.FORBIDDEN, "보드는 manager 사용자만 생성할 수 있습니다.");
+    ;
 
 
     private final HttpStatus httpStatus;
