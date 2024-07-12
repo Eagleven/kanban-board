@@ -34,7 +34,7 @@ public class Card extends TimeStampEntity {
     private String contents;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
     // Column : Card는 1:N 추가해야함
