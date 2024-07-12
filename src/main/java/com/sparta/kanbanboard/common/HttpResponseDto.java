@@ -22,10 +22,4 @@ public class HttpResponseDto {
         this.message = message;
         this.data = data;
     }
-
-    public HttpResponseDto(HttpStatus httpStatus, String s, Object data) {
-        this.statusCode = httpStatus.value();
-        this.message = s;
-        this.data = data;
-    }
 }

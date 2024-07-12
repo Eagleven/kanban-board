@@ -3,7 +3,9 @@ package com.sparta.kanbanboard.domain.column.repository;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import com.sparta.kanbanboard.domain.column.entity.Column;
 import com.sparta.kanbanboard.domain.column.entity.ColumnStatus;
+import com.sparta.kanbanboard.exception.column.ColumnAlreadyDeletedException;
 import com.sparta.kanbanboard.exception.column.ColumnException;
+import com.sparta.kanbanboard.exception.column.ColumnNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +25,11 @@ public class ColumnAdapter {
 
     public Column findById(Long columnId) {
         Column column = columnRepository.findById(columnId).orElseThrow(
-                () -> new ColumnException(ResponseExceptionEnum.COLUMN_NOT_FOUND)
+                () -> new ColumnNotFoundException(ResponseExceptionEnum.COLUMN_NOT_FOUND)
         );
 
         if (isColumnDeleted(column)) {
-            throw new ColumnException(ResponseExceptionEnum.DELETED_COLUMN);
+            throw new ColumnAlreadyDeletedException(ResponseExceptionEnum.DELETED_COLUMN);
         }
 
         return column;
@@ -35,7 +37,7 @@ public class ColumnAdapter {
 
     public List<Column> findAll() {
         return columnRepository.findAll().stream()
-                .filter(column -> column.getStatus().equals(ColumnStatus.DELETED))
+                .filter(column -> column.getStatus().equals(ColumnStatus.ACTIVE))
                 .collect(Collectors.toList());
     }
 
