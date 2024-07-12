@@ -1,8 +1,8 @@
 package com.sparta.kanbanboard.domain.column.repository;
 
+import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import com.sparta.kanbanboard.domain.column.entity.Column;
-import com.sparta.kanbanboard.domain.column.entity.ColumnStatus;
 import com.sparta.kanbanboard.exception.column.ColumnAlreadyDeletedException;
 import com.sparta.kanbanboard.exception.column.ColumnNotFoundException;
 import java.util.List;
@@ -22,6 +22,11 @@ public class ColumnAdapter {
         return columnRepository.save(column);
     }
 
+    public boolean existById(Long columnId) {
+        return columnRepository.existsById(columnId);
+    }
+
+
     public Column findById(Long columnId) {
         Column column = columnRepository.findById(columnId).orElseThrow(
                 () -> new ColumnNotFoundException(ResponseExceptionEnum.COLUMN_NOT_FOUND)
@@ -36,11 +41,11 @@ public class ColumnAdapter {
 
     public List<Column> findAll() {
         return columnRepository.findAll().stream()
-                .filter(column -> column.getStatus().equals(ColumnStatus.ACTIVE))
+                .filter(column -> column.getStatus().equals(CommonStatusEnum.ACTIVE))
                 .collect(Collectors.toList());
     }
 
-    public boolean isColumnDeleted (Column column) {
-        return column.getStatus().equals(ColumnStatus.DELETED);
+    public boolean isColumnDeleted(Column column) {
+        return column.getStatus().equals(CommonStatusEnum.DELETED);
     }
 }
