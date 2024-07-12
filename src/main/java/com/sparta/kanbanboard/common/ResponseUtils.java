@@ -14,10 +14,6 @@ public class ResponseUtils {
                 .body(new HttpResponseDto(responseCodeEnum.getHttpStatus().value(), responseCodeEnum.getMessage()));
     }
 
-    public static ResponseEntity<HttpResponseDto> of(ResponseExceptionEnum responseExceptionEnum){
-        return ResponseEntity.status(responseExceptionEnum.getHttpStatus())
-                .body(new HttpResponseDto(responseExceptionEnum));
-    }
     public static ResponseEntity<HttpResponseDto> of(ResponseCodeEnum responseCodeEnum, Object data){
         return ResponseEntity.status(responseCodeEnum.getHttpStatus())
                 .body(new HttpResponseDto(responseCodeEnum.getHttpStatus().value(), responseCodeEnum.getMessage(), data));
