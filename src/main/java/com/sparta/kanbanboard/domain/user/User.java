@@ -85,8 +85,8 @@ public class User extends TimeStampEntity {
     public void setRefresh(boolean expired) {
         this.refresh = expired;
     }
-    public Role setUserRole(Role role){
-        this.userRole = role;
+    public Role setUserRole(Role userRole){
+        this.userRole = userRole;
         return this.userRole;
     }
 

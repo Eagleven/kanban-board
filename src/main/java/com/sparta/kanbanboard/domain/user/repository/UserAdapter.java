@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
@@ -32,6 +33,7 @@ public class UserAdapter {
                 .orElseThrow(() -> new UsernameNotFoundException(String.format("This \"%s\" does not exist.", username)));
     }
 
+    @Transactional
     public void save(User user) {
         userRepository.save(user);
     }
