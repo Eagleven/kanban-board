@@ -22,6 +22,7 @@ public enum ResponseExceptionEnum {
     BOARD_ALREADY_DELETED(HttpStatus.GONE, "이미 삭제된 보드입니다."),
     FORBIDDEN_CREATE_BOARD(HttpStatus.FORBIDDEN, "보드는 manager 사용자만 생성할 수 있습니다."),
     FORBIDDEN_UPDATE_BOARD(HttpStatus.FORBIDDEN, "보드는 manager 사용자만 수정할 수 있습니다."),
+    FORBIDDEN_DELETE_BOARD(HttpStatus.FORBIDDEN, "보드는 manager 사용자만 삭제할 수 있습니다."),
     USER_NOT_BOARD_MEMBER(HttpStatus.FORBIDDEN, "보드의 멤버가 아닙니다.");
 
     private final HttpStatus httpStatus;

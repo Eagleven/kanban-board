@@ -38,3 +38,8 @@ Content-Type: application/json
   "name" : "수정된 이름2",
   "explanation" : "수정된 내용2"
 }
+
+### 보드 삭제
+DELETE http://localhost:8080/boards/3
+AccessToken: {{AccessToken}}
+Content-Type: application/json

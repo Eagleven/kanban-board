@@ -82,15 +82,22 @@ public class BoardService {
     }
 
     @Transactional
-    public void deleteBoard(Long boardId) {
-        // 요청한 사용자가 해당 보드의 생성자인지 확인하는 로직 필요
-
+    public void deleteBoard(Long boardId, User user) {
+        // 보드가 존재하는지 확인
         Board board = boardAdapter.findById(boardId);
 
         // 삭제 처리된 보드인지 확인
         if (board.getStatus().equals(CommonStatusEnum.DELETED)) {
             throw new BoardAlreadyDeletedException(ResponseExceptionEnum.BOARD_ALREADY_DELETED);
         }
+
+        // 보드에 참여중인지 확인
+        UserAndBoard userAndBoard = userAndBoardAdapter.findByUserIdAndBoardId(user.getId(),
+                boardId);
+        if (!user.getUserRole().equals(MANAGER)) {
+            throw new BoardForbiddenException(ResponseExceptionEnum.FORBIDDEN_DELETE_BOARD);
+        }
+
         board.delete();
     }
 }
