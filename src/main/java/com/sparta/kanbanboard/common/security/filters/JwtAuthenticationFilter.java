@@ -1,10 +1,13 @@
-package com.sparta.kanbanboard.common.security;
+package com.sparta.kanbanboard.common.security.filters;
 
 import static com.sparta.kanbanboard.common.ResponseCodeEnum.SUCCESS_LOGIN;
 import static com.sparta.kanbanboard.common.ResponseExceptionEnum.NOT_FOUND_AUTHENTICATION_INFO;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.kanbanboard.common.HttpResponseDto;
+import com.sparta.kanbanboard.common.security.AuthEnum;
+import com.sparta.kanbanboard.common.security.config.TokenProvider;
+import com.sparta.kanbanboard.common.security.details.UserDetailsImpl;
 import com.sparta.kanbanboard.domain.user.User;
 import com.sparta.kanbanboard.domain.user.dto.LoginRequestDto;
 import com.sparta.kanbanboard.domain.user.utils.Role;
@@ -56,7 +59,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             HttpServletResponse response, FilterChain chain,
             Authentication authResult) throws IOException, ServletException {
         UserDetailsImpl userdetails = (UserDetailsImpl) authResult.getPrincipal();
-        User user = userdetails.user();
+        User user = userdetails.getUser();
         String username = user.getUsername();
         Role role = user.getUserRole();
 
@@ -83,50 +86,4 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.getWriter().write(objectMapper.writeValueAsString(
                 new HttpResponseDto(NOT_FOUND_AUTHENTICATION_INFO.getHttpStatus().value(), NOT_FOUND_AUTHENTICATION_INFO.getMessage())));
     }
-//
-//    @Override
-//    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
-//            throws IOException, ServletException {
-//        HttpServletRequest request = (HttpServletRequest) req;
-//        HttpServletResponse response = (HttpServletResponse) res;
-//
-//        String accessToken = tokenProvider.extractToken(
-//                request.getHeader(AuthEnum.ACCESS_TOKEN.getValue()));
-//        String refreshToken = tokenProvider.extractToken(
-//                request.getHeader(AuthEnum.REFRESH_TOKEN.getValue()));
-//
-//        try {
-//            if (StringUtils.hasText(accessToken) && tokenProvider.validateToken(accessToken)) {
-//                setSecurityContext(accessToken);
-//            } else if (StringUtils.hasText(refreshToken) && tokenProvider.validateToken(
-//                    refreshToken)) {
-//                accessToken = processRefreshToken(refreshToken, response);
-//                setSecurityContext(accessToken);
-//            }
-//        } catch (ExpiredJwtException | UnsupportedJwtException | IllegalAccessException e) {
-//            request.setAttribute("exception", e);
-//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//        }
-//
-//        chain.doFilter(request, response);
-//    }
-//
-//    private void setSecurityContext(String token) {
-//        Claims claims = tokenProvider.getUserInfoFromToken(token);
-//        String username = claims.getSubject();
-//        Role role = Role.valueOf(claims.get("auth", String.class));
-//        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-//                username, null, List.of(new SimpleGrantedAuthority(role.name())));
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
-//    }
-//
-//    private String processRefreshToken(String refreshToken, HttpServletResponse response)
-//            throws IllegalAccessException {
-//        String username = tokenProvider.getUserInfoFromToken(refreshToken).getSubject();
-//        Role role = Role.valueOf(
-//                tokenProvider.getUserInfoFromToken(refreshToken).get("auth", String.class));
-//        String newAccessToken = tokenProvider.reissueAccessToken(username, role);
-//        response.addHeader(AuthEnum.ACCESS_TOKEN.getValue(), newAccessToken);
-//        return newAccessToken;
-//    }
 }
