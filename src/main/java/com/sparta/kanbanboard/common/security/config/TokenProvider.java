@@ -2,6 +2,7 @@ package com.sparta.kanbanboard.common.security.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.kanbanboard.config.redis.RedisUtil;
 import com.sparta.kanbanboard.domain.refreshToken.RefreshTokenRepository;
 import com.sparta.kanbanboard.domain.refreshToken.UserRefreshToken;
 import com.sparta.kanbanboard.domain.user.repository.UserAdapter;
@@ -32,7 +33,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-
 @Slf4j
 @Service
 @Getter
@@ -52,6 +52,8 @@ public class TokenProvider {
     private final RedisTemplate<String, String> redisTemplate;
     private final RefreshTokenRepository refreshTokenRepository;
     private final ObjectMapper objectMapper;
+    private final TokenService tokenService;
+    private final RedisUtil redisUtil;
 
     private Key key;
     private long reissueLimit;
@@ -63,9 +65,8 @@ public class TokenProvider {
         reissueLimit = refreshExpirationHours * 60 / expirationHours;
     }
 
-
     public String createAccessToken(String username, Role role) {
-        return  "Bearer " + Jwts.builder()
+        return "Bearer " + Jwts.builder()
                 .signWith(key, SignatureAlgorithm.HS256)
                 .setSubject(username)
                 .claim("auth", role.name())
@@ -75,7 +76,6 @@ public class TokenProvider {
     }
 
     public String createRefreshToken(String username, Role role) {
-
         String refreshToken = Jwts.builder()
                 .signWith(key, SignatureAlgorithm.HS256)
                 .setSubject(username)
@@ -85,19 +85,29 @@ public class TokenProvider {
                         Date.from(Instant.now().plus(refreshExpirationHours, ChronoUnit.HOURS)))
                 .compact();
 
+        tokenService.saveRefreshToken(username, refreshToken,
+                ChronoUnit.HOURS.getDuration().multipliedBy(refreshExpirationHours).toMillis());
         UserRefreshToken userRefreshToken = new UserRefreshToken(username, refreshToken);
-        redisTemplate.opsForValue().set("refreshToken:" + username, refreshToken,
-                ChronoUnit.HOURS.getDuration().multipliedBy(refreshExpirationHours));
         refreshTokenRepository.save(userRefreshToken);
         return "Bearer " + refreshToken;
+    }
+
+    public void invalidateTokens(String username, String accessToken) {
+        tokenService.invalidateAccessToken(accessToken);
+        tokenService.invalidateRefreshToken(username);
     }
 
     public boolean validateToken(String token) {
         log.info("validateToken start");
         log.info("token: {}", token);
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
+            Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token)
+                    .getBody();
+            // 블랙리스트 확인
+            if (tokenService.isAccessTokenInvalidated(token)) {
+                return false;
+            }
+            return !claims.getExpiration().before(new Date());
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             log.info("Invalid JWT Token", e);
         } catch (ExpiredJwtException e) {
@@ -122,7 +132,7 @@ public class TokenProvider {
         return createAccessToken(username, role);
     }
 
-    public String reissueRefreshToken(String username){
+    public String reissueRefreshToken(String username) {
         UserRefreshToken refreshToken = refreshTokenRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Invalid or expired refresh token"));
 
@@ -133,7 +143,8 @@ public class TokenProvider {
         refreshToken.increaseReissueCount();
         refreshTokenRepository.save(refreshToken);
 
-        String newRefreshToken = createRefreshToken(username, userAdapter.findUserByUsername(username).getUserRole());
+        String newRefreshToken = createRefreshToken(username,
+                userAdapter.findUserByUsername(username).getUserRole());
         refreshToken.updateRefreshToken(newRefreshToken);
         refreshTokenRepository.save(refreshToken);
 
@@ -148,32 +159,28 @@ public class TokenProvider {
         ).get("sub").toString();
     }
 
-
     public String getAccessTokenFromHeader(HttpServletRequest request)
             throws IllegalAccessException {
         String accessToken = request.getHeader("AccessToken");
         if (StringUtils.hasText(accessToken) && accessToken.startsWith("Bearer ")) {
             return accessToken.substring(7); // 헤더인 Bearer 을 잘라서 가져온다.
-        }else{
+        } else {
             Role role = Role.valueOf(getUserInfoFromToken(accessToken).get("auth").toString());
             reissueAccessToken(getUserInfoFromToken(accessToken).getSubject(), role);
         }
         return accessToken;
     }
 
-    // 헤더에서 refresh 토큰 가져오기
     public String getRefreshTokenFromHeader(HttpServletRequest request) {
         String refreshToken = request.getHeader("RefreshToken");
         if (StringUtils.hasText(refreshToken) && refreshToken.startsWith("Bearer ")) {
             return refreshToken.substring(7);
-        }else{
+        } else {
             reissueRefreshToken(getUserInfoFromToken(refreshToken).getSubject());
         }
         return refreshToken;
     }
 
-
-    // 토큰에서 사용자 정보 가져오기
     public Claims getUserInfoFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
@@ -181,5 +188,13 @@ public class TokenProvider {
     public void setHeaderAccessToken(HttpServletResponse response, String newAccessToken) {
         response.setHeader("AccessToken", newAccessToken);
     }
-}
 
+    public Long getExpiration(String accessToken){
+
+        Date expiration = Jwts.parserBuilder().setSigningKey(key)
+                .build().parseClaimsJws(accessToken).getBody().getExpiration();
+
+        long now = new Date().getTime();
+        return expiration.getTime() - now;
+    }
+}

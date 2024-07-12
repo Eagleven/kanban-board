@@ -21,12 +21,15 @@ public enum ResponseCodeEnum {
     // 토큰
     SUCCESS_SUBSCRIPTION(HttpStatus.OK, "로 회원 등급이 변경되었습니다."),
     SUCCESS_GET_USERS(HttpStatus.OK, "유저 목록을 조회했습니다."),
+    SUCCESS_GET_USER(HttpStatus.OK, "유저 조회 완료했습니다."),
+    SUCCESS_LOGOUT(HttpStatus.OK, "로그아웃을 완료했습니다."),
 
     // Board
     BOARD_CREATED(HttpStatus.CREATED, "보드가 성공적으로 생성되었습니다."),
     BOARD_LIST_RETRIEVED(HttpStatus.OK, "보드 목록을 성공적으로 조회했습니다."),
     BOARD_UPDATED(HttpStatus.OK, "보드 수정이 성공적으로 수행되었습니다."),
     BOARD_DELETED(HttpStatus.OK, "보드가 성공적으로 삭제되었습니다."),
+    USER_INVITED(HttpStatus.OK, "사용자가 성공적으로 초대되었습니다."),
 
     // Column
     COLUMN_CREATED(HttpStatus.CREATED, "칼럼이 성공적으로 생성되었습니다."),
