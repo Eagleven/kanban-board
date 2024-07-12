@@ -86,9 +86,7 @@ public class BoardService {
         }
 
         // 사용자가 보드에 참여중인지 확인 -> userAndBoard에 없으면 예외 처리
-        Optional<UserAndBoard> userAndBoard = userAndBoardAdapter.findByUserIdAndBoardId(
-                user.getId(), boardId);
-        if (userAndBoard.isEmpty()) {
+        if(!userAndBoardAdapter.existsByUserIdAndBoardId(user.getId(), boardId)){
             throw new UserNotBoardMemberException(ResponseExceptionEnum.USER_NOT_BOARD_MEMBER);
         }
 
@@ -112,9 +110,7 @@ public class BoardService {
         }
 
         // 사용자가 보드에 참여중인지 확인 -> userAndBoard에 없으면 예외 처리
-        Optional<UserAndBoard> userAndBoard = userAndBoardAdapter.findByUserIdAndBoardId(
-                user.getId(), boardId);
-        if (userAndBoard.isEmpty()) {
+        if(!userAndBoardAdapter.existsByUserIdAndBoardId(user.getId(), boardId)){
             throw new UserNotBoardMemberException(ResponseExceptionEnum.USER_NOT_BOARD_MEMBER);
         }
         board.delete();
@@ -139,11 +135,8 @@ public class BoardService {
         }
 
         // 이미 보드에 초대된 사용자인 경우 예외 처리
-        Optional<UserAndBoard> userAndBoard = userAndBoardAdapter.findByUserIdAndBoardId(
-                userId, boardId);
-        if (userAndBoard.isPresent()) {
-            throw new UserAlreadyBoardMemberException(
-                    ResponseExceptionEnum.USER_ALREADY_BOARD_MEMBER);
+        if(userAndBoardAdapter.existsByUserIdAndBoardId(userId, boardId)){
+            throw new UserAlreadyBoardMemberException(ResponseExceptionEnum.USER_ALREADY_BOARD_MEMBER);
         }
 
         UserAndBoard newUserAndBoard = new UserAndBoard(board, invitedUser);
