@@ -16,7 +16,9 @@ public enum ResponseExceptionEnum {
     NOT_FOUND_AUTHENTICATION_INFO(HttpStatus.BAD_REQUEST, "사용자 정보가 일치하지 않습니다. 다시 시도해 주세요 :)" ),
     // board
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 보드입니다."),
-    BOARD_ALREADY_DELETED(HttpStatus.GONE, "이미 삭제된 보드입니다.")
+    BOARD_ALREADY_DELETED(HttpStatus.GONE, "이미 삭제된 보드입니다."),
+    FORBIDDEN_CREATE_BOARD(HttpStatus.FORBIDDEN, "보드는 manager 사용자만 생성할 수 있습니다.")
+
 
     ;
     private final HttpStatus httpStatus;
