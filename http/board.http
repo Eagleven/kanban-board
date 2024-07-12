@@ -28,3 +28,13 @@ Content-Type: application/json
 GET http://localhost:8080/boards
 AccessToken: {{AccessToken}}
 Content-Type: application/json
+
+### 보드 수정
+PATCH http://localhost:8080/boards/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+{
+  "name" : "수정된 이름2",
+  "explanation" : "수정된 내용2"
+}

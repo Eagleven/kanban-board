@@ -4,6 +4,7 @@ import static com.sparta.kanbanboard.domain.user.utils.Role.MANAGER;
 import static com.sparta.kanbanboard.domain.user.utils.Role.USER;
 
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
+import com.sparta.kanbanboard.common.security.details.UserDetailsImpl;
 import com.sparta.kanbanboard.domain.user.User;
 import com.sparta.kanbanboard.domain.user.dto.GetUserResponseDto;
 import com.sparta.kanbanboard.domain.user.dto.SignupRequestDto;
@@ -57,15 +58,15 @@ public class UserService {
         }
     }
 
-    @Transactional
-    public Role subscription(User user) {
-        User findedUser = adapter.findById(user.getId());
+    public void subscription(UserDetailsImpl user) {
+        User findedUser = adapter.findById(user.getUser().getId());
 
-        if(!Objects.equals(user.getUsername(), findedUser.getUsername())){
+        if (!Objects.equals(user.getUsername(), findedUser.getUsername())) {
             throw new UserException(ResponseExceptionEnum.USER_NOT_FOUND);
         }
 
-        return user.setUserRole(user.getUserRole().equals(USER) ? MANAGER : USER);
+        findedUser.setUserRole(findedUser.getUserRole().equals(USER) ? MANAGER : USER);
+        adapter.save(findedUser);
     }
 
     @Transactional(readOnly = true)

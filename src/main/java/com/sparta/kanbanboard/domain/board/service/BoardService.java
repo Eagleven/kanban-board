@@ -40,7 +40,8 @@ public class BoardService {
         if (!user.getUserRole().equals(MANAGER)) { // 매니저 권한이 없으면 보드 생성 불가
             throw new BoardForbiddenException(ResponseExceptionEnum.FORBIDDEN_CREATE_BOARD);
         }
-        Board board = boardAdapter.save(new Board(requestDto.getName(), requestDto.getExplanation(), user));
+        Board board = boardAdapter.save(
+                new Board(requestDto.getName(), requestDto.getExplanation(), user));
         UserAndBoard userAndBoard = new UserAndBoard(board, user); // userAndBoard 엔티티에 기록 남김
         userAndBoardAdapter.save(userAndBoard);
         return new BoardResponseDto(board);
@@ -48,11 +49,12 @@ public class BoardService {
 
     // 보드 리스트 조회
     public Page<BoardResponseDto> getBoardList(int page, User user) {
-        Sort sort =Sort.by(Direction.DESC, "createdAt");
+        Sort sort = Sort.by(Direction.DESC, "createdAt");
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, sort);
 
         List<UserAndBoard> userAndBoardList = userAndBoardAdapter.findByUserId(user.getId());
-        List<Long> boardIdList = userAndBoardList.stream().map(userAndBoard -> userAndBoard.getBoard().getId())
+        List<Long> boardIdList = userAndBoardList.stream()
+                .map(userAndBoard -> userAndBoard.getBoard().getId())
                 .collect(Collectors.toList());
 
         Page<Board> boardList = boardAdapter.findByIdIn(boardIdList, pageable);
@@ -60,21 +62,20 @@ public class BoardService {
     }
 
 
+    // 보드 수정
     @Transactional
     public BoardResponseDto updateBoard(Long boardId, BoardRequestDto requestDto, User user) {
         Board board = boardAdapter.findById(boardId);
+
         if (board.getStatus().equals(CommonStatusEnum.DELETED)) {
             throw new BoardAlreadyDeletedException(ResponseExceptionEnum.BOARD_ALREADY_DELETED);
         }
 
-        if(board.getUser().getId().equals(user.getId()) && user.getUserRole().equals(MANAGER)){
-
+        UserAndBoard userAndBoard = userAndBoardAdapter.findByUserIdAndBoardId(user.getId(),
+                boardId);
+        if (!user.getUserRole().equals(MANAGER)) {
+            throw new BoardForbiddenException(ResponseExceptionEnum.FORBIDDEN_UPDATE_BOARD);
         }
-        // 요청한 사용자가 해당 보드의 생성자인지 확인하는 로직 필요]
-
-
-        // 삭제 처리된 보드인지 확인
-
 
         board.update(requestDto);
         return new BoardResponseDto(board);

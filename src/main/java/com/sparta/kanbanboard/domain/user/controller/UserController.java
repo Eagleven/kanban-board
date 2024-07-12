@@ -47,29 +47,10 @@ public class UserController {
 
     @PatchMapping("/subscription")
     public ResponseEntity<HttpResponseDto> subscription(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestHeader("AccessToken") String accessToken) throws IllegalAccessException {
-        // 현재 토큰에서 역할을 가져와서 새로운 역할을 설정
-        Role currentRole = Role.valueOf(tokenProvider.getUserInfoFromToken(accessToken.substring(7)).get("auth").toString());
-        Role newRole = (currentRole.equals(Role.USER)) ? Role.MANAGER : Role.USER;
-
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
         // 역할 변경
-        userService.subscription(userDetails.getUser());
-
-        try {
-            // 새로운 토큰 발급
-            String newAccessToken = tokenProvider.reissueAccessToken(userDetails.getUsername(), newRole);
-            String newRefreshToken = tokenProvider.reissueRefreshToken(userDetails.getUsername());
-
-            // 응답 헤더에 새로운 토큰 설정
-            HttpHeaders headers = new HttpHeaders();
-            headers.set(AuthEnum.ACCESS_TOKEN.getValue(), newAccessToken);
-            headers.set(AuthEnum.REFRESH_TOKEN.getValue(), newRefreshToken);
-
-            return ResponseUtils.of(SUCCESS_SUBSCRIPTION, newRole);
-        } catch (IllegalAccessException e) {
-            return ResponseUtils.of(FAIL_TO_CHANGE_ROLE);
-        }
+        userService.subscription(userDetails);
+        return ResponseUtils.of(SUCCESS_SUBSCRIPTION);
     }
 
     @GetMapping
