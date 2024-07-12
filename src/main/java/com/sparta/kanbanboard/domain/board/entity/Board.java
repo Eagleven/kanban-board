@@ -36,7 +36,7 @@ public class Board extends TimeStampEntity {
     private String explanation;
 
     @Column
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private CommonStatusEnum status;
 
     public Board(String name, String explanation, User user) {
@@ -51,6 +51,7 @@ public class Board extends TimeStampEntity {
         this.explanation = requestDto.getExplanation();
     }
 
+    // soft delete
     public void delete() {
         this.status = CommonStatusEnum.DELETED;
     }

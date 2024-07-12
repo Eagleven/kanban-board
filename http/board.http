@@ -23,3 +23,8 @@ Content-Type: application/json
   "name" : "이름",
   "explanation" : "내용"
 }
+
+### 보드 조회
+GET http://localhost:8080/boards
+AccessToken: {{AccessToken}}
+Content-Type: application/json

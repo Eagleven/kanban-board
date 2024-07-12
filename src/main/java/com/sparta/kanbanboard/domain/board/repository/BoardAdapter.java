@@ -3,6 +3,7 @@ package com.sparta.kanbanboard.domain.board.repository;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import com.sparta.kanbanboard.domain.board.entity.Board;
 import com.sparta.kanbanboard.exception.board.BoardNotFoundException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +24,7 @@ public class BoardAdapter {
                 .orElseThrow(()-> new BoardNotFoundException(ResponseExceptionEnum.BOARD_NOT_FOUND));
     }
 
-    public Page<Board> findAllByUserId(Long userId, Pageable pageable){
-        return boardRepository.findAllByUserId(userId, pageable);
+    public Page<Board> findByIdIn(List<Long> boardIdList, Pageable pageable){
+        return boardRepository.findByIdIn(boardIdList, pageable);
     }
 }

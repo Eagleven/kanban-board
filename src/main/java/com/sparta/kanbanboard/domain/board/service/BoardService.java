@@ -2,14 +2,18 @@ package com.sparta.kanbanboard.domain.board.service;
 
 import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
+import static com.sparta.kanbanboard.domain.user.utils.Role.MANAGER;
 import com.sparta.kanbanboard.domain.board.dto.BoardRequestDto;
 import com.sparta.kanbanboard.domain.board.dto.BoardResponseDto;
 import com.sparta.kanbanboard.domain.board.entity.Board;
 import com.sparta.kanbanboard.domain.board.repository.BoardAdapter;
 import com.sparta.kanbanboard.domain.user.User;
-import com.sparta.kanbanboard.domain.user.utils.Role;
+import com.sparta.kanbanboard.domain.userandboard.entity.UserAndBoard;
+import com.sparta.kanbanboard.domain.userandboard.repository.UserAndBoardAdapter;
 import com.sparta.kanbanboard.exception.board.BoardAlreadyDeletedException;
 import com.sparta.kanbanboard.exception.board.BoardForbiddenException;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -27,23 +31,32 @@ public class BoardService {
 
     private static final int PAGE_SIZE = 10;
     private final BoardAdapter boardAdapter;
+    private final UserAndBoardAdapter userAndBoardAdapter;
 
 
+    // 보드 생성
+    @Transactional
     public BoardResponseDto createBoard(BoardRequestDto requestDto, User user) {
-        if (!user.getUserRole().equals(Role.ADMIN)) {
+        if (!user.getUserRole().equals(MANAGER)) { // 매니저 권한이 없으면 보드 생성 불가
             throw new BoardForbiddenException(ResponseExceptionEnum.FORBIDDEN_CREATE_BOARD);
         }
-        Board board = new Board(requestDto.getName(), requestDto.getExplanation(), user);
-        return new BoardResponseDto(boardAdapter.save(board));
+        Board board = boardAdapter.save(new Board(requestDto.getName(), requestDto.getExplanation(), user));
+        UserAndBoard userAndBoard = new UserAndBoard(board, user); // userAndBoard 엔티티에 기록 남김
+        userAndBoardAdapter.save(userAndBoard);
+        return new BoardResponseDto(board);
     }
 
+    // 보드 리스트 조회
     public Page<BoardResponseDto> getBoardList(int page, User user) {
         Sort sort =Sort.by(Direction.DESC, "createdAt");
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, sort);
 
-        Page<Board> boardList = boardAdapter.findAllByUserId(user.getId(), pageable);
-        return null; // 사용자 정보가 필요해서 추후에 개발
-        // user, admin 각각 어떻게 가져올것인가.. 고민 -> 내가 주인인 보드와 내가 참여중인 보드를 같이 조회해야되잖아...
+        List<UserAndBoard> userAndBoardList = userAndBoardAdapter.findByUserId(user.getId());
+        List<Long> boardIdList = userAndBoardList.stream().map(userAndBoard -> userAndBoard.getBoard().getId())
+                .collect(Collectors.toList());
+
+        Page<Board> boardList = boardAdapter.findByIdIn(boardIdList, pageable);
+        return boardList.map(BoardResponseDto::new);
     }
 
 
@@ -54,7 +67,9 @@ public class BoardService {
             throw new BoardAlreadyDeletedException(ResponseExceptionEnum.BOARD_ALREADY_DELETED);
         }
 
-        if(board.getUser().getId().equals(user.getId()) && user.getUserRole().equals(Role.ADMIN))
+        if(board.getUser().getId().equals(user.getId()) && user.getUserRole().equals(MANAGER)){
+
+        }
         // 요청한 사용자가 해당 보드의 생성자인지 확인하는 로직 필요]
 
 

@@ -3,7 +3,7 @@ package com.sparta.kanbanboard.domain.board.controller;
 import com.sparta.kanbanboard.common.HttpResponseDto;
 import com.sparta.kanbanboard.common.ResponseCodeEnum;
 import com.sparta.kanbanboard.common.ResponseUtils;
-import com.sparta.kanbanboard.common.security.UserDetailsImpl;
+import com.sparta.kanbanboard.common.security.details.UserDetailsImpl;
 import com.sparta.kanbanboard.domain.board.dto.BoardRequestDto;
 import com.sparta.kanbanboard.domain.board.service.BoardService;
 import jakarta.validation.Valid;
@@ -29,6 +29,7 @@ public class BoardController {
 
     private final BoardService boardService;
 
+    // 보드 생성
     @PostMapping
     public ResponseEntity<HttpResponseDto> createBoard(@RequestBody BoardRequestDto requestDto,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -36,6 +37,7 @@ public class BoardController {
                 boardService.createBoard(requestDto, userDetails.getUser()));
     }
 
+    // 보드 리스트 조회
     @GetMapping
     public ResponseEntity<HttpResponseDto> getBoardList(
             @RequestParam(value = "page", defaultValue = "1") int page,
@@ -44,6 +46,7 @@ public class BoardController {
                 boardService.getBoardList(page - 1, userDetails.getUser()));
     }
 
+    // 보드 수정
     @PatchMapping("/{boardId}")
     public ResponseEntity<HttpResponseDto> updateBoard(@PathVariable("boardId") Long boardId,
             @Valid @RequestBody BoardRequestDto requestDto,
@@ -52,6 +55,7 @@ public class BoardController {
                 boardService.updateBoard(boardId, requestDto, userDetails.getUser()));
     }
 
+    // 보드 삭제
     @DeleteMapping("/{boardId}")
     public ResponseEntity<HttpResponseDto> deleteBoard(@PathVariable("boardId") Long boardId) {
         boardService.deleteBoard(boardId);
