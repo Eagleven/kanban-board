@@ -90,4 +90,8 @@ public class User extends TimeStampEntity {
         return this.userRole;
     }
 
+    public CommonStatusEnum setStatus(CommonStatusEnum status) {
+        this.status = status;
+        return this.status;
+    }
 }

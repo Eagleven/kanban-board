@@ -49,3 +49,9 @@ POST http://localhost:8080/users/logout
 AccessToken: {{AccessToken}}
 RefreshToken: {{RefreshToken}}
 Content-Type: application/json
+
+### 회원 탈퇴
+PATCH http://localhost:8080/users
+AccessToken: {{AccessToken}}
+RefreshToken: {{RefreshToken}}
+Content-Type: application/json

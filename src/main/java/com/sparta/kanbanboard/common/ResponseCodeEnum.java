@@ -16,6 +16,7 @@ public enum ResponseCodeEnum {
     SUCCESS_GET_USERS(HttpStatus.OK, "유저 목록을 조회했습니다."),
     SUCCESS_GET_USER(HttpStatus.OK, "유저 조회 완료했습니다."),
     SUCCESS_LOGOUT(HttpStatus.OK, "로그아웃을 완료했습니다."),
+    SUCCESS_TO_SINGOUT(HttpStatus.OK, "회원 탈퇴를 성공적으로 완료했습니다."),
 
     // Board
     BOARD_CREATED(HttpStatus.CREATED, "보드가 성공적으로 생성되었습니다."),
@@ -28,7 +29,7 @@ public enum ResponseCodeEnum {
     COLUMN_RETRIEVED(HttpStatus.OK, "칼럼을 성공적으로 조회했습니다."),
     COLUMN_LIST_RETRIEVED(HttpStatus.OK, "칼럼 목록을 성공적으로 조회했습니다."),
     COLUMN_UPDATED(HttpStatus.OK, "칼럼 수정이 성공적으로 수행되었습니다."),
-    COLUMN_DELETED(HttpStatus.OK, "칼럼이 성공적으로 삭제되었습니다.")
+    COLUMN_DELETED(HttpStatus.OK, "칼럼이 성공적으로 삭제되었습니다."),
     ;
     private final HttpStatus httpStatus;
     private final String message;

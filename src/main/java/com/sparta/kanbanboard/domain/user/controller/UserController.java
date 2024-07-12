@@ -1,7 +1,9 @@
 package com.sparta.kanbanboard.domain.user.controller;
 
 import static com.sparta.kanbanboard.common.ResponseCodeEnum.SUCCESS_GET_USER;
+import static com.sparta.kanbanboard.common.ResponseCodeEnum.SUCCESS_GET_USERS;
 import static com.sparta.kanbanboard.common.ResponseCodeEnum.SUCCESS_SUBSCRIPTION;
+import static com.sparta.kanbanboard.common.ResponseCodeEnum.SUCCESS_TO_SINGOUT;
 import static com.sparta.kanbanboard.common.ResponseCodeEnum.USER_SUCCESS_SIGNUP;
 
 import com.sparta.kanbanboard.common.HttpResponseDto;
@@ -16,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -62,6 +65,14 @@ public class UserController {
     ){
         Page<GetUserResponseDto> responseDto = userService.getUsersWithPage(page, size);
         PageableResponse<GetUserResponseDto> responseEntity = new PageableResponse<>(responseDto);
-        return ResponseUtils.of(ResponseCodeEnum.SUCCESS_GET_USERS, responseEntity);
+        return ResponseUtils.of(SUCCESS_GET_USERS, responseEntity);
+    }
+
+    @PatchMapping
+    public ResponseEntity<HttpResponseDto> signOut(
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ){
+        userService.signOut(userDetails.getUser());
+        return ResponseUtils.of(SUCCESS_TO_SINGOUT);
     }
 }

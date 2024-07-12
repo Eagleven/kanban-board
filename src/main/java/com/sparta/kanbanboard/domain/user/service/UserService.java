@@ -1,5 +1,6 @@
 package com.sparta.kanbanboard.domain.user.service;
 
+import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import com.sparta.kanbanboard.common.security.details.UserDetailsImpl;
 import com.sparta.kanbanboard.domain.user.User;
@@ -54,17 +55,20 @@ public class UserService {
 
     @Transactional
     public void subscription(UserDetailsImpl user) {
-        adapter.findById(user.getUser().getId());
+        adapter.findById(user.getUser());
     }
 
     @Transactional(readOnly = true)
     public Page<GetUserResponseDto> getUsersWithPage(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return userRepository.findAll(pageable)
-                .map(GetUserResponseDto::new);
+        return adapter.findAll(pageable);
     }
 
     public GetUserResponseDto getUser(Long userId, UserDetailsImpl userDetails) {
-        return adapter.getUser(userId);
+        return adapter.getUser(userId, userDetails.getUser());
+    }
+
+    public void signOut(User user) {
+        user.setStatus(CommonStatusEnum.DELETED);
     }
 }
