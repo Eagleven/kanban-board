@@ -3,7 +3,6 @@ package com.sparta.kanbanboard.common.security.config;
 import com.sparta.kanbanboard.common.security.details.UserDetailsServiceImpl;
 import com.sparta.kanbanboard.common.security.filters.JwtAuthenticationFilter;
 import com.sparta.kanbanboard.common.security.filters.JwtAuthorizationFilter;
-import com.sparta.kanbanboard.common.security.filters.JwtRoleChangeFilter;
 import com.sparta.kanbanboard.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -15,10 +14,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
 
 @Configuration
@@ -55,12 +56,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtRoleChangeFilter jwtRoleChangeFilter(){
-        return new JwtRoleChangeFilter(tokenProvider);
-    }
-
-
-    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -77,6 +72,14 @@ public class SecurityConfig {
                 )
                 .addFilterAfter(jwtAuthorizationFilter(), JwtAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+
+
+        http.logout(auth -> auth
+                .logoutUrl("/users/logout")
+                .addLogoutHandler(new SecurityContextLogoutHandler())
+                .logoutSuccessHandler(
+                        (((request, response, authentication) -> SecurityContextHolder.clearContext()))));
 
         return http.build();
     }

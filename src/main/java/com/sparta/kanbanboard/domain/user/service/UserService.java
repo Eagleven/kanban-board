@@ -4,6 +4,9 @@ import static com.sparta.kanbanboard.domain.user.utils.Role.MANAGER;
 import static com.sparta.kanbanboard.domain.user.utils.Role.USER;
 
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
+import com.sparta.kanbanboard.common.security.config.TokenProvider;
+import com.sparta.kanbanboard.common.security.details.UserDetailsImpl;
+import com.sparta.kanbanboard.domain.refreshToken.RefreshTokenRepository;
 import com.sparta.kanbanboard.domain.user.User;
 import com.sparta.kanbanboard.domain.user.dto.GetUserResponseDto;
 import com.sparta.kanbanboard.domain.user.dto.SignupRequestDto;
@@ -13,13 +16,14 @@ import com.sparta.kanbanboard.domain.user.utils.Role;
 import com.sparta.kanbanboard.exception.user.UserDuplicatedException;
 import com.sparta.kanbanboard.exception.user.UserException;
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +36,9 @@ public class UserService {
     private final UserAdapter adapter;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TokenProvider tokenProvider;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final RedisTemplate<String, String> redisTemplate;
 
     public String signup(SignupRequestDto requestDto) {
         try {
@@ -49,23 +56,23 @@ public class UserService {
 
             adapter.save(user);
             return user.getName();
-        } catch(UserDuplicatedException e){
+        } catch (UserDuplicatedException e) {
             throw new UserException(ResponseExceptionEnum.USER_ALREADY_EXIST);
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             throw new UserException(ResponseExceptionEnum.USER_FAIL_SIGNUP);
         }
     }
 
     @Transactional
-    public Role subscription(User user) {
-        User findedUser = adapter.findById(user.getId());
+    public void subscription(UserDetailsImpl user) {
+        User findedUser = adapter.findById(user.getUser().getId());
 
-        if(!Objects.equals(user.getUsername(), findedUser.getUsername())){
+        if (!Objects.equals(user.getUsername(), findedUser.getUsername())) {
             throw new UserException(ResponseExceptionEnum.USER_NOT_FOUND);
         }
 
-        return user.setUserRole(user.getUserRole().equals(USER) ? MANAGER : USER);
+        findedUser.setUserRole(findedUser.getUserRole().equals(USER) ? MANAGER : USER);
+        adapter.save(findedUser);
     }
 
     @Transactional(readOnly = true)
@@ -73,5 +80,9 @@ public class UserService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return userRepository.findAll(pageable)
                 .map(GetUserResponseDto::new);
+    }
+
+    public GetUserResponseDto getUser(Long userId, UserDetailsImpl userDetails) {
+        return adapter.getUser(userId);
     }
 }
