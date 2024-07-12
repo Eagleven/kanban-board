@@ -29,4 +29,4 @@ spring:
           characterEncoding: utf-8
           useUnicode: true
 
-jwt-secret-key: ${JWT-SECRET-KEY}
+jwt-secret-key: ${JWT-KEY}
