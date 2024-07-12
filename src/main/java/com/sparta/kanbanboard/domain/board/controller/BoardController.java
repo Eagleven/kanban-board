@@ -57,9 +57,19 @@ public class BoardController {
 
     // 보드 삭제
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<HttpResponseDto> deleteBoard(@PathVariable("boardId") Long boardId) {
-        boardService.deleteBoard(boardId);
+    public ResponseEntity<HttpResponseDto> deleteBoard(@PathVariable("boardId") Long boardId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        boardService.deleteBoard(boardId, userDetails.getUser());
         return ResponseUtils.of(ResponseCodeEnum.BOARD_DELETED);
+    }
+
+    // 보드에 사용자 초대
+    @PostMapping("/{boardId}/invite/{userId}")
+    public ResponseEntity<HttpResponseDto> inviteBoard(@PathVariable("boardId") Long boardId,
+            @PathVariable("userId") Long userId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails){
+        boardService.inviteBoard(boardId, userId, userDetails.getUser());
+        return ResponseUtils.of(ResponseCodeEnum.USER_INVITED);
     }
 
 }

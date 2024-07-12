@@ -22,6 +22,7 @@ public enum ResponseCodeEnum {
     BOARD_LIST_RETRIEVED(HttpStatus.OK, "보드 목록을 성공적으로 조회했습니다."),
     BOARD_UPDATED(HttpStatus.OK, "보드 수정이 성공적으로 수행되었습니다."),
     BOARD_DELETED(HttpStatus.OK, "보드가 성공적으로 삭제되었습니다."),
+    USER_INVITED(HttpStatus.OK, "사용자가 성공적으로 초대되었습니다."),
 
     // Column
     COLUMN_CREATED(HttpStatus.CREATED, "칼럼이 성공적으로 생성되었습니다."),
