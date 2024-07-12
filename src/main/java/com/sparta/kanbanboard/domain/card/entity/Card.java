@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,6 +37,14 @@ public class Card extends TimeStampEntity {
     @Column(nullable = false)
     private String contents;
 
+    @Column
+    private int position;
+
+    private Long assigneeId;
+
+    // 마감 기한
+    private LocalDateTime dueDate;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private CommonStatusEnum status = CommonStatusEnum.ACTIVE;
@@ -48,16 +57,27 @@ public class Card extends TimeStampEntity {
     // @OneToMany
 
     @Builder
-    public Card(String title, String contents, User user/*, Long columnId*/) {
+    public Card(String title, String contents, User user, /* Long columnId,*/ int position,
+            LocalDateTime dueDate) {
         this.title = title;
         this.contents = contents;
         this.user = user;
-        // this.columnId = columnId;
+        /*
+        this.columnId = columnId;
+         */
+        this.position = position;
+        this.dueDate = dueDate;
     }
 
-    public void update(String title, String contents) {
+    public void update(String title, String contents, /* Long columnId,*/ int position,
+            LocalDateTime dueDate) {
         this.title = title;
         this.contents = contents;
+        /*
+        this.columnId = columnId;
+        */
+        this.position = position;
+        this.dueDate = dueDate;
     }
 
     public void delete() {
