@@ -3,6 +3,7 @@ package com.sparta.kanbanboard.exception;
 import com.sparta.kanbanboard.common.HttpResponseDto;
 import com.sparta.kanbanboard.common.ResponseUtils;
 import com.sparta.kanbanboard.exception.board.BoardException;
+import com.sparta.kanbanboard.exception.column.ColumnException;
 import com.sparta.kanbanboard.exception.user.UserException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionAdvice {
     @ExceptionHandler(BoardException.class)
-    public ResponseEntity<HttpResponseDto> handleUserException(BoardException e) {
+    public ResponseEntity<HttpResponseDto> handleBoardException(BoardException e) {
+        log.error("에러 메세지: ", e);
+        return ResponseUtils.of(e.getResponseExceptionEnum());
+    }
+
+    @ExceptionHandler(ColumnException.class)
+    public ResponseEntity<HttpResponseDto> handleColumnException(ColumnException e) {
         log.error("에러 메세지: ", e);
         return ResponseUtils.of(e.getResponseExceptionEnum());
     }

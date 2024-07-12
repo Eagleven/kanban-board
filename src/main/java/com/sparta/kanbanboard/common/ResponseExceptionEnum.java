@@ -20,7 +20,12 @@ public enum ResponseExceptionEnum {
     // board
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 보드입니다."),
     BOARD_ALREADY_DELETED(HttpStatus.GONE, "이미 삭제된 보드입니다."),
-    FORBIDDEN_CREATE_BOARD(HttpStatus.FORBIDDEN, "보드는 manager 사용자만 생성할 수 있습니다.");
+    FORBIDDEN_CREATE_BOARD(HttpStatus.FORBIDDEN, "보드는 manager 사용자만 생성할 수 있습니다."),
+
+    // 칼럼
+    COLUMN_NOT_FOUND(HttpStatus.NOT_FOUND, "칼럼을 찾을 수 없습니다"),
+    DELETED_COLUMN(HttpStatus.BAD_REQUEST, "삭제된 칼람 입니다.");
+
 
     private final HttpStatus httpStatus;
     private final String message;
