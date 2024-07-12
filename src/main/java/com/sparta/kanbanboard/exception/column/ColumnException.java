@@ -5,10 +5,10 @@ import lombok.Getter;
 
 @Getter
 public class ColumnException extends RuntimeException {
-    private final ResponseExceptionEnum responseCodeEnum;
+    private final ResponseExceptionEnum responseExceptionEnum;
 
-    public ColumnException(ResponseExceptionEnum responseCodeEnum) {
-        super(responseCodeEnum.getMessage());
-        this.responseCodeEnum = responseCodeEnum;
+    public ColumnException(ResponseExceptionEnum responseExceptionEnum) {
+        super(responseExceptionEnum.getMessage());
+        this.responseExceptionEnum = responseExceptionEnum;
     }
 }

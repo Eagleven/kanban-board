@@ -30,10 +30,10 @@ public class ColumnController {
                 columnService.create(boardId, requestDto));
     }
 
-    @GetMapping("{calumnId}")
-    public ResponseEntity<HttpResponseDto> getColumn(@PathVariable Long calumnId) {
+    @GetMapping("/{columnId}")
+    public ResponseEntity<HttpResponseDto> getColumn(@PathVariable Long columnId) {
         return ResponseUtils.of(ResponseCodeEnum.COLUMN_RETRIEVED,
-                columnService.get(calumnId));
+                columnService.get(columnId));
     }
 
     @GetMapping()
@@ -42,14 +42,14 @@ public class ColumnController {
                 columnService.getAll());
     }
 
-    @PutMapping("{columnId}")
+    @PutMapping("/{columnId}")
     public ResponseEntity<HttpResponseDto> updateColumn(@PathVariable Long columnId,
             @RequestBody ColumnRequestDto requestDto) {
         return ResponseUtils.of(ResponseCodeEnum.COLUMN_UPDATED,
                 columnService.update(columnId, requestDto));
     }
 
-    @DeleteMapping("{columnId}")
+    @DeleteMapping("/{columnId}")
     public ResponseEntity<HttpResponseDto> deleteColumn(@PathVariable Long columnId) {
         return ResponseUtils.of(ResponseCodeEnum.COLUMN_UPDATED,
                 columnService.delete(columnId));
