@@ -1,20 +1,19 @@
 package com.sparta.kanbanboard.common.security.filters;
 
-import static com.sparta.kanbanboard.common.ResponseCodeEnum.SUCCESS_SUBSCRIPTION;
+import static com.sparta.kanbanboard.common.ResponseCodeEnum.SUCCESS_LOGOUT;
 import static com.sparta.kanbanboard.common.ResponseExceptionEnum.NOT_FOUND_AUTHENTICATION_INFO;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.kanbanboard.common.HttpResponseDto;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
-import com.sparta.kanbanboard.common.security.AuthEnum;
 import com.sparta.kanbanboard.common.security.config.TokenProvider;
+import com.sparta.kanbanboard.common.security.details.UserDetailsImpl;
 import com.sparta.kanbanboard.common.security.details.UserDetailsServiceImpl;
+import com.sparta.kanbanboard.domain.user.User;
 import com.sparta.kanbanboard.domain.user.utils.Role;
 import com.sparta.kanbanboard.exception.user.UserException;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -26,6 +25,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -36,21 +36,28 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final TokenProvider tokenProvider;
     private final UserDetailsServiceImpl userDetailsService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     @SneakyThrows
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
-        String accessToken = tokenProvider.getAccessTokenFromHeader(request);
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+            FilterChain filterChain) {
+        if (!(request.getRequestURI().equals("/users") && request.getMethod().equals("POST"))) {
+            String accessToken = tokenProvider.getAccessTokenFromHeader(request);
+            String requestUri = request.getRequestURI();
 
-        if (StringUtils.hasText(accessToken)) {
-
-            if (tokenProvider.validateToken(accessToken)) {
-                validToken(accessToken);
-            } else {
-                invalidToken(request, response);
+            if (StringUtils.hasText(accessToken)) {
+                if (tokenProvider.validateToken(accessToken)) {
+                    validToken(accessToken);
+                    if ("/users/logout".equals(requestUri)) {
+                        handleLogout(request, response);
+                        return;
+                    }
+                } else {
+                    invalidToken(request, response);
+                }
             }
         }
-
         filterChain.doFilter(request, response);
     }
 
@@ -71,7 +78,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         String refreshToken = tokenProvider.getRefreshTokenFromHeader(request);
 
         if (StringUtils.hasText(refreshToken)) {
-            if (tokenProvider.validateToken(refreshToken) && tokenProvider.validateToken(refreshToken)) {
+            if (tokenProvider.validateToken(refreshToken) && tokenProvider.validateToken(
+                    refreshToken)) {
                 Claims info = tokenProvider.getUserInfoFromToken(refreshToken);
                 Role role = Role.valueOf(info.get("auth").toString());
 
@@ -82,13 +90,21 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 try {
                     setAuthentication(info.getSubject());
                 } catch (Exception e) {
-                    log.error("username = {}, message = {}", info.getSubject(), "인증 정보를 찾을 수 없습니다.");
+                    log.error("username = {}, message = {}", info.getSubject(),
+                            "인증 정보를 찾을 수 없습니다.");
                     throw new UserException(NOT_FOUND_AUTHENTICATION_INFO);
                 }
             } else {
                 throw new UserException(ResponseExceptionEnum.INVALID_REFRESHTOKEN);
             }
         }
+    }
+
+    // 인증 객체 생성
+    private Authentication createAuthentication(String username) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        return new UsernamePasswordAuthenticationToken(userDetails, null,
+                userDetails.getAuthorities());
     }
 
     // 인증 처리
@@ -100,9 +116,39 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         SecurityContextHolder.setContext(context);
     }
 
-    // 인증 객체 생성
-    private Authentication createAuthentication(String accountId) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(accountId);
-        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    private void handleLogout(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            processLogout(request, response);
+        } catch (IOException e) {
+            log.error("Logout failed", e);
+        }
+    }
+
+    private void processLogout(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            User user = userDetails.getUser();
+
+            String accessToken = request.getHeader("Authorization");
+            if (accessToken != null && accessToken.startsWith("Bearer ")) {
+                String token = accessToken.substring(7);
+                tokenProvider.invalidateTokens(user.getUsername(), token);
+            }
+        }
+
+        SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+        logoutHandler.logout(request, response, authentication);
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(objectMapper.writeValueAsString(new HttpResponseDto(
+                SUCCESS_LOGOUT.getHttpStatus().value(), SUCCESS_LOGOUT.getMessage())));
+        response.getWriter().flush();
+        response.getWriter().close();
+
+        // Log logout action
+        log.info("User logged out successfully");
     }
 }
