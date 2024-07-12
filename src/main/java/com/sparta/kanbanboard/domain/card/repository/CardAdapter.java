@@ -1,5 +1,6 @@
 package com.sparta.kanbanboard.domain.card.repository;
 
+import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import com.sparta.kanbanboard.domain.card.entity.Card;
 import com.sparta.kanbanboard.exception.card.CardNotFoundException;
@@ -30,15 +31,31 @@ public class CardAdapter {
 //    return cardRepository.findByStatus(status);
 //}
 
-    // ID로 카드 조회 (없으면 예외 발생)
+    // 사용자 ID로 카드 조회 (없으면 예외 발생)
     public Card findById(Long cardId) {
         return cardRepository.findById(cardId)
                 .orElseThrow(() -> new CardNotFoundException(ResponseExceptionEnum.CARD_NOT_FOUND));
     }
 
+    // 카드 삭제 여부 조회
+    public List<Card> findByStatus(CommonStatusEnum status) {
+        return cardRepository.findByStatus(status);
+    }
+
+    // 사용자 ID별로 ACTIVE 카드 조회
+    public List<Card> findActiveCardsByUserId(Long userId) {
+        return cardRepository.findByStatusAndUserId(CommonStatusEnum.ACTIVE, userId);
+    }
+
+    // 모든 ACTIVE 카드 조회
+    public List<Card> findActiveCards() {
+        return cardRepository.findByStatus(CommonStatusEnum.ACTIVE);
+    }
+
     // 카드 저장 (유효성 검사 포함)
     public Card save(Card card) {
-        if (card.getTitle() == null && card.getContents() == null/* && card.getStatus() == null*/) {
+        if (card.getTitle() == null
+                && card.getContents() == null/* && card.getStatus() == null*/) {
             throw new InvailCardDataException(ResponseExceptionEnum.INVALID_CARD_DATA);
             // 컬럼 ID를 통해 컬럼이 존재하는지 확인
             // Column column = columnRepository.findById(card.getColumnId())
