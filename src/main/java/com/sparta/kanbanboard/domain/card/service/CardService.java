@@ -4,7 +4,9 @@ import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import com.sparta.kanbanboard.domain.card.entity.Card;
 import com.sparta.kanbanboard.domain.card.repository.CardAdapter;
-import com.sparta.kanbanboard.exception.card.UnauthorizedAccessException;
+import com.sparta.kanbanboard.domain.column.entity.Column;
+import com.sparta.kanbanboard.domain.column.repository.ColumnAdapter;
+import com.sparta.kanbanboard.exception.user.UnauthorizedAccessException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +23,6 @@ public class CardService {
     private final CardAdapter cardAdapter;
     private final ColumnAdapter columnAdapter;
 
-    // 컬럼이랑 연관관계 맺어서 수정해야할 것들 + user받아서 맨 밑에 시큐리티 로그인한 사용자랑 같은지 받는것만 고치면 됨(예외처리때문에)
 
     // 모든 카드 조회
     @Transactional(readOnly = true)
@@ -35,9 +36,13 @@ public class CardService {
         return cardAdapter.findByUserId(userId);
     }
 
-    // 카드 상태별 조회 -> Column 데려와서 수정 (ex.시작전, 진행중, 완료 등)
+    // 컬럼별 카드 상태 조회 (시작 전 진행중 완료)
+    @Transactional(readOnly = true)
+    public List<Card> getCardsByColumn(Long columnId) {
+        return cardAdapter.findByColumn(columnId);
+    }
 
-    // 카드 삭제 여부 (ACTIVE || DELETE)
+    // 카드 삭제 상태별 조회 (ACTIVE || DELETE)
     @Transactional(readOnly = true)
     public List<Card> getCardsByStatus(CommonStatusEnum status) {
         return cardAdapter.findByStatus(status);
@@ -71,9 +76,9 @@ public class CardService {
 
     // 카드 위치 수정
     @Transactional
-    public void updateCardOrder(Long cardId, Long newColumnId, int newPosition) {
+    public void updateCardOrder(Long cardId, Column newColumnId, int newSequence) {
         checkUserAuthentication();
-        cardAdapter.updateCardOrder(cardId, newColumnId, newPosition);
+        cardAdapter.updateCardOrder(cardId, newColumnId, newSequence);
     }
 
     // 카드 삭제
