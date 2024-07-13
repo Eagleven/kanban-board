@@ -1,0 +1,50 @@
+### 로그인
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "username":"{{username}}",
+  "password":"{{password}}"
+}
+
+> {%
+  client.log(response.headers.valueOf("AccessToken"));
+  client.log(response.headers.valueOf("RefreshToken"));
+  client.global.set("AccessToken", response.headers.valueOf("AccessToken"));
+  client.global.set("RefreshToken", response.headers.valueOf("RefreshToken"));
+%}
+
+### 칼럼생성
+POST http://localhost:8080/column/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+{
+  "name" : "test"
+}
+
+### 칼럼선택조회
+GET http://localhost:8080/column/2
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 칼럼전체조회
+GET http://localhost:8080/column
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 칼럼수정
+PATCH http://localhost:8080/column/2
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+{
+  "name":"update test"
+}
+
+### 칼럼삭제
+DELETE http://localhost:8080/column/2
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+
