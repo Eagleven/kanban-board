@@ -28,7 +28,8 @@ public class ColumnAdapter {
 
 
     public Column findById(Long columnId) {
-        Column column = columnRepository.findById(columnId).orElseThrow(
+        Column column = columnRepository.findById(columnId)
+                .orElseThrow(
                 () -> new ColumnNotFoundException(ResponseExceptionEnum.COLUMN_NOT_FOUND)
         );
 

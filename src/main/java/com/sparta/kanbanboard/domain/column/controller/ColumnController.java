@@ -23,43 +23,41 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/column")
+@RequestMapping("/{boardId}/column")
 public class ColumnController {
 
     private final ColumnService columnService;
 
-    @PostMapping("/{boardId}")
-    public ResponseEntity<HttpResponseDto> createColumn(@PathVariable Long boardId,
-            @RequestBody ColumnRequestDto requestDto,
-            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    @PostMapping
+    public ResponseEntity<HttpResponseDto> createColumn(@PathVariable("boardId") Long boardId,
+            @RequestBody ColumnRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return ResponseUtils.of(ResponseCodeEnum.COLUMN_CREATED,
                 columnService.create(boardId, requestDto, userDetails.getUser()));
     }
 
     @GetMapping("/{columnId}")
-    public ResponseEntity<HttpResponseDto> getColumn(@PathVariable Long columnId) {
+    public ResponseEntity<HttpResponseDto> getColumn(@PathVariable("boardId") Long boardId, @PathVariable("columnId") Long columnId) {
         return ResponseUtils.of(ResponseCodeEnum.COLUMN_RETRIEVED,
-                columnService.get(columnId));
+                columnService.get(boardId, columnId));
     }
 
-    @GetMapping()
-    public ResponseEntity<HttpResponseDto> getAllColumn() {
+    @GetMapping
+    public ResponseEntity<HttpResponseDto> getAllColumn(@PathVariable("boardId") Long boardId) {
         return ResponseUtils.of(ResponseCodeEnum.COLUMN_LIST_RETRIEVED,
-                columnService.getAll());
+                columnService.getAll(boardId));
     }
 
     @PatchMapping("/{columnId}")
-    public ResponseEntity<HttpResponseDto> updateColumn(@PathVariable Long columnId,
-            @RequestBody ColumnRequestDto requestDto,
-            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<HttpResponseDto> updateColumn(@PathVariable("boardId") Long boardId, @PathVariable("columnId") Long columnId,
+            @RequestBody ColumnRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return ResponseUtils.of(ResponseCodeEnum.COLUMN_UPDATED,
-                columnService.update(columnId, requestDto, userDetails.getUser()));
+                columnService.update(boardId, columnId, requestDto, userDetails.getUser()));
     }
 
     @DeleteMapping("/{columnId}")
-    public ResponseEntity<HttpResponseDto> deleteColumn(@PathVariable Long columnId,
+    public ResponseEntity<HttpResponseDto> deleteColumn(@PathVariable("boardId") Long boardId, @PathVariable("columnId") Long columnId,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return ResponseUtils.of(ResponseCodeEnum.COLUMN_DELETED,
-                columnService.delete(columnId, userDetails.getUser()));
+                columnService.delete(boardId, columnId, userDetails.getUser()));
     }
 }

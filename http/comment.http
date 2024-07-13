@@ -36,17 +36,17 @@ AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 {
-  "name" : "이름",
-  "explanation" : "내용"
+  "name" : "이름2",
+  "explanation" : "내용2"
 }
 
 ### 칼럼생성
-POST http://localhost:8080/column/1
+POST http://localhost:8080/1/column
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 {
-  "name" : "test"
+  "name" : "test2"
 }
 
 ### 카드 생성

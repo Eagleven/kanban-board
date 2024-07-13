@@ -13,7 +13,6 @@ import com.sparta.kanbanboard.domain.user.dto.GetUserResponseDto;
 import com.sparta.kanbanboard.domain.user.dto.PageableResponse;
 import com.sparta.kanbanboard.domain.user.dto.SignupRequestDto;
 import com.sparta.kanbanboard.domain.user.service.UserService;
-import com.sparta.kanbanboard.domain.user.utils.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;

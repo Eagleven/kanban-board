@@ -1,5 +1,6 @@
 package com.sparta.kanbanboard.domain.board.repository;
 
+import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import com.sparta.kanbanboard.domain.board.entity.Board;
 import com.sparta.kanbanboard.exception.board.BoardNotFoundException;
@@ -19,9 +20,10 @@ public class BoardAdapter {
         return boardRepository.save(board);
     }
 
-    public Board findById(Long id){
+    public Board findById(Long id) {
         return boardRepository.findById(id)
-                .orElseThrow(()-> new BoardNotFoundException(ResponseExceptionEnum.BOARD_NOT_FOUND));
+                .filter(board -> board.getStatus() != CommonStatusEnum.DELETED)
+                .orElseThrow(() -> new BoardNotFoundException(ResponseExceptionEnum.BOARD_NOT_FOUND));
     }
 
     public Page<Board> findByIdIn(List<Long> boardIdList, Pageable pageable){
