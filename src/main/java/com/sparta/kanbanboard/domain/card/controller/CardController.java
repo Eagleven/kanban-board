@@ -3,12 +3,15 @@ package com.sparta.kanbanboard.domain.card.controller;
 import com.sparta.kanbanboard.common.HttpResponseDto;
 import com.sparta.kanbanboard.common.ResponseCodeEnum;
 import com.sparta.kanbanboard.common.ResponseUtils;
+import com.sparta.kanbanboard.common.security.details.UserDetailsImpl;
 import com.sparta.kanbanboard.domain.card.dto.CardRequestDto;
 import com.sparta.kanbanboard.domain.card.dto.CardResponseDto;
 import com.sparta.kanbanboard.domain.card.service.CardService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +31,11 @@ public class CardController {
     // 카드 생성
     @PostMapping
     public ResponseEntity<HttpResponseDto> createCard(@RequestBody CardRequestDto cardRequestDto) {
-        CardResponseDto cardResponseDto = cardService.createCard(cardRequestDto);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Long userId = userDetails.getUser().getId(); // UserDetailsImpl에서 User 객체의 ID 가져오기
+
+        CardResponseDto cardResponseDto = cardService.createCard(cardRequestDto, userId);
         return ResponseUtils.of(ResponseCodeEnum.CARD_CREATE_SUCCESS, cardResponseDto);
     }
 

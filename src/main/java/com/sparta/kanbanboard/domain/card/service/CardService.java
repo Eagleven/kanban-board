@@ -2,12 +2,14 @@ package com.sparta.kanbanboard.domain.card.service;
 
 import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
+import com.sparta.kanbanboard.common.security.details.UserDetailsImpl;
 import com.sparta.kanbanboard.domain.card.dto.CardRequestDto;
 import com.sparta.kanbanboard.domain.card.dto.CardResponseDto;
 import com.sparta.kanbanboard.domain.card.entity.Card;
 import com.sparta.kanbanboard.domain.card.repository.CardAdapter;
 import com.sparta.kanbanboard.domain.column.entity.Column;
 import com.sparta.kanbanboard.domain.column.repository.ColumnAdapter;
+import com.sparta.kanbanboard.domain.user.User;
 import com.sparta.kanbanboard.exception.user.UnauthorizedAccessException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -76,14 +78,20 @@ public class CardService {
 
     // 카드 생성
     @Transactional
-    public CardResponseDto createCard(CardRequestDto cardRequestDto) {
+    public CardResponseDto createCard(CardRequestDto cardRequestDto, Long userId) {
         checkUserAuthentication();
         Column column = columnAdapter.findById(cardRequestDto.getColumnId());
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User currentUser = userDetails.getUser();
+
         Card card = Card.builder()
                 .title(cardRequestDto.getTitle())
                 .contents(cardRequestDto.getContents())
                 .column(column)
                 .sequence(0) // 초기 순서 설정
+                .user(currentUser) // 사용자 설정
                 .build();
         Card savedCard = cardAdapter.save(card);
         return new CardResponseDto(savedCard);
