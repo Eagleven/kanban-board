@@ -43,9 +43,7 @@ public class ColumnService {
     @Transactional
     public ColumnResponseDto create(Long boardId, ColumnRequestDto requestDto, User user) {
         // 사용자가 보드에 참여중인지 확인 -> userAndBoard에 없으면 예외 처리
-        Optional<UserAndBoard> userAndBoard = userAndBoardAdapter.findByUserIdAndBoardId(
-                user.getId(), boardId);
-        if (userAndBoard.isEmpty()) {
+        if(!userAndBoardAdapter.existsByUserIdAndBoardId(user.getId(), boardId)){
             throw new UserNotBoardMemberException(ResponseExceptionEnum.USER_NOT_BOARD_MEMBER);
         }
 
@@ -95,9 +93,7 @@ public class ColumnService {
                 .orElseThrow(() -> new BoardNotFoundException(ResponseExceptionEnum.BOARD_NOT_FOUND));
 
         // 사용자가 보드에 참여중인지 확인 -> userAndBoard에 없으면 예외 처리
-        Optional<UserAndBoard> userAndBoard = userAndBoardAdapter.findByUserIdAndBoardId(
-                user.getId(), boardId);
-        if (userAndBoard.isEmpty()) {
+        if(!userAndBoardAdapter.existsByUserIdAndBoardId(user.getId(), boardId)){
             throw new UserNotBoardMemberException(ResponseExceptionEnum.USER_NOT_BOARD_MEMBER);
         }
 
@@ -121,9 +117,7 @@ public class ColumnService {
                 .orElseThrow(() -> new BoardNotFoundException(ResponseExceptionEnum.BOARD_NOT_FOUND));
 
         // 사용자가 보드에 참여중인지 확인 -> userAndBoard에 없으면 예외 처리
-        Optional<UserAndBoard> userAndBoard = userAndBoardAdapter.findByUserIdAndBoardId(
-                user.getId(), boardId);
-        if (userAndBoard.isEmpty()) {
+        if(!userAndBoardAdapter.existsByUserIdAndBoardId(user.getId(), boardId)){
             throw new UserNotBoardMemberException(ResponseExceptionEnum.USER_NOT_BOARD_MEMBER);
         }
 

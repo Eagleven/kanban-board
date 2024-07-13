@@ -25,7 +25,7 @@ public class UserAndBoardAdapter {
         return userAndBoardRepository.findByUserId(userId);
     }
 
-    public Optional<UserAndBoard> findByUserIdAndBoardId(Long userId, Long boardId) {
-        return userAndBoardRepository.findByUserIdAndBoardId(userId, boardId);
+    public boolean existsByUserIdAndBoardId(Long userId, Long boardId){
+        return userAndBoardRepository.existsByUserIdAndBoardId(userId, boardId);
     }
 }
