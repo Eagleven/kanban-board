@@ -4,12 +4,10 @@ import com.sparta.kanbanboard.common.HttpResponseDto;
 import com.sparta.kanbanboard.common.ResponseCodeEnum;
 import com.sparta.kanbanboard.common.ResponseUtils;
 import com.sparta.kanbanboard.domain.card.dto.CardRequestDto;
-import com.sparta.kanbanboard.domain.card.entity.Card;
+import com.sparta.kanbanboard.domain.card.dto.CardResponseDto;
 import com.sparta.kanbanboard.domain.card.service.CardService;
 import java.util.List;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/cards")
@@ -31,37 +28,36 @@ public class CardController {
     // 카드 생성
     @PostMapping
     public ResponseEntity<HttpResponseDto> createCard(@RequestBody CardRequestDto cardRequestDto) {
-        Card card = cardService.createCard(toEntity(cardRequestDto));
-        return ResponseUtils.of(ResponseCodeEnum.CARD_CREATE_SUCCESS, card);
+        CardResponseDto cardResponseDto = cardService.createCard(cardRequestDto);
+        return ResponseUtils.of(ResponseCodeEnum.CARD_CREATE_SUCCESS, cardResponseDto);
     }
 
     // 모든 카드 조회
     @GetMapping
     public ResponseEntity<HttpResponseDto> getAllcards() {
-        List<Card> cards = cardService.getAllCards();
+        List<CardResponseDto> cards = cardService.getAllCards();
         return ResponseUtils.of(ResponseCodeEnum.CARD_GET_ALL_SUCCESS, cards);
     }
 
     // 작업자별 카드 조회
     @GetMapping("/user/{userId}")
     public ResponseEntity<HttpResponseDto> getCardsByUser(@PathVariable Long userId) {
-        List<Card> cards = cardService.getCardByUser(userId);
+        List<CardResponseDto> cards = cardService.getCardByUser(userId);
         return ResponseUtils.of(ResponseCodeEnum.CARD_GET_USER_SUCCESS, cards);
     }
 
-    // 상태별 카드 조회 (Column과 합친 후에 완성 가능)
+    // 컬럼별 상태 카드 조회
     @GetMapping("/column/{columnId}")
     public ResponseEntity<HttpResponseDto> getCardsByColumn(@PathVariable Long columnId) {
-        List<Card> cards = cardService.getCardsByColumn(columnId);
+        List<CardResponseDto> cards = cardService.getCardsByColumn(columnId);
         return ResponseUtils.of(ResponseCodeEnum.CARD_COLUMN_GET_STATUS_SUCCESS, cards);
     }
-
 
     // 카드 수정
     @PutMapping("/{cardId}")
     public ResponseEntity<HttpResponseDto> updateCard(@PathVariable Long cardId,
             @RequestBody CardRequestDto cardRequestDto) {
-        Card updatedCard = cardService.updateCard(cardId, toEntity(cardRequestDto));
+        CardResponseDto updatedCard = cardService.updateCard(cardId, cardRequestDto);
         return ResponseUtils.of(ResponseCodeEnum.CARD_UPDATE_SUCCESS, updatedCard);
     }
 
@@ -70,14 +66,5 @@ public class CardController {
     public ResponseEntity<HttpResponseDto> deleteCard(@PathVariable Long cardId) {
         cardService.deleteCard(cardId);
         return ResponseUtils.of(ResponseCodeEnum.CARD_DELETE_SUCCESS);
-    }
-
-    @Builder
-    private Card toEntity(CardRequestDto dto) {
-        return Card.builder()
-                .title(dto.getTitle())
-                .contents(dto.getContents())
-                .column(dto.getColumnId())
-                .build();
     }
 }

@@ -1,0 +1,57 @@
+### 로그인
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+
+> {%
+  client.log(response.headers.valueOf("AccessToken"));
+  client.log(response.headers.valueOf("RefreshToken"));
+  client.global.set("AccessToken", response.headers.valueOf("AccessToken"));
+  client.global.set("RefreshToken", response.headers.valueOf("RefreshToken"));
+%}
+
+### 카드 생성
+POST http://localhost:8080/cards
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+{
+  "title": "테스트 카드",
+  "contents": "카드 내용",
+  "columnId": 1
+}
+
+### 모든 카드 조회
+GET http://localhost:8080/cards
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 작업자별 카드 조회
+GET http://localhost:8080/cards/user/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 컬럼별 카드 조회
+GET http://localhost:8080/cards/column/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 카드 수정
+PUT http://localhost:8080/cards/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+{
+  "title": "수정된 카드 제목",
+  "contents": "수정된 카드 내용",
+  "columnId": 1
+}
+
+### 카드 삭제
+DELETE http://localhost:8080/cards/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
