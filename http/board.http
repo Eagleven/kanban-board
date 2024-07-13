@@ -40,7 +40,7 @@ Content-Type: application/json
 }
 
 ### 보드 삭제
-DELETE http://localhost:8080/boards/3
+DELETE http://localhost:8080/boards/2
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
