@@ -7,6 +7,11 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum ResponseCodeEnum {
+    // 댓글
+    CREATE_COMMENT_SUCCESS(HttpStatus.CREATED, "댓글이 작성되었습니다."),
+    GET_COMMENTS(HttpStatus.OK, null),
+    UPDATE_COMMENT_SUCCESS(HttpStatus.OK, "댓글 수정에 성공하였습니다."),
+    DELETE_COMMENT_SUCCESS(HttpStatus.OK, "댓글이 삭제되었습니다."),
     // 유저
     SUCCESS_LOGIN(HttpStatus.OK, "로그인을 완료했습니다."),
     USER_SUCCESS_SIGNUP(HttpStatus.OK, "님의 회원가입을 완료 했습니다."),
@@ -38,6 +43,7 @@ public enum ResponseCodeEnum {
     COLUMN_LIST_RETRIEVED(HttpStatus.OK, "칼럼 목록을 성공적으로 조회했습니다."),
     COLUMN_UPDATED(HttpStatus.OK, "칼럼 수정이 성공적으로 수행되었습니다."),
     COLUMN_DELETED(HttpStatus.OK, "칼럼이 성공적으로 삭제되었습니다.");
+
     private final HttpStatus httpStatus;
     private final String message;
 }

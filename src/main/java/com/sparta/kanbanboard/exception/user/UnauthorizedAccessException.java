@@ -8,6 +8,4 @@ public class UnauthorizedAccessException extends CardException {
     public UnauthorizedAccessException(ResponseExceptionEnum responseExceptionEnum) {
         super(responseExceptionEnum);
     }
-
-
 }

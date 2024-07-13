@@ -1,3 +1,4 @@
+
 package com.sparta.kanbanboard.domain.boardandcolumn.entity;
 
 import com.sparta.kanbanboard.domain.board.entity.Board;
