@@ -3,7 +3,7 @@ package com.sparta.kanbanboard.domain.comment.entity;
 import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.common.TimeStampEntity;
 import com.sparta.kanbanboard.domain.card.entity.Card;
-import com.sparta.kanbanboard.domain.comment.dto.CommentDto;
+import com.sparta.kanbanboard.domain.comment.dto.CommentRequestDto;
 import com.sparta.kanbanboard.domain.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -43,13 +43,13 @@ public class Comment extends TimeStampEntity {
     @Enumerated(EnumType.STRING)
     private CommonStatusEnum status = CommonStatusEnum.ACTIVE;
 
-    public Comment(User user, Card card, CommentDto commentDto) {
+    public Comment(User user, Card card, CommentRequestDto commentRequestDto) {
         this.user = user;
         this.card = card;
-        this.content = commentDto.getContent();
+        this.content = commentRequestDto.getContent();
     }
 
-    public void updateComment(CommentDto commentDto){
-        this.content = commentDto.getContent();
+    public void updateComment(CommentRequestDto commentRequestDto){
+        this.content = commentRequestDto.getContent();
     }
 }

@@ -36,6 +36,9 @@ public class CommentAdapter {
     }
 
     public Comment delete(Comment comment, User user) {
+        if (comment.getStatus().equals(CommonStatusEnum.DELETED)) {
+            throw new CommentNotFoundException(ResponseExceptionEnum.COMMENT_NOT_FOUND);
+        }
         if (!comment.getUser().getUsername().equals(user.getUsername())) {
             throw new DeleteCommentFailureException(ResponseExceptionEnum.DELETE_COMMENT_FAILURE);
         }

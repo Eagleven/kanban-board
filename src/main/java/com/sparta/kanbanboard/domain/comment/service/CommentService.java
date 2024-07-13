@@ -3,7 +3,7 @@ package com.sparta.kanbanboard.domain.comment.service;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import com.sparta.kanbanboard.domain.card.entity.Card;
 import com.sparta.kanbanboard.domain.card.repository.CardAdapter;
-import com.sparta.kanbanboard.domain.comment.dto.CommentDto;
+import com.sparta.kanbanboard.domain.comment.dto.CommentRequestDto;
 import com.sparta.kanbanboard.domain.comment.dto.CommentResponseDto;
 import com.sparta.kanbanboard.domain.comment.entity.Comment;
 import com.sparta.kanbanboard.domain.comment.repository.CommentAdapter;
@@ -21,9 +21,9 @@ public class CommentService {
     private final CardAdapter cardAdapter;
     private final CommentAdapter commentAdapter;
 
-    public CommentResponseDto createComment(Long cardId, CommentDto commentDto, User user) {
+    public CommentResponseDto createComment(Long cardId, CommentRequestDto commentRequestDto, User user) {
         Card card = cardAdapter.findById(cardId);
-        Comment comment = new Comment(user, card, commentDto);
+        Comment comment = new Comment(user, card, commentRequestDto);
         return new CommentResponseDto(commentAdapter.save(comment));
     }
 
@@ -36,12 +36,12 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
-    public CommentResponseDto updateComment(Long commentId, CommentDto commentDto, User user) {
+    public CommentResponseDto updateComment(Long commentId, CommentRequestDto commentRequestDto, User user) {
         Comment comment = commentAdapter.findById(commentId);
         if (!user.getUsername().equals(comment.getUser().getUsername())) {
             throw new CreateCommentFailureException(ResponseExceptionEnum.CREATE_COMMENT_FAILURE);
         }
-        comment.updateComment(commentDto);
+        comment.updateComment(commentRequestDto);
         return new CommentResponseDto(commentAdapter.save(comment));
     }
 

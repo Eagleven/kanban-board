@@ -4,7 +4,7 @@ import com.sparta.kanbanboard.common.HttpResponseDto;
 import com.sparta.kanbanboard.common.ResponseCodeEnum;
 import com.sparta.kanbanboard.common.ResponseUtils;
 import com.sparta.kanbanboard.common.security.details.UserDetailsImpl;
-import com.sparta.kanbanboard.domain.comment.dto.CommentDto;
+import com.sparta.kanbanboard.domain.comment.dto.CommentRequestDto;
 import com.sparta.kanbanboard.domain.comment.dto.CommentResponseDto;
 import com.sparta.kanbanboard.domain.comment.service.CommentService;
 import java.util.List;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,9 +28,9 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping("/{cardId}")
-    public ResponseEntity<HttpResponseDto> createComment(@PathVariable("cardId") Long cardId, @RequestBody CommentDto commentDto,
+    public ResponseEntity<HttpResponseDto> createComment(@PathVariable("cardId") Long cardId, @RequestBody CommentRequestDto commentRequestDto,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        CommentResponseDto result = commentService.createComment(cardId, commentDto, userDetails.getUser());
+        CommentResponseDto result = commentService.createComment(cardId, commentRequestDto, userDetails.getUser());
         return ResponseUtils.of(ResponseCodeEnum.CREATE_COMMENT_SUCCESS, result);
     }
 
@@ -42,9 +41,10 @@ public class CommentController {
     }
 
     @PatchMapping("/{commentId}")
-    public ResponseEntity<HttpResponseDto> updateComment(@PathVariable("commentId") Long commentId, @RequestBody CommentDto commentDto, @AuthenticationPrincipal
+    public ResponseEntity<HttpResponseDto> updateComment(@PathVariable("commentId") Long commentId, @RequestBody CommentRequestDto commentRequestDto, @AuthenticationPrincipal
     UserDetailsImpl userDetails) {
-        CommentResponseDto commentResponseDto = commentService.updateComment(commentId, commentDto, userDetails.getUser());
+        CommentResponseDto commentResponseDto = commentService.updateComment(commentId,
+                commentRequestDto, userDetails.getUser());
         return ResponseUtils.of(ResponseCodeEnum.UPDATE_COMMENT_SUCCESS, commentResponseDto);
     }
 

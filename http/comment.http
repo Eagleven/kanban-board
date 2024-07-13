@@ -84,6 +84,6 @@ Content-Type: application/json
 }
 
 ### 댓글 삭제
-DELETE http://localhost:8080/comments/1
+DELETE http://localhost:8080/comments/2
 AccessToken: {{AccessToken}}
 Content-Type: application/json
