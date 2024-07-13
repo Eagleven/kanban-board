@@ -41,14 +41,14 @@ AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 ### 카드 수정
-PUT http://localhost:8080/cards/1
+PUT http://localhost:8080/cards/7
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 {
   "title": "수정된 카드 제목",
   "contents": "수정된 카드 내용",
-  "columnId": 1
+  "columnId": 2
 }
 
 ### 카드 삭제

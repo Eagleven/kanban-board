@@ -17,9 +17,9 @@ public class CardRequestDto {
     @NotBlank(message = "카드 내용을 입력해주세요.")
     public String contents;
 
-    private Long columnId;
-
 //    private Long userId;
+
+    private Long columnId;
 
     private LocalDateTime dueDate;
 
