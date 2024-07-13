@@ -120,8 +120,6 @@
 <script>
 	function signup() {
 
-		event.preventDefault();
-
 		let username = $('#username').val();
 		let password = $('#password').val();
 		let name = $('#name').val();
@@ -143,6 +141,10 @@
 				console.error('Response Status:', xhr.status);
 				console.error('Error:', xhr.responseText);
 				alert('회원가입에 실패하였습니다.');
+				$('#username').val('');
+				$('#password').val('');
+				$('#name').val('');
+				$('#email').val('');
 			}
 		});
 	}

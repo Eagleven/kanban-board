@@ -3,7 +3,7 @@ package com.sparta.kanbanboard.domain.comment.controller;
 import com.sparta.kanbanboard.common.HttpResponseDto;
 import com.sparta.kanbanboard.common.ResponseCodeEnum;
 import com.sparta.kanbanboard.common.ResponseUtils;
-import com.sparta.kanbanboard.common.security.UserDetailsImpl;
+import com.sparta.kanbanboard.common.security.details.UserDetailsImpl;
 import com.sparta.kanbanboard.domain.comment.dto.CommentDto;
 import com.sparta.kanbanboard.domain.comment.dto.CommentResponseDto;
 import com.sparta.kanbanboard.domain.comment.service.CommentService;
@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -40,17 +41,17 @@ public class CommentController {
         return ResponseUtils.of(ResponseCodeEnum.GET_COMMENTS, comments);
     }
 
-    @PutMapping("/{commentId}")
+    @PatchMapping("/{commentId}")
     public ResponseEntity<HttpResponseDto> updateComment(@PathVariable("commentId") Long commentId, @RequestBody CommentDto commentDto, @AuthenticationPrincipal
     UserDetailsImpl userDetails) {
-        CommentResponseDto commentResponseDto = commentService.updateComment(commentId, commentDto, userDetails.getUsername());
+        CommentResponseDto commentResponseDto = commentService.updateComment(commentId, commentDto, userDetails.getUser());
         return ResponseUtils.of(ResponseCodeEnum.UPDATE_COMMENT_SUCCESS, commentResponseDto);
     }
 
     @DeleteMapping("/{commentId}")
     public ResponseEntity<HttpResponseDto> deleteComment(@PathVariable("commentId") Long commentId, @AuthenticationPrincipal
     UserDetailsImpl userDetails) {
-        commentService.deleteComment(commentId, userDetails.getUsername());
+        commentService.deleteComment(commentId, userDetails.getUser());
         return ResponseUtils.of(ResponseCodeEnum.DELETE_COMMENT_SUCCESS);
     }
 }

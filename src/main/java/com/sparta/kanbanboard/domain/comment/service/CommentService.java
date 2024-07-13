@@ -21,7 +21,6 @@ public class CommentService {
     private final CardAdapter cardAdapter;
     private final CommentAdapter commentAdapter;
 
-
     public CommentResponseDto createComment(Long cardId, CommentDto commentDto, User user) {
         Card card = cardAdapter.findById(cardId);
         Comment comment = new Comment(user, card, commentDto);
@@ -37,17 +36,17 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
-    public CommentResponseDto updateComment(Long commentId, CommentDto commentDto, String username) {
+    public CommentResponseDto updateComment(Long commentId, CommentDto commentDto, User user) {
         Comment comment = commentAdapter.findById(commentId);
-        if (!username.equals(comment.getUser().getUsername())) {
+        if (!user.getUsername().equals(comment.getUser().getUsername())) {
             throw new CreateCommentFailureException(ResponseExceptionEnum.CREATE_COMMENT_FAILURE);
         }
         comment.updateComment(commentDto);
         return new CommentResponseDto(commentAdapter.save(comment));
     }
 
-    public void deleteComment(Long commentId, String username) {
+    public void deleteComment(Long commentId, User user) {
         Comment comment = commentAdapter.findById(commentId);
-        commentAdapter.delete(comment, username);
+        commentAdapter.delete(comment, user);
     }
 }

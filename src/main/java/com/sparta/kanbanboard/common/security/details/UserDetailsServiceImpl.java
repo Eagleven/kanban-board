@@ -1,3 +1,4 @@
+
 package com.sparta.kanbanboard.common.security.details;
 
 import com.sparta.kanbanboard.domain.user.User;

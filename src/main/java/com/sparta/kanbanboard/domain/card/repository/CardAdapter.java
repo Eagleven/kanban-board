@@ -27,8 +27,7 @@ public class CardAdapter {
         return cardRepository.findAll();
     }
 
-    // 사용자 ID로 카드 조회.
-
+    // 사용자 ID로 카드 조회
     public List<Card> findByUserId(Long userId) {
         return cardRepository.findByUserId(userId);
     }
@@ -137,5 +136,3 @@ public class CardAdapter {
     }
 
 }
-
-

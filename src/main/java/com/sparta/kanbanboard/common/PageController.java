@@ -10,7 +10,7 @@ public class PageController {
         return "signup";
     }
 
-    @GetMapping("/index")
+    @GetMapping("/")
     public String indexPage() {
         return "index";
     }

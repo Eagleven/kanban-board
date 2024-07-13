@@ -1,4 +1,4 @@
-package com.sparta.kanbanboard.common.security.filters;
+package com.sparta.kanbanboard.domain.userandboard.repository.filters;
 
 import static com.sparta.kanbanboard.common.ResponseCodeEnum.SUCCESS_LOGOUT;
 import static com.sparta.kanbanboard.common.ResponseExceptionEnum.NOT_FOUND_AUTHENTICATION_INFO;
@@ -60,8 +60,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
+
+
     private void validToken(String token) throws UserException {
         Claims info = tokenProvider.getUserInfoFromToken(token);
+
         try {
             setAuthentication(info.getSubject());
         } catch (RuntimeException e) {
@@ -69,6 +72,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             throw new UserException(NOT_FOUND_AUTHENTICATION_INFO);
         }
     }
+
     private void invalidToken(HttpServletRequest request, HttpServletResponse response)
             throws IllegalAccessException {
         String refreshToken = tokenProvider.getRefreshTokenFromHeader(request);
@@ -80,7 +84,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 Role role = Role.valueOf(info.get("auth").toString());
 
                 String newAccessToken = tokenProvider.reissueAccessToken(info.getSubject(), role);
+
                 tokenProvider.setHeaderAccessToken(response, newAccessToken);
+
                 try {
                     setAuthentication(info.getSubject());
                 } catch (Exception e) {
