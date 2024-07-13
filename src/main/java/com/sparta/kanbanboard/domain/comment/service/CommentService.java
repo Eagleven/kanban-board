@@ -8,6 +8,8 @@ import com.sparta.kanbanboard.domain.comment.dto.CommentResponseDto;
 import com.sparta.kanbanboard.domain.comment.entity.Comment;
 import com.sparta.kanbanboard.domain.comment.repository.CommentAdapter;
 import com.sparta.kanbanboard.domain.user.User;
+import com.sparta.kanbanboard.domain.userandboard.entity.UserAndBoard;
+import com.sparta.kanbanboard.domain.userandboard.repository.UserAndBoardAdapter;
 import com.sparta.kanbanboard.exception.comment.CreateCommentFailureException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +22,7 @@ public class CommentService {
 
     private final CardAdapter cardAdapter;
     private final CommentAdapter commentAdapter;
+    private final UserAndBoardAdapter userAndBoardAdapter;
 
     public CommentResponseDto createComment(Long cardId, CommentRequestDto commentRequestDto, User user) {
         Card card = cardAdapter.findById(cardId);

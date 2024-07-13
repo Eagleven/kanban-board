@@ -20,8 +20,8 @@ AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 {
-  "name" : "이름",
-  "explanation" : "내용"
+  "name" : "board1",
+  "explanation" : "board1"
 }
 
 ### 보드 조회
@@ -35,8 +35,8 @@ AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 {
-  "name" : "수정된 이름2",
-  "explanation" : "수정된 내용2"
+  "name" : "board",
+  "explanation" : "board"
 }
 
 ### 보드 삭제
