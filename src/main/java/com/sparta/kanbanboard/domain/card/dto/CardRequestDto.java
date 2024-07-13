@@ -1,7 +1,7 @@
 package com.sparta.kanbanboard.domain.card.dto;
 
-import com.sparta.kanbanboard.domain.column.entity.Column;
 import jakarta.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,5 +17,11 @@ public class CardRequestDto {
     @NotBlank(message = "카드 내용을 입력해주세요.")
     public String contents;
 
-    private Column columnId;
+    @Setter
+    private Long userId;
+
+    @Setter
+    private Long columnId;
+
+    private LocalDateTime dueDate;
 }

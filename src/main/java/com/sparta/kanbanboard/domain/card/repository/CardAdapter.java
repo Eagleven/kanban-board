@@ -2,6 +2,7 @@ package com.sparta.kanbanboard.domain.card.repository;
 
 import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
+import com.sparta.kanbanboard.domain.card.dto.CardRequestDto;
 import com.sparta.kanbanboard.domain.card.entity.Card;
 import com.sparta.kanbanboard.domain.column.entity.Column;
 import com.sparta.kanbanboard.domain.column.repository.ColumnAdapter;
@@ -73,24 +74,24 @@ public class CardAdapter {
     }
 
     // 카드 수정
-    public Card update(Long cardId, Card updatedCard) {
+    public Card update(Long cardId, CardRequestDto updatedCard, Column column) {
         Card existingCard = findById(cardId);
         if (existingCard.getStatus() == CommonStatusEnum.DELETED) {
             throw new CardNotFoundException(ResponseExceptionEnum.CARD_NOT_FOUND);
         }
-        updateCardFields(existingCard, updatedCard);
+        updateCardFields(existingCard, updatedCard, column);
         return save(existingCard);
     }
 
 
     // 카드 순서 변경
-    public void updateCardOrder(Long cardId, Column newColumn, int newSequence) {
+    public void updateCardOrder(Long cardId, Long newColumnId, int newSequence) {
         Card card = findById(cardId);
         if (card.getStatus() == CommonStatusEnum.DELETED) {
             throw new CardNotFoundException(ResponseExceptionEnum.CARD_NOT_FOUND);
         }
-        validateColumnExists(newColumn.getId());
-        card.setColumn(newColumn);
+        validateColumnExists(newColumnId);
+        card.setColumn(newColumnId);
         card.setSequence(newSequence);
         save(card);
     }
@@ -112,7 +113,7 @@ public class CardAdapter {
     }
 
 
-    private void updateCardFields(Card existingCard, Card updatedCard) {
+    private void updateCardFields(Card existingCard, CardRequestDto updatedCard, Column column) {
         if (updatedCard.getTitle() != null) {
             existingCard.setTitle(updatedCard.getTitle());
         }
@@ -122,18 +123,16 @@ public class CardAdapter {
         if (updatedCard.getDueDate() != null) {
             existingCard.setDueDate(updatedCard.getDueDate());
         }
-        if (updatedCard.getUser() != null) {
-            existingCard.setUser(updatedCard.getUser());
+        if (updatedCard.getUserId() != null) {
+            existingCard.setUser(updatedCard.getUserId());
         }
 
-        if (updatedCard.getColumn() != null) {
-            validateColumnExists(updatedCard.getColumn().getId());
-            existingCard.setColumn(updatedCard.getColumn());
+        if (updatedCard.getColumnId() != null) {
+            validateColumnExists(updatedCard.getColumnId());
+            existingCard.setColumn(updatedCard.getColumnId());
         }
 
 
     }
 
 }
-
-

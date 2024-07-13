@@ -1,5 +1,6 @@
 package com.sparta.kanbanboard.domain.card.dto;
 
+import com.sparta.kanbanboard.domain.card.entity.Card;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,14 +9,16 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class CardResponseDto {
-    public Long id;
-    public String title;
-    public String contents;
 
-    public CardResponseDto(Long id, String title, String contents) {
-        this.id = id;
-        this.title = title;
-        this.contents = contents;
+    private Long id;
+    private String title;
+    private String contents;
+    private int sequence;
+
+    public CardResponseDto(Card card) {
+        this.id = card.getId();
+        this.title = card.getTitle();
+        this.contents = card.getContents();
+        this.sequence = card.getSequence();
     }
-
 }

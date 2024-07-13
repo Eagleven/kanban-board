@@ -33,16 +33,22 @@ public class ColumnAdapter {
         );
 
         if (isColumnDeleted(column)) {
-            throw new ColumnAlreadyDeletedException(ResponseExceptionEnum.DELETED_COLUMN);
+            throw new ColumnAlreadyDeletedException(ResponseExceptionEnum.COLUMN_ALREADY_DELETE);
         }
 
         return column;
     }
 
     public List<Column> findAll() {
-        return columnRepository.findAll().stream()
+        List<Column> columns = columnRepository.findAll().stream()
                 .filter(column -> column.getStatus().equals(CommonStatusEnum.ACTIVE))
                 .collect(Collectors.toList());
+
+        if (columns.isEmpty()) {
+            throw new ColumnNotFoundException(ResponseExceptionEnum.COLUMN_NOT_FOUND);
+        }
+
+        return  columns;
     }
 
     public boolean isColumnDeleted(Column column) {

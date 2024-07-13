@@ -31,7 +31,7 @@ AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 ### 특정 유저 조회
-GET http://localhost:8080/users/user?userId=2
+GET http://localhost:8080/users/user?userId=1
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 

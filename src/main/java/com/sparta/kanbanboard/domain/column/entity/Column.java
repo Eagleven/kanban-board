@@ -49,19 +49,29 @@ public class Column extends TimeStampEntity {
     private List<Card> cards = new ArrayList<>();
 
     @Builder
-    public Column(Long id, String name, CommonStatusEnum status, List<Card> cards) {
+    public Column(Long id, String name, CommonStatusEnum status, int sequence, List<Card> cards, User user) {
         this.id = id;
         this.name = name;
         this.status = status;
+        this.sequence = sequence;
         this.cards = cards;
+        this.user = user;
     }
 
+    // static 에 @Builder 를 쓰려면 모든 필드를 가진 생성자가 존재해야한다
     @Builder
-    public static Column toEntity(ColumnRequestDto requestDto) {
+    public static Column toEntity(ColumnRequestDto requestDto, int sequence, User user) {
         return Column.builder()
                 .name(requestDto.getName())
                 .status(CommonStatusEnum.ACTIVE)
+                .sequence(sequence)
+                .user(user)
                 .build();
+    }
+
+    public Column updateSequence(int sequence) {
+        this.sequence = sequence;
+        return this;
     }
 
     public Column update(ColumnRequestDto requestDto) {

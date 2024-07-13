@@ -18,15 +18,6 @@ public enum ResponseExceptionEnum {
     FAIL_TO_CHANGE_ROLE(HttpStatus.BAD_REQUEST, "Role 변경을 실패했습니다."),
     UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다."),
 
-    // 카드
-    INVALID_CARD_DATA(HttpStatus.NOT_FOUND, "카드 필수 데이터가 없습니다."),
-    CARD_NOT_FOUND(HttpStatus.NOT_FOUND, "카드를 찾을 수 없습니다."),
-
-    // 컬럼
-    COLUMN_NOT_FOUND(HttpStatus.NOT_FOUND, "컬럼을 찾을 수 없습니다."),
-    DELETED_COLUMN(HttpStatus.BAD_REQUEST, "삭제된 칼람 입니다."),
-
-
     // board
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 보드입니다."),
     BOARD_ALREADY_DELETED(HttpStatus.GONE, "이미 삭제된 보드입니다."),
@@ -37,9 +28,22 @@ public enum ResponseExceptionEnum {
     USER_NOT_BOARD_MEMBER(HttpStatus.FORBIDDEN, "보드의 멤버가 아닙니다."),
     USER_ALREADY_BOARD_MEMBER(HttpStatus.FORBIDDEN, "이미 보드에 초대된 사용자입니다."),
 
+    // column
+    COLUMN_NOT_FOUND(HttpStatus.NOT_FOUND, "칼럼을 찾을 수 없습니다"),
+    COLUMN_ALREADY_DELETE(HttpStatus.BAD_REQUEST, "삭제된 칼럼 입니다."),
+    FORBIDDEN_CREATE_COLUMN(HttpStatus.FORBIDDEN, "칼럼은 manager 사용자만 생성할 수 있습니다."),
+    FORBIDDEN_UPDATE_COLUMN(HttpStatus.FORBIDDEN, "칼럼은 manager 사용자만 생성할 수 있습니다."),
+
+    // card
+    INVALID_CARD_DATA(HttpStatus.NOT_FOUND, "카드 필수 데이터가 없습니다."),
+    CARD_NOT_FOUND(HttpStatus.NOT_FOUND, "카드를 찾을 수 없습니다."),
+
+    // 댓글
+    CREATE_COMMENT_FAILURE(HttpStatus.BAD_REQUEST, "댓글 작성에 실패하였습니다."),
+    DELETE_COMMENT_FAILURE(HttpStatus.BAD_REQUEST, "해당 댓글을 삭제할 수 없습니다"),
+    COMMENT_NOT_FOUND(HttpStatus.BAD_REQUEST, "댓글을 찾을 수 없습니다."),
+    COMMENT_CONTENT_REQUIRED(HttpStatus.BAD_REQUEST, "댓글을 입력하세요.")
     ;
-
-
     private final HttpStatus httpStatus;
     private final String message;
 }

@@ -1,6 +1,5 @@
 package com.sparta.kanbanboard.exception.card;
 
-import com.sparta.kanbanboard.common.ResponseCodeEnum;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 
 public class CardNotFoundException extends CardException{

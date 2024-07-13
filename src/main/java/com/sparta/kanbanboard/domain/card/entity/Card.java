@@ -81,4 +81,10 @@ public class Card extends TimeStampEntity {
     public void delete() {
         this.status = CommonStatusEnum.DELETED;
     }
+
+    public void setUser(Long user) {
+    }
+
+    public void setColumn(Long column) {
+    }
 }
