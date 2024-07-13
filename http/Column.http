@@ -24,7 +24,7 @@ Content-Type: application/json
 }
 
 ### 칼럼선택조회
-GET http://localhost:8080/column/2
+GET http://localhost:8080/column/1
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
@@ -34,7 +34,7 @@ AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 ### 칼럼수정
-PATCH http://localhost:8080/column/2
+PATCH http://localhost:8080/column/1
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
