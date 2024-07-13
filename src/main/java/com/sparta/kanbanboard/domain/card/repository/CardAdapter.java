@@ -123,9 +123,9 @@ public class CardAdapter {
         if (updatedCard.getDueDate() != null) {
             existingCard.setDueDate(updatedCard.getDueDate());
         }
-        if (updatedCard.getUserId() != null) {
-            existingCard.setUser(updatedCard.getUserId());
-        }
+//        if (updatedCard.getUserId() != null) {
+//            existingCard.setUser(updatedCard.getUserId());
+//        }
 
         if (updatedCard.getColumnId() != null) {
             validateColumnExists(updatedCard.getColumnId());
