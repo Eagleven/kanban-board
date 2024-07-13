@@ -2,6 +2,7 @@ package com.sparta.kanbanboard.domain.card.service;
 
 import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
+import com.sparta.kanbanboard.domain.card.dto.CardRequestDto;
 import com.sparta.kanbanboard.domain.card.entity.Card;
 import com.sparta.kanbanboard.domain.card.repository.CardAdapter;
 import com.sparta.kanbanboard.domain.column.entity.Column;
@@ -62,21 +63,29 @@ public class CardService {
 
     // 카드 생성
     @Transactional
-    public Card createCard(Card card) {
+    public Card createCard(CardRequestDto cardRequestDto) {
         checkUserAuthentication();
+        Column column = columnAdapter.findById(cardRequestDto.getColumnId());
+        Card card = Card.builder()
+                .title(cardRequestDto.getTitle())
+                .contents(cardRequestDto.getContents())
+                .column(column)
+                .sequence(0) // 초기 순서 설정
+                .build();
         return cardAdapter.save(card);
     }
 
     // 카드 수정
     @Transactional
-    public Card updateCard(Long cardId, Card updatedCard) {
+    public Card updateCard(Long cardId, CardRequestDto cardRequestDto) {
         checkUserAuthentication();
-        return cardAdapter.update(cardId, updatedCard);
+        Column column = columnAdapter.findById(cardRequestDto.getColumnId());
+        return cardAdapter.update(cardId, cardRequestDto, column);
     }
 
     // 카드 위치 수정
     @Transactional
-    public void updateCardOrder(Long cardId, Column newColumnId, int newSequence) {
+    public void updateCardOrder(Long cardId, Long newColumnId, int newSequence) {
         checkUserAuthentication();
         cardAdapter.updateCardOrder(cardId, newColumnId, newSequence);
     }

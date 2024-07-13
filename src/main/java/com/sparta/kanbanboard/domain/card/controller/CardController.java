@@ -7,7 +7,6 @@ import com.sparta.kanbanboard.domain.card.dto.CardRequestDto;
 import com.sparta.kanbanboard.domain.card.entity.Card;
 import com.sparta.kanbanboard.domain.card.service.CardService;
 import java.util.List;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +30,7 @@ public class CardController {
     // 카드 생성
     @PostMapping
     public ResponseEntity<HttpResponseDto> createCard(@RequestBody CardRequestDto cardRequestDto) {
-        Card card = cardService.createCard(toEntity(cardRequestDto));
+        Card card = cardService.createCard(cardRequestDto);
         return ResponseUtils.of(ResponseCodeEnum.CARD_CREATE_SUCCESS, card);
     }
 
@@ -49,7 +48,7 @@ public class CardController {
         return ResponseUtils.of(ResponseCodeEnum.CARD_GET_USER_SUCCESS, cards);
     }
 
-    // 상태별 카드 조회 (Column과 합친 후에 완성 가능)
+    // 컬럼별 상태 카드 조회
     @GetMapping("/column/{columnId}")
     public ResponseEntity<HttpResponseDto> getCardsByColumn(@PathVariable Long columnId) {
         List<Card> cards = cardService.getCardsByColumn(columnId);
@@ -61,7 +60,7 @@ public class CardController {
     @PutMapping("/{cardId}")
     public ResponseEntity<HttpResponseDto> updateCard(@PathVariable Long cardId,
             @RequestBody CardRequestDto cardRequestDto) {
-        Card updatedCard = cardService.updateCard(cardId, toEntity(cardRequestDto));
+        Card updatedCard = cardService.updateCard(cardId, cardRequestDto);
         return ResponseUtils.of(ResponseCodeEnum.CARD_UPDATE_SUCCESS, updatedCard);
     }
 
@@ -72,12 +71,12 @@ public class CardController {
         return ResponseUtils.of(ResponseCodeEnum.CARD_DELETE_SUCCESS);
     }
 
-    @Builder
-    private Card toEntity(CardRequestDto dto) {
-        return Card.builder()
-                .title(dto.getTitle())
-                .contents(dto.getContents())
-                .column(dto.getColumnId())
-                .build();
-    }
+//    @Builder
+//    private Card toEntity(CardRequestDto dto) {
+//        return Card.builder()
+//                .title(dto.getTitle())
+//                .contents(dto.getContents())
+//                .column(dto.getColumnId())
+//                .build();
+//    }
 }
