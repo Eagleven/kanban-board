@@ -19,8 +19,4 @@ public class CardRequestDto {
 
     private LocalDateTime dueDate;
 
-//    public void setUserId(Long user) {
-//        this.userId = user;
-//    }
-
 }

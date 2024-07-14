@@ -11,6 +11,7 @@ import com.sparta.kanbanboard.domain.user.User;
 import com.sparta.kanbanboard.domain.user.utils.Role;
 import com.sparta.kanbanboard.domain.userandboard.repository.UserAndBoardAdapter;
 import com.sparta.kanbanboard.exception.comment.CreateCommentFailureException;
+import com.sparta.kanbanboard.exception.comment.UpdateCommentFailureException;
 import com.sparta.kanbanboard.exception.userandboard.UserNotBoardMemberException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,7 +49,7 @@ public class CommentService {
     public CommentResponseDto updateComment(Long commentId, CommentRequestDto commentRequestDto, User user) {
         Comment comment = commentAdapter.findById(commentId);
         if (!user.getUsername().equals(comment.getUser().getUsername()) && !user.getUserRole().equals(Role.MANAGER)) {
-            throw new CreateCommentFailureException(ResponseExceptionEnum.CREATE_COMMENT_FAILURE);
+            throw new UpdateCommentFailureException(ResponseExceptionEnum.UPDATE_COMMENT_FAILURE);
         }
         comment.updateComment(commentRequestDto);
         return new CommentResponseDto(commentAdapter.save(comment));

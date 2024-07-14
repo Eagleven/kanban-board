@@ -46,22 +46,22 @@ AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 ### 보드 수정
-PATCH http://localhost:8080/boards/5
+PATCH http://localhost:8080/boards/2
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 {
-  "name" : "board",
-  "explanation" : "board"
+  "name" : "board2",
+  "explanation" : "board2"
 }
 
 ### 보드 삭제
-DELETE http://localhost:8080/boards/1
+DELETE http://localhost:8080/boards/2
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 ### 보드 초대
-POST http://localhost:8080/boards/1/invite/1
+POST http://localhost:8080/boards/1/invite/3
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
@@ -71,7 +71,7 @@ AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 {
-  "name" : "column3"
+  "name" : "column5"
 }
 
 ### 칼럼전체조회
@@ -85,7 +85,7 @@ AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 {
-  "name":"update test"
+  "name":"update test2"
 }
 
 ### 칼럼삭제
@@ -94,7 +94,7 @@ AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 ### 카드 생성
-POST http://localhost:8080/cards/5
+POST http://localhost:8080/cards/2
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
@@ -109,17 +109,17 @@ AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 ### 작업자별 카드 조회
-GET http://localhost:8080/cards/user/5
+GET http://localhost:8080/cards/user/1
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 ### 컬럼별 카드 조회
-GET http://localhost:8080/cards/9
+GET http://localhost:8080/cards/1
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 ### 카드 수정
-PUT http://localhost:8080/cards/5
+PUT http://localhost:8080/cards/8
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
@@ -129,12 +129,12 @@ Content-Type: application/json
 }
 
 ### 카드 삭제
-DELETE http://localhost:8080/cards/1
+DELETE http://localhost:8080/cards/9
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 ### 댓글 생성
-POST http://localhost:8080/comments/35
+POST http://localhost:8080/comments/6
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
@@ -148,7 +148,7 @@ AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 ### 댓글 수정
-PATCH http://localhost:8080/comments/1
+PATCH http://localhost:8080/comments/9
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
@@ -157,6 +157,6 @@ Content-Type: application/json
 }
 
 ### 댓글 삭제
-DELETE http://localhost:8080/comments/2
+DELETE http://localhost:8080/comments/9
 AccessToken: {{AccessToken}}
 Content-Type: application/json

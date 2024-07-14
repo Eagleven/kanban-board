@@ -1,15 +1,13 @@
 package com.sparta.kanbanboard.domain.board.service;
 
-import com.sparta.kanbanboard.common.CommonStatusEnum;
-import com.sparta.kanbanboard.common.ResponseExceptionEnum;
-
 import static com.sparta.kanbanboard.domain.user.utils.Role.MANAGER;
 
+import com.sparta.kanbanboard.common.CommonStatusEnum;
+import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import com.sparta.kanbanboard.domain.board.dto.BoardRequestDto;
 import com.sparta.kanbanboard.domain.board.dto.BoardResponseDto;
 import com.sparta.kanbanboard.domain.board.entity.Board;
 import com.sparta.kanbanboard.domain.board.repository.BoardAdapter;
-import com.sparta.kanbanboard.domain.column.entity.Column;
 import com.sparta.kanbanboard.domain.column.repository.ColumnRepository;
 import com.sparta.kanbanboard.domain.user.User;
 import com.sparta.kanbanboard.domain.user.repository.UserAdapter;
@@ -20,7 +18,6 @@ import com.sparta.kanbanboard.exception.board.BoardForbiddenException;
 import com.sparta.kanbanboard.exception.userandboard.UserAlreadyBoardMemberException;
 import com.sparta.kanbanboard.exception.userandboard.UserNotBoardMemberException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +38,6 @@ public class BoardService {
     private final BoardAdapter boardAdapter;
     private final UserAndBoardAdapter userAndBoardAdapter;
     private final UserAdapter userAdapter;
-    private final ColumnRepository columnRepository;
 
     // 보드 생성
     @Transactional

@@ -2,7 +2,6 @@ package com.sparta.kanbanboard.domain.card.service;
 
 import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
-import com.sparta.kanbanboard.common.security.details.UserDetailsImpl;
 import com.sparta.kanbanboard.domain.card.dto.CardRequestDto;
 import com.sparta.kanbanboard.domain.card.dto.CardResponseDto;
 import com.sparta.kanbanboard.domain.card.entity.Card;
@@ -14,7 +13,6 @@ import com.sparta.kanbanboard.domain.user.User;
 import com.sparta.kanbanboard.domain.user.utils.Role;
 import com.sparta.kanbanboard.domain.userandboard.repository.UserAndBoardAdapter;
 import com.sparta.kanbanboard.exception.card.CardUpdateFailureException;
-import com.sparta.kanbanboard.exception.comment.CreateCommentFailureException;
 import com.sparta.kanbanboard.exception.user.UnauthorizedAccessException;
 import com.sparta.kanbanboard.exception.userandboard.UserNotBoardMemberException;
 import java.util.List;

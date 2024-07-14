@@ -15,8 +15,6 @@ public interface CardRepository extends JpaRepository<Card, Long> {
 
     List<Card> findByStatusAndUserId(CommonStatusEnum status, Long userId);
 
-    List<Card> findByColumn(Column column);
-
     List<Card> findByColumnAndStatus(Column column, CommonStatusEnum status);
 
 }

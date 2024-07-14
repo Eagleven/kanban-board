@@ -6,7 +6,6 @@ import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import com.sparta.kanbanboard.domain.board.entity.Board;
 import com.sparta.kanbanboard.domain.board.repository.BoardAdapter;
-import com.sparta.kanbanboard.domain.card.entity.Card;
 import com.sparta.kanbanboard.domain.card.repository.CardRepository;
 import com.sparta.kanbanboard.domain.column.dto.ColumnRequestDto;
 import com.sparta.kanbanboard.domain.column.dto.ColumnResponseDto;
@@ -17,6 +16,7 @@ import com.sparta.kanbanboard.domain.user.User;
 import com.sparta.kanbanboard.domain.userandboard.repository.UserAndBoardAdapter;
 import com.sparta.kanbanboard.exception.board.BoardForbiddenException;
 import com.sparta.kanbanboard.exception.column.ColumnForbiddenException;
+import com.sparta.kanbanboard.exception.column.ColumnNotFoundException;
 import com.sparta.kanbanboard.exception.userandboard.UserNotBoardMemberException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -79,6 +79,9 @@ public class ColumnService {
 
     @Transactional
     public ColumnResponseDto update(Long boardId, Long columnId, ColumnRequestDto requestDto, User user) {
+
+        Board board = boardAdapter.findById(boardId);
+
         // 사용자가 보드에 참여중인지 확인 -> userAndBoard에 없으면 예외 처리
         if(!userAndBoardAdapter.existsByUserIdAndBoardId(user.getId(), boardId)){
             throw new UserNotBoardMemberException(ResponseExceptionEnum.USER_NOT_BOARD_MEMBER);
@@ -90,6 +93,10 @@ public class ColumnService {
         }
 
         Column column = columnAdapter.findById(columnId);
+        if (!board.getColumns().contains(column)) {
+            throw new ColumnNotFoundException(ResponseExceptionEnum.COLUMN_NOT_FOUND);
+        }
+
         return ColumnResponseDto.of(column.update(requestDto));
     }
 

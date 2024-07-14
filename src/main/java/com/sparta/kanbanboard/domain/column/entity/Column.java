@@ -5,7 +5,6 @@ import com.sparta.kanbanboard.common.TimeStampEntity;
 import com.sparta.kanbanboard.domain.board.entity.Board;
 import com.sparta.kanbanboard.domain.card.entity.Card;
 import com.sparta.kanbanboard.domain.column.dto.ColumnRequestDto;
-import com.sparta.kanbanboard.domain.comment.entity.Comment;
 import com.sparta.kanbanboard.domain.user.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;

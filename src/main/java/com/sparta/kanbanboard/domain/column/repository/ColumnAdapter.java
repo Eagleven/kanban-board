@@ -26,7 +26,6 @@ public class ColumnAdapter {
         return columnRepository.existsById(columnId);
     }
 
-
     public Column findById(Long columnId) {
         Column column = columnRepository.findById(columnId)
                 .orElseThrow(() -> new ColumnNotFoundException(ResponseExceptionEnum.COLUMN_NOT_FOUND)
@@ -35,20 +34,7 @@ public class ColumnAdapter {
         if (isColumnDeleted(column)) {
             throw new ColumnAlreadyDeletedException(ResponseExceptionEnum.COLUMN_ALREADY_DELETE);
         }
-
         return column;
-    }
-
-    public List<Column> findAll() {
-        List<Column> columns = columnRepository.findAll().stream()
-                .filter(column -> column.getStatus().equals(CommonStatusEnum.ACTIVE))
-                .collect(Collectors.toList());
-
-        if (columns.isEmpty()) {
-            throw new ColumnNotFoundException(ResponseExceptionEnum.COLUMN_NOT_FOUND);
-        }
-
-        return  columns;
     }
 
     public boolean isColumnDeleted(Column column) {

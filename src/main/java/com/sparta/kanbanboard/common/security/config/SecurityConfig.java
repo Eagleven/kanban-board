@@ -30,7 +30,6 @@ public class SecurityConfig {
 
     private final TokenProvider tokenProvider;
     private final UserDetailsServiceImpl userDetailsService;
-    private final UserRepository userRepository;
     private final AuthenticationConfiguration authenticationConfiguration;
 
     @Bean
