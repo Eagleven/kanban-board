@@ -5,7 +5,9 @@ import com.sparta.kanbanboard.common.TimeStampEntity;
 import com.sparta.kanbanboard.domain.board.entity.Board;
 import com.sparta.kanbanboard.domain.card.entity.Card;
 import com.sparta.kanbanboard.domain.column.dto.ColumnRequestDto;
+import com.sparta.kanbanboard.domain.comment.entity.Comment;
 import com.sparta.kanbanboard.domain.user.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -58,7 +60,7 @@ public class Column extends TimeStampEntity {
     @JoinColumn(name = "board_id", nullable = false)
     private Board board;
 
-    @OneToMany(mappedBy = "column")
+    @OneToMany(mappedBy = "column", cascade = CascadeType.ALL)
     private List<Card> cards = new ArrayList<>();
 
     @Builder
@@ -80,5 +82,12 @@ public class Column extends TimeStampEntity {
     public Column update(ColumnRequestDto requestDto) {
         this.name = requestDto.getName();
         return this;
+    }
+
+    public void delete() {
+        this.status = CommonStatusEnum.DELETED;
+        for (Card card : cards) {
+            card.delete();
+        }
     }
 }

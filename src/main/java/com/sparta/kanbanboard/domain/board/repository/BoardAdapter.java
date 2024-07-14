@@ -22,11 +22,16 @@ public class BoardAdapter {
 
     public Board findById(Long id) {
         return boardRepository.findById(id)
-                .filter(board -> board.getStatus() != CommonStatusEnum.DELETED)
+                .filter(board -> board.getStatus() == CommonStatusEnum.ACTIVE)
                 .orElseThrow(() -> new BoardNotFoundException(ResponseExceptionEnum.BOARD_NOT_FOUND));
     }
 
-    public Page<Board> findByIdIn(List<Long> boardIdList, Pageable pageable){
-        return boardRepository.findByIdIn(boardIdList, pageable);
+    public Page<Board> findByIdIn(List<Long> boardIdList, Pageable pageable, CommonStatusEnum status){
+        return boardRepository.findByIdInAndStatus(boardIdList, pageable, status);
+    }
+
+    public void delete(Board board) {
+        board.delete(board);
+        boardRepository.save(board);
     }
 }

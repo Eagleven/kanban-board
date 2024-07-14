@@ -29,8 +29,7 @@ public class ColumnAdapter {
 
     public Column findById(Long columnId) {
         Column column = columnRepository.findById(columnId)
-                .orElseThrow(
-                () -> new ColumnNotFoundException(ResponseExceptionEnum.COLUMN_NOT_FOUND)
+                .orElseThrow(() -> new ColumnNotFoundException(ResponseExceptionEnum.COLUMN_NOT_FOUND)
         );
 
         if (isColumnDeleted(column)) {
@@ -54,5 +53,10 @@ public class ColumnAdapter {
 
     public boolean isColumnDeleted(Column column) {
         return column.getStatus().equals(CommonStatusEnum.DELETED);
+    }
+
+    public void deleteColumn(Column column) {
+        column.delete();
+        columnRepository.save(column);
     }
 }

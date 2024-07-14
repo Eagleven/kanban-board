@@ -4,10 +4,8 @@ import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import com.sparta.kanbanboard.domain.card.entity.Card;
 import com.sparta.kanbanboard.domain.comment.entity.Comment;
-import com.sparta.kanbanboard.domain.user.User;
 import com.sparta.kanbanboard.exception.comment.CommentNotFoundException;
 import com.sparta.kanbanboard.exception.comment.CreateCommentFailureException;
-import com.sparta.kanbanboard.exception.comment.DeleteCommentFailureException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -20,12 +18,12 @@ public class CommentAdapter {
 
     public Comment findById(Long commentId) {
         return commentRepository.findById(commentId)
+                .filter(comment -> comment.getStatus().equals(CommonStatusEnum.ACTIVE))
                 .orElseThrow(() -> new CommentNotFoundException(ResponseExceptionEnum.COMMENT_NOT_FOUND));
     }
 
-
     public List<Comment> getCardComments(Card card) {
-        return commentRepository.findByCardAndStatus(card, CommonStatusEnum.ACTIVE);
+        return commentRepository.findByCardAndStatusOrderByCreatedAtDesc(card, CommonStatusEnum.ACTIVE);
     }
 
     public Comment save(Comment comment) {
@@ -35,13 +33,7 @@ public class CommentAdapter {
         return commentRepository.save(comment);
     }
 
-    public Comment delete(Comment comment, User user) {
-        if (comment.getStatus().equals(CommonStatusEnum.DELETED)) {
-            throw new CommentNotFoundException(ResponseExceptionEnum.COMMENT_NOT_FOUND);
-        }
-        if (!comment.getUser().getUsername().equals(user.getUsername())) {
-            throw new DeleteCommentFailureException(ResponseExceptionEnum.DELETE_COMMENT_FAILURE);
-        }
+    public Comment delete(Comment comment) {
         comment.setStatus(CommonStatusEnum.DELETED);
         return commentRepository.save(comment);
     }

@@ -9,6 +9,8 @@ import com.sparta.kanbanboard.domain.board.dto.BoardRequestDto;
 import com.sparta.kanbanboard.domain.board.dto.BoardResponseDto;
 import com.sparta.kanbanboard.domain.board.entity.Board;
 import com.sparta.kanbanboard.domain.board.repository.BoardAdapter;
+import com.sparta.kanbanboard.domain.column.entity.Column;
+import com.sparta.kanbanboard.domain.column.repository.ColumnRepository;
 import com.sparta.kanbanboard.domain.user.User;
 import com.sparta.kanbanboard.domain.user.repository.UserAdapter;
 import com.sparta.kanbanboard.domain.userandboard.entity.UserAndBoard;
@@ -39,7 +41,7 @@ public class BoardService {
     private final BoardAdapter boardAdapter;
     private final UserAndBoardAdapter userAndBoardAdapter;
     private final UserAdapter userAdapter;
-
+    private final ColumnRepository columnRepository;
 
     // 보드 생성
     @Transactional
@@ -64,10 +66,9 @@ public class BoardService {
                 .map(userAndBoard -> userAndBoard.getBoard().getId())
                 .collect(Collectors.toList());
 
-        Page<Board> boardList = boardAdapter.findByIdIn(boardIdList, pageable);
+        Page<Board> boardList = boardAdapter.findByIdIn(boardIdList, pageable, CommonStatusEnum.ACTIVE);
         return boardList.map(BoardResponseDto::new);
     }
-
 
     // 보드 수정
     @Transactional
@@ -113,7 +114,7 @@ public class BoardService {
         if(!userAndBoardAdapter.existsByUserIdAndBoardId(user.getId(), boardId)){
             throw new UserNotBoardMemberException(ResponseExceptionEnum.USER_NOT_BOARD_MEMBER);
         }
-        board.delete();
+        boardAdapter.delete(board);
     }
 
     @Transactional

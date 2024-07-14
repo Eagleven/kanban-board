@@ -6,6 +6,8 @@ import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import com.sparta.kanbanboard.domain.board.entity.Board;
 import com.sparta.kanbanboard.domain.board.repository.BoardAdapter;
+import com.sparta.kanbanboard.domain.card.entity.Card;
+import com.sparta.kanbanboard.domain.card.repository.CardRepository;
 import com.sparta.kanbanboard.domain.column.dto.ColumnRequestDto;
 import com.sparta.kanbanboard.domain.column.dto.ColumnResponseDto;
 import com.sparta.kanbanboard.domain.column.entity.Column;
@@ -32,6 +34,7 @@ public class ColumnService {
     private final BoardAdapter boardAdapter;
     private final UserAndBoardAdapter userAndBoardAdapter;
     private final ColumnRepository columnRepository;
+    private final CardRepository cardRepository;
 
     @Transactional
     public ColumnResponseDto create(Long boardId, ColumnRequestDto requestDto, User user) {
@@ -87,8 +90,7 @@ public class ColumnService {
         }
 
         Column column = columnAdapter.findById(columnId);
-        Column updatedColumn = column.update(requestDto);
-        return ColumnResponseDto.of(updatedColumn);
+        return ColumnResponseDto.of(column.update(requestDto));
     }
 
     @Transactional
@@ -124,8 +126,8 @@ public class ColumnService {
             column.setNext(null);
             columnAdapter.save(nextColumn);
         }
-        column.setStatus(CommonStatusEnum.DELETED);
-        columnAdapter.save(column);
+        columnAdapter.deleteColumn(column);
+
         return ColumnResponseDto.of(column);
     }
 }

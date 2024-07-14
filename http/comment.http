@@ -36,9 +36,34 @@ AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 {
-  "name" : "이름2",
-  "explanation" : "내용2"
+  "name" : "board3",
+  "explanation" : "board3"
 }
+
+### 보드 조회
+GET http://localhost:8080/boards
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 보드 수정
+PATCH http://localhost:8080/boards/5
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+{
+  "name" : "board",
+  "explanation" : "board"
+}
+
+### 보드 삭제
+DELETE http://localhost:8080/boards/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 보드 초대
+POST http://localhost:8080/boards/1/invite/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
 
 ### 칼럼생성
 POST http://localhost:8080/1/column
@@ -46,22 +71,70 @@ AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 {
-  "name" : "test2"
+  "name" : "column3"
 }
 
+### 칼럼전체조회
+GET http://localhost:8080/1/column
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 칼럼수정
+PATCH http://localhost:8080/1/column/2
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+{
+  "name":"update test"
+}
+
+### 칼럼삭제
+DELETE http://localhost:8080/1/column/2
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
 ### 카드 생성
-POST http://localhost:8080/cards
+POST http://localhost:8080/cards/5
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 {
   "title": "테스트 카드",
-  "contents": "카드 내용",
-  "columnId": 1
+  "contents": "카드 내용"
 }
 
+### 모든 카드 조회
+GET http://localhost:8080/cards
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 작업자별 카드 조회
+GET http://localhost:8080/cards/user/5
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 컬럼별 카드 조회
+GET http://localhost:8080/cards/9
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 카드 수정
+PUT http://localhost:8080/cards/5
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+{
+  "title": "수정된 카드 제목",
+  "contents": "수정된 카드 내용"
+}
+
+### 카드 삭제
+DELETE http://localhost:8080/cards/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
 ### 댓글 생성
-POST http://localhost:8080/comments/1
+POST http://localhost:8080/comments/35
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
