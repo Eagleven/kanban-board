@@ -68,7 +68,7 @@ public class UserController {
         return ResponseUtils.of(SUCCESS_GET_USERS, responseEntity);
     }
 
-    @PatchMapping
+    @PatchMapping("/signout")
     public ResponseEntity<HttpResponseDto> signOut(
             @AuthenticationPrincipal UserDetailsImpl userDetails
     ){
