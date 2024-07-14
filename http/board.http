@@ -20,11 +20,31 @@ AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 {
-  "name" : "이름",
-  "explanation" : "내용"
+  "name" : "board1",
+  "explanation" : "board1"
 }
 
 ### 보드 조회
 GET http://localhost:8080/boards
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 보드 수정
+PATCH http://localhost:8080/boards/3
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+{
+  "name" : "board",
+  "explanation" : "board"
+}
+
+### 보드 삭제
+DELETE http://localhost:8080/boards/2
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 보드 초대
+POST http://localhost:8080/boards/2/invite/2
 AccessToken: {{AccessToken}}
 Content-Type: application/json

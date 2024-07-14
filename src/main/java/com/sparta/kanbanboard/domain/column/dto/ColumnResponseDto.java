@@ -1,7 +1,7 @@
 package com.sparta.kanbanboard.domain.column.dto;
 
+import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.domain.column.entity.Column;
-import com.sparta.kanbanboard.domain.column.entity.ColumnStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +13,7 @@ public class ColumnResponseDto {
 
     private String name;
 
-    private ColumnStatus status;
+    private CommonStatusEnum status;
 
     public ColumnResponseDto(Column column) {
         this.name = column.getName();

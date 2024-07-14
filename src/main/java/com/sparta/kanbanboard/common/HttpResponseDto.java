@@ -21,4 +21,9 @@ public class HttpResponseDto extends Throwable {
         this.message = message;
         this.data = data;
     }
+
+    public HttpResponseDto(ResponseExceptionEnum responseExceptionEnum) {
+        this.statusCode = responseExceptionEnum.getHttpStatus().value();
+        this.message = responseExceptionEnum.getMessage();
+    }
 }
