@@ -39,10 +39,52 @@ document.addEventListener('DOMContentLoaded', function () {
       },
       success: function (response) {
         console.log('보드 상세 정보:', response.data);
-        displayBoardDetails(response.data, board);
+        const columns = response.data;
+        const columnsWithCards = [];
+
+        if (columns.length === 0) {
+          displayBoardDetails([], board);
+          return;
+        }
+
+        let remainingColumns = columns.length;
+
+        columns.forEach(column => {
+          fetchColumnCards(column.id, function(cards) {
+            column.cards = cards;
+            columnsWithCards.push(column);
+            remainingColumns--;
+
+            if (remainingColumns === 0) {
+              displayBoardDetails(columnsWithCards, board);
+            }
+          });
+        });
       },
       error: function (xhr, status, error) {
         console.error('보드 상세 정보를 가져오는 데 실패했습니다:', error);
+      }
+    });
+  }
+
+  function fetchColumnCards(columnId, callback) {
+    const accessToken = localStorage.getItem('AccessToken');
+
+    $.ajax({
+      crossOrigin: true,
+      type: 'GET',
+      url: `/cards/column/${columnId}`,
+      headers: {
+        'AccessToken': `${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      success: function (response) {
+        console.log('컬럼 카드 정보:', response.data);
+        callback(response.data);
+      },
+      error: function (xhr, status, error) {
+        console.error('컬럼 카드 정보를 가져오는 데 실패했습니다:', error);
+        callback([]);
       }
     });
   }
@@ -89,7 +131,12 @@ document.addEventListener('DOMContentLoaded', function () {
         <i class="edit icon edit-board-icon" id="edit-board-icon"></i></h2>
         <p>${board.explanation}</p>
         <div class="board-columns" id="board-columns">
-          ${columns.map(column => `
+          ${columns.length === 0 ? `
+            <div class="add-column" id="add-column">
+              <i class="plus icon"></i>
+              Add another list
+            </div>
+          ` : columns.map(column => `
             <div class="board-column" data-column-id="${column.id}">
               <h3 class="list-title">
                 <span>${column.name}</span>
@@ -111,10 +158,12 @@ document.addEventListener('DOMContentLoaded', function () {
               </div>
             </div>
           `).join('')}
-          <div class="add-column" id="add-column">
-            <i class="plus icon"></i>
-            Add another list
-          </div>
+          ${columns.length > 0 ? `
+            <div class="add-column" id="add-column">
+              <i class="plus icon"></i>
+              Add another list
+            </div>
+          ` : ''}
         </div>
       </div>
     `;
@@ -182,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     $('#add-column').on('click', function () {
-      addNewColumn(columns, board); // 여기서 boardId는 부모 스코프에서 접근할 수 있도록 해야 함
+      addNewColumn(columns, board);
     });
 
     $('.delete-card').on('click', function () {
@@ -197,7 +246,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // 새로운 카드 추가 이벤트 추가
     $('.add-card').on('click', function () {
       const columnId = $(this).closest('.board-column').data('column-id');
-      addNewCard(columnId, $(this).closest('.board-cards'));
+      addNewCard(columnId, $(this).closest('.board-cards'), columns, board);
     });
   }
 
@@ -286,7 +335,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  function addNewCard(columnId, columnElement) {
+  function addNewCard(columnId, columnElement, columns, board) {
     const newCardTitle = prompt("Enter the title of the new card:");
     const accessToken = localStorage.getItem('AccessToken');
     if (newCardTitle) {
@@ -303,10 +352,10 @@ document.addEventListener('DOMContentLoaded', function () {
         success: function (response) {
           console.log('새 카드 추가 성공:', response);
           const card = $(`
-            <div class="board-card card" data-card-id="${response.data.id}">
-              <p>${newCardTitle}</p><button class="delete-card">&times;</button>
-            </div>
-          `);
+                    <div class="board-card card" data-card-id="${response.data.id}">
+                        <p>${newCardTitle}</p><button class="delete-card">&times;</button>
+                    </div>
+                `);
           card.insertBefore(columnElement.find('.add-card'));
           card.find('.delete-card').on('click', function () {
             $(this).parent().remove();
@@ -315,8 +364,14 @@ document.addEventListener('DOMContentLoaded', function () {
           // Add the new card to the appropriate column in the global state
           const columnIndex = columns.findIndex(column => column.id === columnId);
           if (columnIndex !== -1) {
+            // Initialize the cards array if it doesn't exist
+            if (!columns[columnIndex].cards) {
+              columns[columnIndex].cards = [];
+            }
             columns[columnIndex].cards.push(response.data);
           }
+          // 보드 상세 정보를 다시 불러와서 업데이트
+          fetchBoardDetails(board.id, board);
         },
         error: function (xhr, status, error) {
           console.error('새 카드 추가 실패:', error);
@@ -419,9 +474,7 @@ document.addEventListener('DOMContentLoaded', function () {
         contentType: 'application/json',
         success: function (response) {
           console.log('칼럼 수정 성공:', response);
-          // 새로운 칼럼을 기존의 columns 배열에 추가
-          columns.push(response.data);
-          // 전체 컬럼을 다시 로드
+          // 칼럼 수정 후 전체 컬럼을 다시 로드
           fetchBoardDetails(board.id, board);
         },
         error: function (xhr, status, error) {
