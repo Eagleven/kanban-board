@@ -11,18 +11,18 @@ import com.sparta.kanbanboard.domain.user.repository.UserAdapter;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,15 +32,21 @@ public class CardController {
     private final CardService cardService;
     private final UserAdapter userAdapter;
 
+
     // 카드 생성
     @PostMapping("/{columnId}")
-    public ResponseEntity<HttpResponseDto> createCard(@PathVariable("columnId") Long columnId,
+    public ResponseEntity<HttpResponseDto> createCard(
+            @PathVariable("columnId") Long columnId,
             @RequestBody CardRequestDto cardRequestDto,
-            @RequestParam MultipartFile file,
             @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
         CardResponseDto cardResponseDto = cardService.createCard(columnId, cardRequestDto,
-                userDetails.getUser(), file);
+                userDetails.getUser());
         return ResponseUtils.of(ResponseCodeEnum.CARD_CREATE_SUCCESS, cardResponseDto);
+    }
+
+    @GetMapping("/download/{cardId}")
+    public ResponseEntity<UrlResource> downloadFile(@PathVariable Long cardId) {
+        return cardService.downloadFile(cardId);
     }
 
     // 모든 카드 조회
@@ -68,12 +74,12 @@ public class CardController {
 
     // 카드 수정
     @PutMapping("/{cardId}")
-    public ResponseEntity<HttpResponseDto> updateCard(@PathVariable("cardId") Long cardId,
-            @RequestBody CardRequestDto cardRequestDto,
-            @RequestParam MultipartFile file,
+    public ResponseEntity<HttpResponseDto> updateCard(
+            @PathVariable("cardId") Long cardId,
+            @ModelAttribute CardRequestDto cardRequestDto,
             @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
         CardResponseDto updatedCard = cardService.updateCard(cardId, cardRequestDto,
-                userDetails.getUser(), file);
+                userDetails.getUser());
         return ResponseUtils.of(ResponseCodeEnum.CARD_UPDATE_SUCCESS, updatedCard);
     }
 
@@ -84,4 +90,5 @@ public class CardController {
         cardService.deleteCard(cardId, userDetails.getUser());
         return ResponseUtils.of(ResponseCodeEnum.CARD_DELETE_SUCCESS);
     }
+
 }

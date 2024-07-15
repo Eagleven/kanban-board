@@ -46,9 +46,8 @@ public class Card extends TimeStampEntity {
     @Column
     private int sequence;
 
-    // 파일 URL 저장
     @Column
-    private String attachmentUrl;
+    private String fileUrl;
 
     // 마감 기한
     @Column
@@ -62,6 +61,7 @@ public class Card extends TimeStampEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+
     @Getter
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
@@ -74,13 +74,15 @@ public class Card extends TimeStampEntity {
     @Builder
     public Card(String title, String contents, User user,
             com.sparta.kanbanboard.domain.column.entity.Column column, int sequence,
-            LocalDateTime dueDate) {
+            LocalDateTime dueDate, String fileUrl) {
         this.title = title;
         this.contents = contents;
         this.user = user;
         this.column = column;
         this.sequence = sequence;
         this.dueDate = dueDate;
+        this.fileUrl = fileUrl;
+
     }
 
     @Transactional

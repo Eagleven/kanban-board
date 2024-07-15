@@ -1,10 +1,12 @@
 package com.sparta.kanbanboard.domain.card.dto;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
@@ -18,5 +20,8 @@ public class CardRequestDto {
     public String contents;
 
     private LocalDateTime dueDate;
+    
+    @Nullable
+    private MultipartFile file;
 
 }
