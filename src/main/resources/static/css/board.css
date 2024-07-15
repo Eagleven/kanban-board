@@ -1,6 +1,6 @@
 .header__wrapper {
   width: 100%;
-  background-color: #f4f5f7;
+  background-color: white;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -211,7 +211,13 @@
   cursor: pointer;
   width: 100%;
 }
-.edit-icon {
+.board-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.edit-board-icon {
   cursor: pointer;
   margin-left: 10px;
   color: #000;
@@ -219,6 +225,6 @@
   display: inline-block;
 }
 
-.edit-icon:hover {
+.edit-board-icon:hover {
   color: #007bff;
 }

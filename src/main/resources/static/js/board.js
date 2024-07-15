@@ -87,8 +87,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const boardContent = `
     <div class="board-details">
-    <h2>${board.name}
-    <i class="edit icon edit-icon" id="edit-board-icon"></i></h2>
+    <h2 class="board-header">${board.name}
+    <i class="edit icon edit-board-icon" id="edit-board-icon"></i></h2>
       <p>${board.explanation}</p>
       <div class="board-columns" id="board-columns">
         ${columns.map(column => `
@@ -106,6 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
       </div>
     </div>
   `;
+
     selectedBoard.append(boardContent);
 
     // 보드 편집 아이콘 클릭 이벤트 추가
