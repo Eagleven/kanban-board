@@ -30,7 +30,6 @@ public class SecurityConfig {
 
     private final TokenProvider tokenProvider;
     private final UserDetailsServiceImpl userDetailsService;
-    private final UserRepository userRepository;
     private final AuthenticationConfiguration authenticationConfiguration;
 
     @Bean
@@ -64,7 +63,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
-                        .requestMatchers("/users/login").permitAll()
+                        .requestMatchers("/users/login", "/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

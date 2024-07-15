@@ -30,8 +30,8 @@ public class CommentController {
     @PostMapping("/{cardId}")
     public ResponseEntity<HttpResponseDto> createComment(@PathVariable("cardId") Long cardId, @RequestBody CommentRequestDto commentRequestDto,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        CommentResponseDto result = commentService.createComment(cardId, commentRequestDto, userDetails.getUser());
-        return ResponseUtils.of(ResponseCodeEnum.CREATE_COMMENT_SUCCESS, result);
+        return ResponseUtils.of(ResponseCodeEnum.CREATE_COMMENT_SUCCESS,
+                commentService.createComment(cardId, commentRequestDto, userDetails.getUser()));
     }
 
     @GetMapping("/{cardId}")

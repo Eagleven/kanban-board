@@ -22,12 +22,3 @@ public abstract class TimeStampEntity {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 }
-
-
-
-
-
-
-
-
-

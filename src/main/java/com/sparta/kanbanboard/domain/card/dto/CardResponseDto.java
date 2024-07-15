@@ -14,11 +14,13 @@ public class CardResponseDto {
     private String title;
     private String contents;
     private int sequence;
+    private String columnName;
 
     public CardResponseDto(Card card) {
         this.id = card.getId();
         this.title = card.getTitle();
         this.contents = card.getContents();
         this.sequence = card.getSequence();
+        this.columnName = card.getColumn().getName();
     }
 }

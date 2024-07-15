@@ -15,26 +15,26 @@ Content-Type: application/json
 %}
 
 ### 칼럼생성
-POST http://localhost:8080/column/1
+POST http://localhost:8080/2/column
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 {
-  "name" : "test"
+  "name" : "test-1"
 }
 
 ### 칼럼선택조회
-GET http://localhost:8080/column/1
+GET http://localhost:8080/1/column/7
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 ### 칼럼전체조회
-GET http://localhost:8080/column
+GET http://localhost:8080/2/column
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 ### 칼럼수정
-PATCH http://localhost:8080/column/1
+PATCH http://localhost:8080/1/column/1
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
@@ -43,7 +43,7 @@ Content-Type: application/json
 }
 
 ### 칼럼삭제
-DELETE http://localhost:8080/column/2
+DELETE http://localhost:8080/1/column/3
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
