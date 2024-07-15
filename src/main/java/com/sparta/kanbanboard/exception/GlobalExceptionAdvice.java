@@ -3,7 +3,9 @@ package com.sparta.kanbanboard.exception;
 import com.sparta.kanbanboard.common.HttpResponseDto;
 import com.sparta.kanbanboard.common.ResponseUtils;
 import com.sparta.kanbanboard.exception.board.BoardException;
+import com.sparta.kanbanboard.exception.card.CardException;
 import com.sparta.kanbanboard.exception.column.ColumnException;
+import com.sparta.kanbanboard.exception.comment.CommentException;
 import com.sparta.kanbanboard.exception.user.UserException;
 import com.sparta.kanbanboard.exception.userandboard.UserAndBoardException;
 import java.util.ArrayList;
@@ -53,5 +55,17 @@ public class GlobalExceptionAdvice {
     public ResponseEntity<HttpResponseDto> handleUserException(UserException e) {
         log.error("에러 메세지: ", e);
         return ResponseUtils.of(e.getResponseCodeEnum());
+    }
+
+    @ExceptionHandler(CommentException.class)
+    public ResponseEntity<HttpResponseDto> handleCommentException(CommentException e) {
+        log.error("에러 메세지: ", e);
+        return ResponseUtils.of(e.getResponseExceptionEnum());
+    }
+
+    @ExceptionHandler(CardException.class)
+    public ResponseEntity<HttpResponseDto> handleCardException(CardException e) {
+        log.error("에러 메세지: ", e);
+        return ResponseUtils.of(e.getResponseExceptionEnum());
     }
 }

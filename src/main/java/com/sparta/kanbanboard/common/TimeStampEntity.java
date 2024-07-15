@@ -27,12 +27,3 @@ public abstract class TimeStampEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
 }
-
-
-
-
-
-
-
-
-

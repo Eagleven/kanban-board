@@ -32,15 +32,18 @@ public enum ResponseExceptionEnum {
     COLUMN_NOT_FOUND(HttpStatus.NOT_FOUND, "칼럼을 찾을 수 없습니다"),
     COLUMN_ALREADY_DELETE(HttpStatus.BAD_REQUEST, "삭제된 칼럼 입니다."),
     FORBIDDEN_CREATE_COLUMN(HttpStatus.FORBIDDEN, "칼럼은 manager 사용자만 생성할 수 있습니다."),
-    FORBIDDEN_UPDATE_COLUMN(HttpStatus.FORBIDDEN, "칼럼은 manager 사용자만 생성할 수 있습니다."),
+    FORBIDDEN_UPDATE_COLUMN(HttpStatus.FORBIDDEN, "칼럼은 manager 사용자만 수정할 수 있습니다."),
 
     // card
     INVALID_CARD_DATA(HttpStatus.NOT_FOUND, "카드 필수 데이터가 없습니다."),
     CARD_NOT_FOUND(HttpStatus.NOT_FOUND, "카드를 찾을 수 없습니다."),
+    CARD_UPDATE_FAILURE(HttpStatus.BAD_REQUEST, "카드를 수정할 수 없습니다."),
+    CARD_DELETE_FAILURE(HttpStatus.BAD_REQUEST, "카드를 삭제할 수 없습니다."),
 
     // 댓글
     CREATE_COMMENT_FAILURE(HttpStatus.BAD_REQUEST, "댓글 작성에 실패하였습니다."),
     DELETE_COMMENT_FAILURE(HttpStatus.BAD_REQUEST, "해당 댓글을 삭제할 수 없습니다"),
+    UPDATE_COMMENT_FAILURE(HttpStatus.BAD_REQUEST, "댓글을 수정할 수 없습니다."),
     COMMENT_NOT_FOUND(HttpStatus.BAD_REQUEST, "댓글을 찾을 수 없습니다."),
     COMMENT_CONTENT_REQUIRED(HttpStatus.BAD_REQUEST, "댓글을 입력하세요.")
     ;

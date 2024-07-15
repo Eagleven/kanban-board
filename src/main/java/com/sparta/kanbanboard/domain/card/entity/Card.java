@@ -2,7 +2,9 @@ package com.sparta.kanbanboard.domain.card.entity;
 
 import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.common.TimeStampEntity;
+import com.sparta.kanbanboard.domain.comment.entity.Comment;
 import com.sparta.kanbanboard.domain.user.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,8 +15,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,13 +40,14 @@ public class Card extends TimeStampEntity {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    @Column
     private String contents;
 
     @Column
     private int sequence;
 
     // 마감 기한
+    @Column
     private LocalDateTime dueDate;
 
     @Enumerated(EnumType.STRING)
@@ -57,6 +64,9 @@ public class Card extends TimeStampEntity {
     @JoinColumn(name = "column_id")
     private com.sparta.kanbanboard.domain.column.entity.Column column;
 
+    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL)
+    private List<Comment> comments = new ArrayList<>();
+
     @Builder
     public Card(String title, String contents, User user,
             com.sparta.kanbanboard.domain.column.entity.Column column, int sequence,
@@ -69,23 +79,11 @@ public class Card extends TimeStampEntity {
         this.dueDate = dueDate;
     }
 
-    public void update(String title, String contents,
-            com.sparta.kanbanboard.domain.column.entity.Column column, int sequence,
-            LocalDateTime dueDate) {
-        this.title = title;
-        this.contents = contents;
-        this.column = column;
-        this.sequence = sequence;
-        this.dueDate = dueDate;
-    }
-
+    @Transactional
     public void delete() {
         this.status = CommonStatusEnum.DELETED;
-    }
-
-    public void setUser(Long user) {
-    }
-
-    public void setColumn(Long column) {
+        for (Comment comment : comments) {
+            comment.setStatus(CommonStatusEnum.DELETED);
+        }
     }
 }
