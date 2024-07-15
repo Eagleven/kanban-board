@@ -13,13 +13,13 @@ import com.sparta.kanbanboard.common.security.details.UserDetailsServiceImpl;
 import com.sparta.kanbanboard.domain.user.utils.Role;
 import com.sparta.kanbanboard.exception.user.UserException;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,55 +39,63 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final TokenProvider tokenProvider;
     private final TokenService tokenService;
     private final UserDetailsServiceImpl userDetailsService;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
-    // JWT 검증을 제외할 경로 목록
-    private static final List<String> EXCLUDED_PATHS = Arrays.asList(
-            "/",
-            "/index.html",
-            "/signupPage.html",
-            "/login.html",
-            "/resources/static"
-    );
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
-
         String requestUri = request.getRequestURI();
+        String method = request.getMethod();
+        log.info("Requested URI: {}", requestUri);
 
-        // 제외 경로에 해당하는 요청은 필터를 통과
-        if (isExcludedPath(requestUri)) {
+        // 보호된 경로에 대한 요청 확인
+        if (!isProtectedPath(requestUri, method) || requestUri.equals("/users/login")) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        // AccessToken 가져오기
         String accessToken = tokenProvider.getAccessTokenFromHeader(request);
 
-        // 보호된 경로에 대한 요청 처리
-        if (isProtectedPath(requestUri, request.getMethod())) {
+        try {
+            // AccessToken 검증
             if (StringUtils.hasText(accessToken) && tokenProvider.validateToken(accessToken)) {
                 processValidToken(accessToken, request, response, filterChain);
             } else {
+                // 유효하지 않은 토큰 처리
                 processInvalidToken(request, response);
             }
-        } else {
-            filterChain.doFilter(request, response);
+        } catch (ExpiredJwtException e) {
+            // AccessToken이 만료된 경우
+            log.info("Access token expired. Handling expired access token.");
+            processInvalidToken(request, response);
+        } catch (JwtException | IllegalArgumentException e) {
+            // 다른 JWT 예외 처리
+            log.error("JWT validation failed: {}", e.getMessage());
+            setErrorResponse(response);
         }
     }
 
-    // 경로가 제외 경로 목록에 있는지 확인
-    private boolean isExcludedPath(String requestUri) {
-        return EXCLUDED_PATHS.stream().anyMatch(requestUri::startsWith);
+    // 유효한 Access Token 처리
+    private void handleValidAccessToken(String accessToken) {
+        // 액세스 토큰에서 클레임(사용자 정보)을 추출
+        Claims accessTokenClaims = tokenProvider.getUserInfoFromToken(accessToken);
+        String username = accessTokenClaims.getSubject();
+
+        // 사용자 인증 설정
+        setAuthentication(username);
     }
 
-    // 보호된 경로인지 확인
+
+    // isProtectedPath 메서드 구현 업데이트
     private boolean isProtectedPath(String requestUri, String method) {
         return !("/users".equals(requestUri) && "POST".equalsIgnoreCase(method));
     }
 
     // 유효한 토큰 처리
-    private void processValidToken(String token, HttpServletRequest request, HttpServletResponse response,
+    private void processValidToken(String token, HttpServletRequest request,
+            HttpServletResponse response,
             FilterChain filterChain) throws IOException {
         Claims info = tokenProvider.getUserInfoFromToken(token);
 
@@ -114,8 +122,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     }
 
     // 새로운 액세스 토큰 발급
-    private void reissueAccessToken(HttpServletRequest request, HttpServletResponse response, String refreshToken)
+    private void reissueAccessToken(HttpServletRequest request, HttpServletResponse response,
+            String refreshToken)
             throws IOException {
+
         Claims info = tokenProvider.getUserInfoFromToken(refreshToken);
         Role role = Role.valueOf(info.get("auth").toString());
 
@@ -153,7 +163,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     }
 
     // 로그아웃 필요 시 처리
-    private void handleLogoutIfNeeded(HttpServletRequest request, HttpServletResponse response, String username)
+    private void handleLogoutIfNeeded(HttpServletRequest request, HttpServletResponse response,
+            String username)
             throws IOException {
         String requestUri = request.getRequestURI();
         if ("/users/logout".equals(requestUri) || ("/users".equals(requestUri)
@@ -163,7 +174,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     }
 
     // 로그아웃 처리
-    private void handleLogout(HttpServletRequest request, HttpServletResponse response, String username)
+    private void handleLogout(HttpServletRequest request, HttpServletResponse response,
+            String username)
             throws IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
@@ -200,5 +212,15 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         response.getWriter().flush();
         response.getWriter().close();
+    }
+
+    private void setErrorResponse(HttpServletResponse res) throws IOException {
+        res.setStatus(INVALID_REFRESHTOKEN.getHttpStatus().value());
+        res.setContentType("application/json;charset=UTF-8");
+        HttpResponseDto responseDto = new HttpResponseDto(
+                INVALID_REFRESHTOKEN.getHttpStatus().value(),
+                INVALID_REFRESHTOKEN.getMessage()
+        );
+        res.getWriter().write(objectMapper.writeValueAsString(responseDto));
     }
 }
