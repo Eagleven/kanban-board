@@ -8,6 +8,7 @@ import com.sparta.kanbanboard.domain.card.dto.CardRequestDto;
 import com.sparta.kanbanboard.domain.card.dto.CardResponseDto;
 import com.sparta.kanbanboard.domain.card.service.CardService;
 import com.sparta.kanbanboard.domain.user.repository.UserAdapter;
+import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,9 +34,12 @@ public class CardController {
 
     // 카드 생성
     @PostMapping("/{columnId}")
-    public ResponseEntity<HttpResponseDto> createCard(@PathVariable("columnId") Long columnId, @RequestBody CardRequestDto cardRequestDto,
-            @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        CardResponseDto cardResponseDto = cardService.createCard(columnId, cardRequestDto, userDetails.getUser());
+    public ResponseEntity<HttpResponseDto> createCard(@PathVariable("columnId") Long columnId,
+            @RequestBody CardRequestDto cardRequestDto,
+            @RequestParam MultipartFile file,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+        CardResponseDto cardResponseDto = cardService.createCard(columnId, cardRequestDto,
+                userDetails.getUser(), file);
         return ResponseUtils.of(ResponseCodeEnum.CARD_CREATE_SUCCESS, cardResponseDto);
     }
 
@@ -44,9 +50,10 @@ public class CardController {
         return ResponseUtils.of(ResponseCodeEnum.CARD_GET_ALL_SUCCESS, cards);
     }
 
-    // 모든 카드 조회
-    @GetMapping("/{columnId}")
-    public ResponseEntity<HttpResponseDto> getCardsByColumn(@PathVariable("columnId") Long columnId) {
+    // 컬럼별 카드 조회
+    @GetMapping("/column/{columnId}")
+    public ResponseEntity<HttpResponseDto> getCardsByColumn(
+            @PathVariable("columnId") Long columnId) {
         List<CardResponseDto> cards = cardService.getCardsByColumn(columnId);
         return ResponseUtils.of(ResponseCodeEnum.CARD_GET_ALL_SUCCESS, cards);
     }
@@ -62,14 +69,18 @@ public class CardController {
     // 카드 수정
     @PutMapping("/{cardId}")
     public ResponseEntity<HttpResponseDto> updateCard(@PathVariable("cardId") Long cardId,
-            @RequestBody CardRequestDto cardRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        CardResponseDto updatedCard = cardService.updateCard(cardId, cardRequestDto, userDetails.getUser());
+            @RequestBody CardRequestDto cardRequestDto,
+            @RequestParam MultipartFile file,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+        CardResponseDto updatedCard = cardService.updateCard(cardId, cardRequestDto,
+                userDetails.getUser(), file);
         return ResponseUtils.of(ResponseCodeEnum.CARD_UPDATE_SUCCESS, updatedCard);
     }
 
     // 카드 삭제
     @DeleteMapping("/{cardId}")
-    public ResponseEntity<HttpResponseDto> deleteCard(@PathVariable Long cardId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<HttpResponseDto> deleteCard(@PathVariable Long cardId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
         cardService.deleteCard(cardId, userDetails.getUser());
         return ResponseUtils.of(ResponseCodeEnum.CARD_DELETE_SUCCESS);
     }

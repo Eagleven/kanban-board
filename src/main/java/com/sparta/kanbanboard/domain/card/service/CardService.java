@@ -1,5 +1,6 @@
 package com.sparta.kanbanboard.domain.card.service;
 
+import com.sparta.kanbanboard.aws.service.S3Uploader;
 import com.sparta.kanbanboard.common.CommonStatusEnum;
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import com.sparta.kanbanboard.domain.card.dto.CardRequestDto;
@@ -15,6 +16,7 @@ import com.sparta.kanbanboard.domain.userandboard.repository.UserAndBoardAdapter
 import com.sparta.kanbanboard.exception.card.CardUpdateFailureException;
 import com.sparta.kanbanboard.exception.user.UnauthorizedAccessException;
 import com.sparta.kanbanboard.exception.userandboard.UserNotBoardMemberException;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Slf4j
@@ -33,6 +36,7 @@ public class CardService {
     private final ColumnAdapter columnAdapter;
     private final CardRepository cardRepository;
     private final UserAndBoardAdapter userAndBoardAdapter;
+    private final S3Uploader s3Uploader;
 
     // 모든 카드 조회
     @Transactional(readOnly = true)
@@ -61,11 +65,18 @@ public class CardService {
 
     // 카드 생성
     @Transactional
-    public CardResponseDto createCard(Long columnId, CardRequestDto cardRequestDto, User user) {
+    public CardResponseDto createCard(Long columnId, CardRequestDto cardRequestDto, User user,
+            MultipartFile file) throws IOException {
         checkUserAuthentication();
         Column column = columnAdapter.findById(columnId);
-        if(!userAndBoardAdapter.existsByUserIdAndBoardId(user.getId(), column.getBoard().getId())){
+        if (!userAndBoardAdapter.existsByUserIdAndBoardId(user.getId(),
+                column.getBoard().getId())) {
             throw new UserNotBoardMemberException(ResponseExceptionEnum.USER_NOT_BOARD_MEMBER);
+        }
+
+        String attachmentUrl = null;
+        if (file != null && !file.isEmpty()) {
+            attachmentUrl = s3Uploader.upload(file, "attachments");
         }
 
         Card card = Card.builder()
@@ -81,12 +92,24 @@ public class CardService {
 
     // 카드 수정
     @Transactional
-    public CardResponseDto updateCard(Long cardId, CardRequestDto cardRequestDto, User user) {
+    public CardResponseDto updateCard(Long cardId, CardRequestDto cardRequestDto, User user,
+            MultipartFile file) throws IOException {
         checkUserAuthentication();
         Card card = cardAdapter.findById(cardId);
-        if (!user.getUsername().equals(card.getUser().getUsername()) && !user.getUserRole().equals(Role.MANAGER)) {
+        if (!user.getUsername().equals(card.getUser().getUsername()) && !user.getUserRole()
+                .equals(Role.MANAGER)) {
             throw new CardUpdateFailureException(ResponseExceptionEnum.CARD_UPDATE_FAILURE);
         }
+
+        if (file != null && !file.isEmpty()) {
+            String attachmentUrl = s3Uploader.updateFile(file, card.getAttachmentUrl(),
+                    "attachments");
+            card.setAttachmentUrl(attachmentUrl);
+        }
+
+        card.setTitle(cardRequestDto.getTitle());
+        card.setContents(cardRequestDto.getContents());
+
         return new CardResponseDto(cardAdapter.update(card, cardRequestDto));
     }
 
@@ -103,9 +126,11 @@ public class CardService {
     public void deleteCard(Long cardId, User user) {
         checkUserAuthentication();
         Card card = cardAdapter.findById(cardId);
-        if (!user.getUsername().equals(card.getUser().getUsername()) && !user.getUserRole().equals(Role.MANAGER)) {
+        if (!user.getUsername().equals(card.getUser().getUsername()) && !user.getUserRole()
+                .equals(Role.MANAGER)) {
             throw new CardUpdateFailureException(ResponseExceptionEnum.CARD_DELETE_FAILURE);
         }
+        s3Uploader.deleteFile(card.getAttachmentUrl());
         cardAdapter.softDelete(card);
     }
 
