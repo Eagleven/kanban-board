@@ -315,9 +315,15 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function deleteBoard(boardId) {
+    const accessToken = localStorage.getItem('AccessToken');
     $.ajax({
+      crossOrigin: true,
       type: 'DELETE',
-      url: `/board/${boardId}`,
+      url: `/boards/${boardId}`,
+      headers: {
+        'AccessToken': `${accessToken}`,
+        'Content-Type': 'application/json'
+      },
       success: function (response) {
         console.log('보드 삭제 성공:', response);
         // 보드를 삭제한 후 보드 목록을 다시 불러와서 업데이트

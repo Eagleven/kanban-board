@@ -1,12 +1,11 @@
-
- .header__wrapper {
-   width: 100%;
-   background-color: #f4f5f7;
-   display: flex;
-   justify-content: space-between;
-   align-items: center;
-   padding: 10px 20px;
- }
+.header__wrapper {
+  width: 100%;
+  background-color: #f4f5f7;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+}
 
 .header__logo img {
   height: 40px;
@@ -40,18 +39,18 @@
   cursor: pointer;
 }
 
+.board-item h3 {
+  margin: 0;
+  font-weight: normal; /* 글씨체 두께를 보통으로 설정 */
+}
+
 .board-item:hover {
   background-color: #f0f0f0;
 }
 
 .trash-icon {
-  display: none;
   color: red;
   cursor: pointer;
-}
-
-.board-item:hover .trash-icon {
-  display: inline-block;
 }
 
 .selected-board-wrapper {
