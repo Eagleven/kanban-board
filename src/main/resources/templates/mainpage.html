@@ -9,11 +9,11 @@
 	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" integrity="sha512-8bHTC73gkZ7rZ7vpqUQThUDhqcNFyYi2xgDgPDHc+GXVGHXq+xPjynxIopALmOPqzo9JZj0k6OqqewdGO3EsrQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 	<link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css"/>
-	<link rel="stylesheet" href="./css/reset.css">
-	<link rel="stylesheet" href="./css/bootstrap-grid.css">
-   	<link rel="stylesheet" href="./css/main.css">
-	<link rel="stylesheet" href="./css/responsive.css">
-	<link rel="icon" href="./images/favicon.ico.svg">
+	<link rel="stylesheet" href="/css/reset.css">
+	<link rel="stylesheet" href="/css/bootstrap-grid.css">
+   	<link rel="stylesheet" href="/css/main.css">
+	<link rel="stylesheet" href="/css/responsive.css">
+	<link rel="icon" href="/images/favicon.ico.svg">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.6.6/dragula.min.css">
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
@@ -23,10 +23,10 @@
 <header class="header-area">
 	<div class="header__wrapper">
 		<div class="header__board">
-			<p class="header__board-txt">John Smith's Board</p>
+			<p class="header__board-txt" ></p>
 		</div>
 		<a href="" class="header__logo">
-			<img src="images/logo.png" alt="logo" class="header__logo">
+			<img src="/images/logo.png" alt="logo" class="header__logo">
 		</a>
 		<div class="wrapper">
 			<div class="search__box">
@@ -34,11 +34,11 @@
 					<a href="#" class="search__btn"></a>
 			</div>
 			<div class="user__icon">
-				<img src="images/user.png" alt="user" class="user__icon-foto">
+				<img src="/images/user.png" alt="user" class="user__icon-foto">
 			</div>
 		</div>
 		<div class="user__icon-mobile">
-			<img src="images/user.png" alt="user" class="user__icon-foto">
+			<img src="/images/user.png" alt="user" class="user__icon-foto">
 		</div>
 		</div>
 	<div class="wrapper-mobile">
@@ -83,7 +83,7 @@
 	<div class="ui modal pop-up pop-up__delete-all">
 		<div class="container__pop-up">
 			<div class="pop-up__image-wrap">
-				<img src="./images/remove.png" alt="remove-icon" class="pop-up__image">
+				<img src="/images/remove.png" alt="remove-icon" class="pop-up__image">
 			</div>
 			<div class="pop-up__text-wrap">
 				<h1 class="title1">Are you sure?</h1>
@@ -99,7 +99,7 @@
 		<div class="container__pop-up">
 			<div class="image content">
 			<div class="ui medium image pop-up__image-wrap ">
-				<img src="./images/remove.png" alt="remove-icon" class="pop-up__image">
+				<img src="/images/remove.png" alt="remove-icon" class="pop-up__image">
 			</div>
 			</div>
 			<div class="description">
@@ -168,7 +168,15 @@
 	</div>
 </div>
 <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
-<script src="./js/main.js" type="module"></script>
+<script src="/js/main.js" type="module"></script>
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		var username = localStorage.getItem('username');  // Retrieve stored username
+		if (username) {
+			document.getElementById('boardTitle').textContent = `${username}'s Board`;  // Update text
+		}
+	});
+</script>
 </body>
 </html>
 

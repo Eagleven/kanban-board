@@ -46,8 +46,9 @@ public class UserAdapter {
         userRepository.save(user);
     }
 
-    public void findById(User user) {
-        User userByStatus = userRepository.findUserByIdAndStatus(user.getId(), user.getStatus())
+    public User findById(Long userId) {
+        User user = userRepository.findById(userId).get();
+        User userByStatus = userRepository.findUserByIdAndStatus(userId, user.getStatus())
                 .orElseThrow(
                         () -> new UserException(USER_NOT_FOUND)
                 );
@@ -58,6 +59,8 @@ public class UserAdapter {
 
         user.setUserRole(user.getUserRole().equals(USER) ? MANAGER : USER);
         userRepository.save(user);
+
+        return user;
     }
 
 

@@ -7,7 +7,6 @@ import static com.sparta.kanbanboard.common.ResponseCodeEnum.SUCCESS_TO_SINGOUT;
 import static com.sparta.kanbanboard.common.ResponseCodeEnum.USER_SUCCESS_SIGNUP;
 
 import com.sparta.kanbanboard.common.HttpResponseDto;
-import com.sparta.kanbanboard.common.ResponseCodeEnum;
 import com.sparta.kanbanboard.common.ResponseUtils;
 import com.sparta.kanbanboard.common.security.details.UserDetailsImpl;
 import com.sparta.kanbanboard.domain.user.dto.GetUserResponseDto;
@@ -18,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,7 +52,7 @@ public class UserController {
     public ResponseEntity<HttpResponseDto> getUser(
             @RequestParam Long userId,
             @AuthenticationPrincipal UserDetailsImpl userDetails
-    ){
+    ) {
         return ResponseUtils.of(SUCCESS_GET_USER, userService.getUser(userId, userDetails));
     }
 
@@ -62,7 +60,7 @@ public class UserController {
     public ResponseEntity<HttpResponseDto> getUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size
-    ){
+    ) {
         Page<GetUserResponseDto> responseDto = userService.getUsersWithPage(page, size);
         PageableResponse<GetUserResponseDto> responseEntity = new PageableResponse<>(responseDto);
         return ResponseUtils.of(SUCCESS_GET_USERS, responseEntity);
@@ -71,7 +69,7 @@ public class UserController {
     @PatchMapping("/signout")
     public ResponseEntity<HttpResponseDto> signOut(
             @AuthenticationPrincipal UserDetailsImpl userDetails
-    ){
+    ) {
         userService.signOut(userDetails.getUser());
         return ResponseUtils.of(SUCCESS_TO_SINGOUT);
     }

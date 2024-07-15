@@ -1,30 +1,27 @@
 package com.sparta.kanbanboard.common.security.filters;
 
-import static com.sparta.kanbanboard.common.ResponseCodeEnum.*;
 import static com.sparta.kanbanboard.common.ResponseCodeEnum.SUCCESS_LOGOUT;
+import static com.sparta.kanbanboard.common.ResponseCodeEnum.SUCCESS_TO_SINGOUT;
 import static com.sparta.kanbanboard.common.ResponseExceptionEnum.INVALID_REFRESHTOKEN;
 import static com.sparta.kanbanboard.common.ResponseExceptionEnum.NOT_FOUND_AUTHENTICATION_INFO;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.kanbanboard.common.HttpResponseDto;
-import com.sparta.kanbanboard.common.ResponseCodeEnum;
 import com.sparta.kanbanboard.common.security.config.TokenProvider;
 import com.sparta.kanbanboard.common.security.config.TokenService;
-import com.sparta.kanbanboard.common.security.details.UserDetailsImpl;
 import com.sparta.kanbanboard.common.security.details.UserDetailsServiceImpl;
-import com.sparta.kanbanboard.domain.refreshToken.RefreshTokenRepository;
-import com.sparta.kanbanboard.domain.refreshToken.UserRefreshToken;
-import com.sparta.kanbanboard.domain.user.User;
 import com.sparta.kanbanboard.domain.user.utils.Role;
 import com.sparta.kanbanboard.exception.user.UserException;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -35,7 +32,6 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-
 @Slf4j(topic = "JWT 검증 및 인가")
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
@@ -43,71 +39,101 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final TokenProvider tokenProvider;
     private final TokenService tokenService;
     private final UserDetailsServiceImpl userDetailsService;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    // JWT 검증을 제외할 경로 목록
+    private static final List<String> EXCLUDED_PATHS = Arrays.asList(
+            "/",
+            "/index.html",
+            "/signupPage.html",
+            "/login.html",
+            "/resources/static"
+    );
+
     @Override
-    @SneakyThrows
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-            FilterChain filterChain) {
+            FilterChain filterChain) throws ServletException, IOException {
 
         String requestUri = request.getRequestURI();
 
-        if (!(requestUri.equals("/users") && request.getMethod().equals("POST"))) {
-            String accessToken = tokenProvider.getAccessTokenFromHeader(request);
-
-            if (StringUtils.hasText(accessToken) && tokenProvider.validateToken(accessToken)) {
-                validToken(accessToken);
-                if ("/users/logout".equals(requestUri) || ("/users".equals(requestUri)
-                        && request.getMethod().equals("PATCH"))) {
-                    handleLogout(request, response);
-                    return;
-                }
-            } else {
-                invalidToken(request, response);
-            }
+        // 제외 경로에 해당하는 요청은 필터를 통과
+        if (isExcludedPath(requestUri)) {
+            filterChain.doFilter(request, response);
+            return;
         }
-        filterChain.doFilter(request, response);
+
+        String accessToken = tokenProvider.getAccessTokenFromHeader(request);
+
+        // 보호된 경로에 대한 요청 처리
+        if (isProtectedPath(requestUri, request.getMethod())) {
+            if (StringUtils.hasText(accessToken) && tokenProvider.validateToken(accessToken)) {
+                processValidToken(accessToken, request, response, filterChain);
+            } else {
+                processInvalidToken(request, response);
+            }
+        } else {
+            filterChain.doFilter(request, response);
+        }
     }
 
+    // 경로가 제외 경로 목록에 있는지 확인
+    private boolean isExcludedPath(String requestUri) {
+        return EXCLUDED_PATHS.stream().anyMatch(requestUri::startsWith);
+    }
 
-    private void validToken(String token) throws UserException {
+    // 보호된 경로인지 확인
+    private boolean isProtectedPath(String requestUri, String method) {
+        return !("/users".equals(requestUri) && "POST".equalsIgnoreCase(method));
+    }
+
+    // 유효한 토큰 처리
+    private void processValidToken(String token, HttpServletRequest request, HttpServletResponse response,
+            FilterChain filterChain) throws IOException {
         Claims info = tokenProvider.getUserInfoFromToken(token);
 
         try {
             setAuthentication(info.getSubject());
-        } catch (RuntimeException e) {
+            handleLogoutIfNeeded(request, response, info.getSubject());
+            filterChain.doFilter(request, response);
+        } catch (RuntimeException | ServletException e) {
             log.error("username = {}, message = {}", info.getSubject(), "인증 정보를 찾을 수 없습니다.");
             throw new UserException(NOT_FOUND_AUTHENTICATION_INFO);
         }
     }
 
-    private void invalidToken(HttpServletRequest request, HttpServletResponse response)
-            throws HttpResponseDto {
+    // 유효하지 않은 토큰 처리
+    private void processInvalidToken(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
         String refreshToken = tokenProvider.getRefreshTokenFromHeader(request);
 
         if (StringUtils.hasText(refreshToken) && tokenProvider.validateToken(refreshToken)) {
-            Claims info = tokenProvider.getUserInfoFromToken(refreshToken);
-            Role role = Role.valueOf(info.get("auth").toString());
-
-            log.info("새로운 토큰 발급 중 ~");
-            String refreshTokenFromRedis = tokenService.getRefreshToken(info.getSubject());
-
-            if (!Objects.equals(refreshToken, refreshTokenFromRedis)) {
-                throw new HttpResponseDto(INVALID_REFRESHTOKEN.getHttpStatus().value(),
-                        INVALID_REFRESHTOKEN.getMessage());
-            }
-
-            String newAccessToken = tokenProvider.createAccessToken(info.getSubject(), role);
-            tokenProvider.setHeaderAccessToken(response, newAccessToken);
-            try {
-                setAuthentication(info.getSubject());
-            } catch (Exception e) {
-                log.error("username = {}, message = {}", info.getSubject(), "인증 정보를 찾을 수 없습니다.");
-                throw new UserException(NOT_FOUND_AUTHENTICATION_INFO);
-            }
+            reissueAccessToken(request, response, refreshToken);
         } else {
             throw new UserException(INVALID_REFRESHTOKEN);
+        }
+    }
+
+    // 새로운 액세스 토큰 발급
+    private void reissueAccessToken(HttpServletRequest request, HttpServletResponse response, String refreshToken)
+            throws IOException {
+        Claims info = tokenProvider.getUserInfoFromToken(refreshToken);
+        Role role = Role.valueOf(info.get("auth").toString());
+
+        log.info("새로운 토큰 발급 중 ~");
+        String refreshTokenFromRedis = tokenService.getRefreshToken(info.getSubject());
+
+        if (!Objects.equals(refreshToken, refreshTokenFromRedis)) {
+            throw new UserException(INVALID_REFRESHTOKEN);
+        }
+
+        String newAccessToken = tokenProvider.createAccessToken(info.getSubject(), role);
+        tokenProvider.setHeaderAccessToken(response, newAccessToken);
+
+        try {
+            setAuthentication(info.getSubject());
+        } catch (Exception e) {
+            log.error("username = {}, message = {}", info.getSubject(), "인증 정보를 찾을 수 없습니다.");
+            throw new UserException(NOT_FOUND_AUTHENTICATION_INFO);
         }
     }
 
@@ -119,35 +145,52 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     }
 
     // 인증 처리
-    private void setAuthentication(String accountId) {
+    private void setAuthentication(String username) {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
-        Authentication authentication = createAuthentication(accountId);
+        Authentication authentication = createAuthentication(username);
         context.setAuthentication(authentication);
-
         SecurityContextHolder.setContext(context);
     }
 
-    private void handleLogout(HttpServletRequest request, HttpServletResponse response)
+    // 로그아웃 필요 시 처리
+    private void handleLogoutIfNeeded(HttpServletRequest request, HttpServletResponse response, String username)
+            throws IOException {
+        String requestUri = request.getRequestURI();
+        if ("/users/logout".equals(requestUri) || ("/users".equals(requestUri)
+                && "PATCH".equalsIgnoreCase(request.getMethod()))) {
+            handleLogout(request, response, username);
+        }
+    }
+
+    // 로그아웃 처리
+    private void handleLogout(HttpServletRequest request, HttpServletResponse response, String username)
             throws IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
-            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            User user = userDetails.getUser();
-
-            String accessToken = request.getHeader("AccessToken");
-            if (accessToken != null && accessToken.startsWith("Bearer ")) {
-                String token = accessToken.substring(7);
-                tokenProvider.invalidateTokens(user.getUsername(), token);
-            }
+            invalidateTokens(request, username);
         }
 
-        SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
-        logoutHandler.logout(request, response, authentication);
+        new SecurityContextLogoutHandler().logout(request, response, authentication);
+        writeLogoutResponse(request, response);
+        log.info("User logged out successfully");
+    }
 
+    // 토큰 무효화
+    private void invalidateTokens(HttpServletRequest request, String username) {
+        String accessToken = request.getHeader("AccessToken");
+        if (accessToken != null && accessToken.startsWith("Bearer ")) {
+            String token = accessToken.substring(7);
+            tokenProvider.invalidateTokens(username, token);
+        }
+    }
+
+    // 로그아웃 및 회원 탈퇴 응답 작성
+    private void writeLogoutResponse(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        if (request.getRequestURI().equals("/users")) {
+        if ("/users".equals(request.getRequestURI())) {
             response.getWriter().write(objectMapper.writeValueAsString(new HttpResponseDto(
                     SUCCESS_TO_SINGOUT.getHttpStatus().value(), SUCCESS_TO_SINGOUT.getMessage())));
         } else {
@@ -157,6 +200,5 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         response.getWriter().flush();
         response.getWriter().close();
-        log.info("User logged out successfully");
     }
 }

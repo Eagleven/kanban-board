@@ -74,7 +74,7 @@ public class UserService {
 
     @Transactional
     public void subscription(UserDetailsImpl user) {
-        adapter.findById(user.getUser());
+        adapter.findById(user.getUser().getId());
     }
 
     @Transactional(readOnly = true)

@@ -116,7 +116,7 @@ public class BoardService {
     @Transactional
     public void inviteBoard(Long boardId, Long userId, User user) {
         // 초대할 사용자 정보를 가져옴
-        User invitedUser = userAdapter.findById(userId);
+        User invitedUser = userAdapter.findById(user.getId());
 
         // 보드가 존재하는지 확인
         Board board = boardAdapter.findById(boardId);

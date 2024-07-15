@@ -7,17 +7,15 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" integrity="sha512-8bHTC73gkZ7rZ7vpqUQThUDhqcNFyYi2xgDgPDHc+GXVGHXq+xPjynxIopALmOPqzo9JZj0k6OqqewdGO3EsrQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
 	<link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css"/>
-	<link rel="stylesheet" href="./css/reset.css">
-	<link rel="stylesheet" href="./css/bootstrap-grid.css">
-	<link rel="stylesheet" href="./css/main.css">
-	<link rel="stylesheet" href="./css/responsive.css">
-	<link rel="icon" href="./images/favicon.ico.svg">
+	<link rel="stylesheet" href="/css/reset.css">
+	<link rel="stylesheet" href="/css/bootstrap-grid.css">
+	<link rel="stylesheet" href="/css/main.css">
+	<link rel="stylesheet" href="/css/responsive.css">
+	<link rel="icon" href="/images/favicon.ico.svg">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.6.6/dragula.min.css">
-	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.6.6/dragula.min.js" integrity="sha512-MrA7WH8h42LMq8GWxQGmWjrtalBjrfIzCQ+i2EZA26cZ7OBiBd/Uct5S3NP9IBqKx5b+MMNH1PhzTsk6J9nPQQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 	<style>
 		body {
 			font-family: 'Noto Sans KR', sans-serif;
@@ -90,12 +88,11 @@
 		}
 	</style>
 </head>
-
 <body>
 <header class="header-area">
 	<div class="header__wrapper">
-		<a href="" class="header__logo">
-			<img src="images/logo.png" alt="logo" class="header__logo">
+		<a href="/" class="header__logo">
+			<img src="/images/logo.png" alt="logo" class="header__logo">
 		</a>
 	</div>
 </header>
@@ -108,24 +105,24 @@
 			<input type="password" id="password" placeholder="password" required>
 			<input type="text" id="name" placeholder="name" required>
 			<input type="email" id="email" placeholder="email" required>
-			<button type="button" onclick=signup()>회원가입</button>
+			<button type="button" onclick="signup()">회원가입</button>
 		</form>
 	</div>
 </section>
 
-
-
+<!-- Scripts are loaded at the end of the body to ensure all DOM elements are loaded first -->
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.6.6/dragula.min.js"></script>
 <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
-<script src="./js/main.js" type="module"></script>
+<script src="/js/main.js"></script>
 <script>
 	function signup() {
-
-		let username = $('#username').val();
-		let password = $('#password').val();
-		let name = $('#name').val();
-		let email = $('#email').val();
-
-		let data = {'username': username, 'password': password, 'name': name, 'email': email};
+		const username = $('#username').val();
+		const password = $('#password').val();
+		const name = $('#name').val();
+		const email = $('#email').val();
+		const data = { 'username': username, 'password': password, 'name': name, 'email': email };
 
 		$.ajax({
 			type: "POST",
@@ -133,25 +130,15 @@
 			contentType: "application/json",
 			data: JSON.stringify(data),
 			success: function (response) {
-				console.log('Response:', response);
 				alert('회원가입 되었습니다.');
-				window.location.href = '/index';
+				window.location.href = '/';
 			},
-			error: function (xhr, status, error) {
-				console.error('Response Status:', xhr.status);
-				console.error('Error:', xhr.responseText);
+			error: function (xhr) {
 				alert('회원가입에 실패하였습니다.');
-				$('#username').val('');
-				$('#password').val('');
-				$('#name').val('');
-				$('#email').val('');
+				console.error('Error:', xhr.responseText);
 			}
 		});
 	}
-
 </script>
 </body>
 </html>
-
-
-
