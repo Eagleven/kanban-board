@@ -3,9 +3,10 @@ cloud:
     credentials:
       accessKey: ${CLOUD_AWS_CREDENTIALS_ACCESSKEY}
       secretKey: ${CLOUD_AWS_CREDENTIALS_SECRETKEY}
+    s3:
+      bucket: kanbanboard-bucket
     region:
       static: ${CLOUD_AWS_REGION_STATIC}
     stack:
       auto: false
-    s3:
-      bucket: kanbanboard-bucket
+
