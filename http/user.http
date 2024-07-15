@@ -32,7 +32,7 @@ RefreshToken: {{RefreshToken}}
 Content-Type: application/json
 
 ### 특정 유저 조회
-GET http://localhost:8080/users/user?userId=4
+GET http://localhost:8080/users/user?userId=2
 AccessToken: {{AccessToken}}
 RefreshToken: {{RefreshToken}}
 Content-Type: application/json

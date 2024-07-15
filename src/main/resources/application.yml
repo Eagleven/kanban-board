@@ -28,5 +28,14 @@ spring:
           CharSet: utf-8
           characterEncoding: utf-8
           useUnicode: true
+  web:
+    resources:
+      static-locations: classpath:/static/
+  thymeleaf:
+    suffix: .html
+    prefix: classpath:templates/
+
 
 jwt-secret-key: ${JWT-KEY}
+
+

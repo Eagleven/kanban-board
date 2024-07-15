@@ -16,13 +16,13 @@ public class UserRefreshToken {
 
     private String refreshToken;
 
-    private Long reissueCount;
+    private Long reissueCount = 0L;
 
 
     public UserRefreshToken(String username, String refreshToken) {
         this.username = username;
         this.refreshToken = refreshToken;
-        this.reissueCount = 0L;
+        this.reissueCount++;
     }
 
     public void updateRefreshToken(String refreshToken) {

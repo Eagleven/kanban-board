@@ -61,7 +61,7 @@ public class TokenProvider {
 
     public String createAccessToken(String username, Role role) {
         return "Bearer " + Jwts.builder()
-                .signWith(key, SignatureAlgorithm.HS256)
+                .signWith(key, SignatureAlgorithm.HS512)
                 .setSubject(username)
                 .claim("auth", role.name())
                 .setIssuedAt(new Date())
@@ -71,7 +71,7 @@ public class TokenProvider {
 
     public String createRefreshToken(String username, Role role) {
         String refreshToken = Jwts.builder()
-                .signWith(key, SignatureAlgorithm.HS256)
+                .signWith(key, SignatureAlgorithm.HS512)
                 .setSubject(username)
                 .claim("auth", role.name())
                 .setIssuedAt(new Date())
@@ -79,7 +79,7 @@ public class TokenProvider {
                         Date.from(Instant.now().plusMillis(refreshExpirationHours)))
                 .compact();
 
-        tokenService.saveRefreshToken(username, refreshToken, refreshExpirationHours);
+        tokenService.saveRefreshToken(username, refreshToken,refreshExpirationHours);
         UserRefreshToken userRefreshToken = new UserRefreshToken(username, refreshToken);
         refreshTokenRepository.save(userRefreshToken);
         return "Bearer " + refreshToken;
@@ -95,7 +95,7 @@ public class TokenProvider {
         try {
             Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token)
                     .getBody();
-            if (tokenService.isAccessTokenInvalidated(token)) {
+            if (tokenService.hasRefreshToken(token)) {
                 return false;
             }
             return !claims.getExpiration().before(new Date());
