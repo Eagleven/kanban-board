@@ -13,7 +13,7 @@
   <link rel="stylesheet" th:href="@{/css/bootstrap-grid.css}">
   <link rel="stylesheet" th:href="@{/css/main.css}">
   <link rel="stylesheet" th:href="@{/css/responsive.css}">
-  <link rel="icon" th:href="@{/favicon.ico.svg}">
+  <link rel="icon" th:href="@{/images/icon.png}">
 <!--  <link rel="stylesheet" th:href="@{/dragula/3.6.6/dragula.min.css}">-->
 <!--  <script th:src="@{/jquery/3.6.0/jquery.min.js}"></script>-->
 <!--  <script th:src="@{/js-cookie/3.0.1/js.cookie.min.js}"></script>-->
@@ -70,7 +70,7 @@
       <p class="header__board-txt" id="boardTitle" th:text="${username} + '\'s Board'">John's Board</p>
     </div>
     <a href="#" class="header__logo">
-      <img th:src="@{/images/logo.png}" alt="logo">
+      <img th:src="@{/images/icon.png}" alt="logo">
     </a>
     <div class="user__icon">
       <img th:src="@{/images/user.png}" alt="user">
@@ -105,7 +105,7 @@
 <!--<script th:src="@{/swiper/8/swiper-bundle.min.js}"></script>-->
 <script th:src="@{/js/board.js}"></script>
 <!--<script th:src="@{/js/column.js}"></script>-->
-<script type="module" th:src="@{/js/main.js}"></script>
+<!--<script type="module" th:src="@{/js/main.js}"></script>-->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     var username = localStorage.getItem('username');  // Retrieve stored username
