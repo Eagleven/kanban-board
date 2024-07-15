@@ -1,29 +1,26 @@
 package com.sparta.kanbanboard.domain.user.service;
 
-import static com.sparta.kanbanboard.domain.user.utils.Role.MANAGER;
-import static com.sparta.kanbanboard.domain.user.utils.Role.USER;
+import static com.sparta.kanbanboard.common.CommonStatusEnum.ACTIVE;
+import static com.sparta.kanbanboard.common.CommonStatusEnum.DELETED;
 
 import com.sparta.kanbanboard.common.ResponseExceptionEnum;
-import com.sparta.kanbanboard.common.security.config.TokenProvider;
 import com.sparta.kanbanboard.common.security.details.UserDetailsImpl;
-import com.sparta.kanbanboard.domain.refreshToken.RefreshTokenRepository;
+import com.sparta.kanbanboard.domain.user.DeletedUser;
 import com.sparta.kanbanboard.domain.user.User;
 import com.sparta.kanbanboard.domain.user.dto.GetUserResponseDto;
 import com.sparta.kanbanboard.domain.user.dto.SignupRequestDto;
+import com.sparta.kanbanboard.domain.user.repository.DeletedUserRepository;
 import com.sparta.kanbanboard.domain.user.repository.UserAdapter;
 import com.sparta.kanbanboard.domain.user.repository.UserRepository;
-import com.sparta.kanbanboard.domain.user.utils.Role;
 import com.sparta.kanbanboard.exception.user.UserDuplicatedException;
 import com.sparta.kanbanboard.exception.user.UserException;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,28 +31,40 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserAdapter adapter;
-    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final TokenProvider tokenProvider;
-    private final RefreshTokenRepository refreshTokenRepository;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final UserRepository userRepository;
+    private final DeletedUserRepository deletedUserRepository;
 
+    @Transactional
     public String signup(SignupRequestDto requestDto) {
+        log.info("/users, 회원가입 실행 중~");
         try {
-            log.info("/users, 회원가입 실행 중~");
-
-            adapter.findDuplicatedUser(requestDto.getUsername());
             log.info("{} 정보 잘 들어가는 중~", requestDto.getUsername());
 
-            User user = User.builder()
-                    .username(requestDto.getUsername())
-                    .password(passwordEncoder.encode(requestDto.getPassword()))
-                    .name(requestDto.getName())
-                    .email(requestDto.getEmail())
-                    .build();
+            adapter.findDuplicatedUser(requestDto);
 
-            adapter.save(user);
-            return user.getName();
+            // 삭제된 유저가 존재하는지 확인
+            Optional<DeletedUser> deletedUser = deletedUserRepository.findUserByUsername(
+                    requestDto.getUsername());
+
+            User userEntity;
+            if (deletedUser.isPresent()) {
+                // 삭제된 유저를 복구
+                DeletedUser delUser = deletedUser.get();
+                userEntity = adapter.findUserByUsername(delUser.getUsername());
+                userEntity.setStatus(ACTIVE);
+                deletedUserRepository.delete(delUser);
+            } else {
+                // 새로운 유저 생성
+                userEntity = User.builder()
+                        .username(requestDto.getUsername())
+                        .password(passwordEncoder.encode(requestDto.getPassword()))
+                        .name(requestDto.getName())
+                        .email(requestDto.getEmail())
+                        .build();
+            }
+            userRepository.save(userEntity);
+            return userEntity.getUsername();
         } catch (UserDuplicatedException e) {
             throw new UserException(ResponseExceptionEnum.USER_ALREADY_EXIST);
         } catch (RuntimeException e) {
@@ -65,24 +74,32 @@ public class UserService {
 
     @Transactional
     public void subscription(UserDetailsImpl user) {
-        User findedUser = adapter.findById(user.getUser().getId());
-
-        if (!Objects.equals(user.getUsername(), findedUser.getUsername())) {
-            throw new UserException(ResponseExceptionEnum.USER_NOT_FOUND);
-        }
-
-        findedUser.setUserRole(findedUser.getUserRole().equals(USER) ? MANAGER : USER);
-        adapter.save(findedUser);
+        adapter.findById(user.getUser().getId());
     }
 
     @Transactional(readOnly = true)
     public Page<GetUserResponseDto> getUsersWithPage(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return userRepository.findAll(pageable)
-                .map(GetUserResponseDto::new);
+        return adapter.findAll(pageable);
     }
 
     public GetUserResponseDto getUser(Long userId, UserDetailsImpl userDetails) {
-        return adapter.getUser(userId);
+        return adapter.getUser(userId, userDetails.getUser());
+    }
+
+
+    @Transactional
+    public void signOut(User user) {
+        log.info("1일 후에 동일한 정보로 재 회원가입이 가능합니다!");
+        user.setStatus(DELETED);
+        DeletedUser deletedUser = DeletedUser.builder()
+                .username(user.getUsername())
+                .password(user.getPassword())
+                .name(user.getName())
+                .email(user.getEmail())
+                .build();
+
+        userRepository.save(user);
+        deletedUserRepository.save(deletedUser);
     }
 }

@@ -90,4 +90,18 @@ public class User extends TimeStampEntity {
         return this.userRole;
     }
 
+    public CommonStatusEnum setStatus(CommonStatusEnum status) {
+        this.status = status;
+        return this.status;
+    }
+
+    public void update(User updatedUser) {
+        this.username = updatedUser.username != null && !updatedUser.username.equals(this.username) ? updatedUser.username : this.username;
+        this.password = updatedUser.password != null && !updatedUser.password.equals(this.password) ? updatedUser.password : this.password;
+        this.name = updatedUser.name != null && !updatedUser.name.equals(this.name) ? updatedUser.name : this.name;
+        this.email = updatedUser.email != null && !updatedUser.email.equals(this.email) ? updatedUser.email : this.email;
+        this.userRole = updatedUser.userRole != null && !updatedUser.userRole.equals(this.userRole) ? updatedUser.userRole : this.userRole;
+    }
 }
+
+

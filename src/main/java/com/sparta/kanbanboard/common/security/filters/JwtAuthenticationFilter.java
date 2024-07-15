@@ -1,22 +1,18 @@
 package com.sparta.kanbanboard.common.security.filters;
 
-import static com.sparta.kanbanboard.common.ResponseCodeEnum.SUCCESS_LOGIN;
-import static com.sparta.kanbanboard.common.ResponseExceptionEnum.NOT_FOUND_AUTHENTICATION_INFO;
+import static com.sparta.kanbanboard.common.security.AuthEnum.ACCESS_TOKEN;
+import static com.sparta.kanbanboard.common.security.AuthEnum.REFRESH_TOKEN;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.kanbanboard.common.HttpResponseDto;
 import com.sparta.kanbanboard.common.security.AuthEnum;
 import com.sparta.kanbanboard.common.security.config.TokenProvider;
 import com.sparta.kanbanboard.common.security.details.UserDetailsImpl;
-import com.sparta.kanbanboard.domain.user.User;
 import com.sparta.kanbanboard.domain.user.dto.LoginRequestDto;
 import com.sparta.kanbanboard.domain.user.utils.Role;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -36,7 +32,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 
     @Override
-    @SneakyThrows
     public Authentication attemptAuthentication(HttpServletRequest request,
             HttpServletResponse response) throws AuthenticationException {
         try {
@@ -46,44 +41,35 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(
                             requestDto.getUsername(),
-                            requestDto.getPassword()
+                            requestDto.getPassword(),
+                            null
                     )
             );
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            log.error(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request,
             HttpServletResponse response, FilterChain chain,
-            Authentication authResult) throws IOException, ServletException {
-        UserDetailsImpl userdetails = (UserDetailsImpl) authResult.getPrincipal();
-        User user = userdetails.getUser();
-        String username = user.getUsername();
-        Role role = user.getUserRole();
+            Authentication authResult) {
+        String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
+        Role role = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getUserRole();
 
         String accessToken = tokenProvider.createAccessToken(username, role);
         String refreshToken = tokenProvider.createRefreshToken(username, role);
 
-        response.addHeader(AuthEnum.ACCESS_TOKEN.getValue(), accessToken);
-        response.addHeader(AuthEnum.REFRESH_TOKEN.getValue(), refreshToken);
-
-        // 로그인 성공 메시지
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter()
-                .write(new ObjectMapper().writeValueAsString(new HttpResponseDto(SUCCESS_LOGIN.getHttpStatus().value(), SUCCESS_LOGIN.getMessage())));
-        response.getWriter().flush();
+        response.addHeader(ACCESS_TOKEN.getValue(), accessToken);
+        response.addHeader(REFRESH_TOKEN.getValue(), refreshToken);
     }
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request,
             HttpServletResponse response,
-            AuthenticationException failed) throws IOException {
+            AuthenticationException failed) {
         log.error("Authentication failed: {}", failed.getMessage());
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getWriter().write(objectMapper.writeValueAsString(
-                new HttpResponseDto(NOT_FOUND_AUTHENTICATION_INFO.getHttpStatus().value(), NOT_FOUND_AUTHENTICATION_INFO.getMessage())));
     }
 }

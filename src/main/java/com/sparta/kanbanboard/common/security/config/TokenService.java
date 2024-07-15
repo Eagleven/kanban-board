@@ -1,28 +1,39 @@
 package com.sparta.kanbanboard.common.security.config;
 
-import com.sparta.kanbanboard.config.redis.RedisUtil;
 import java.util.concurrent.TimeUnit;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
+@Component
+@Slf4j
+@RequiredArgsConstructor
 public class TokenService {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    public TokenService(RedisTemplate<String, String> redisTemplate, RedisUtil redisUtil) {
-        this.redisTemplate = redisTemplate;
+    public String getRefreshToken(String username) {
+        try {
+            return (String) redisTemplate.opsForHash().get("refreshToken:" + username, "refreshToken");
+        } catch (Exception e) {
+            log.error("Error retrieving key from Redis: {}", "refreshToken:" + username, e);
+            return null;
+        }
+
     }
 
-    @Transactional
-    public void invalidateAccessToken(String accessToken) {
-        // 블랙리스트에 Access Token 추가
-        redisTemplate.opsForValue().set(accessToken, "true", 1, TimeUnit.HOURS); // 1시간 동안 유효
+    public boolean deleteRefreshToken(String username) {
+        return Boolean.TRUE.equals(redisTemplate.delete("refreshToken:" + username));
+    }
+
+    public boolean hasRefreshToken(String username) {
+        return Boolean.TRUE.equals(redisTemplate.hasKey("refreshToken:" + username));
     }
 
     public boolean isAccessTokenInvalidated(String accessToken) {
-        return redisTemplate.hasKey(accessToken);
+        return Boolean.TRUE.equals(redisTemplate.hasKey(accessToken));
     }
 
     @Transactional
@@ -35,7 +46,8 @@ public class TokenService {
         redisTemplate.delete("refreshToken:" + username);
     }
 
-    public String getRefreshToken(String username) {
-        return redisTemplate.opsForValue().get("refreshToken:" + username);
+    @Transactional
+    public void invalidateAccessToken(String accessToken) {
+        redisTemplate.opsForValue().set(accessToken, "true", 1, TimeUnit.HOURS); // 블랙리스트에 1시간 동안 유지
     }
 }
