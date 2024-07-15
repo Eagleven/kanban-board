@@ -45,7 +45,13 @@ public enum ResponseExceptionEnum {
     DELETE_COMMENT_FAILURE(HttpStatus.BAD_REQUEST, "해당 댓글을 삭제할 수 없습니다"),
     UPDATE_COMMENT_FAILURE(HttpStatus.BAD_REQUEST, "댓글을 수정할 수 없습니다."),
     COMMENT_NOT_FOUND(HttpStatus.BAD_REQUEST, "댓글을 찾을 수 없습니다."),
-    COMMENT_CONTENT_REQUIRED(HttpStatus.BAD_REQUEST, "댓글을 입력하세요.")
+    COMMENT_CONTENT_REQUIRED(HttpStatus.BAD_REQUEST, "댓글을 입력하세요."),
+
+    // 체크박스
+    CHECKBOX_NOT_FOUND(HttpStatus.BAD_REQUEST, "체크박스를 찾을 수 없습니다."),
+    UPDATE_CHECKBOX_FAILURE(HttpStatus.BAD_REQUEST, "체크박스 생성이 실패하였습니다."),
+    DELETE_CHECKBOX_FAILURE(HttpStatus.BAD_REQUEST, "체크박스 생성이 실패하였습니다.")
+
     ;
     private final HttpStatus httpStatus;
     private final String message;

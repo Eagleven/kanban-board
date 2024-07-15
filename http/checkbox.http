@@ -1,0 +1,45 @@
+### 로그인
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "username":"{{username}}",
+  "password":"{{password}}"
+}
+
+> {%
+  client.log(response.headers.valueOf("AccessToken"));
+  client.log(response.headers.valueOf("RefreshToken"));
+  client.global.set("AccessToken", response.headers.valueOf("AccessToken"));
+  client.global.set("RefreshToken", response.headers.valueOf("RefreshToken"));
+%}
+
+### 체크박스 생성
+POST http://localhost:8080/card/1/checkboxes
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+{
+  "text" : "test-1"
+}
+
+### 체크박스 수정
+PATCH http://localhost:8080/card/1/checkboxes/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+{
+  "text" : "update test"
+}
+
+### 체크박스 삭제
+DELETE http://localhost:8080/card/1/checkboxes/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 체크박스 체크
+GET http://localhost:8080/card/1/checkboxes/2
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+
