@@ -76,7 +76,7 @@ public class SecurityConfig {
         http.formLogin((formLogin) ->
                 formLogin
                         .loginPage("/")
-                        .successForwardUrl("/trello").permitAll()
+                        .defaultSuccessUrl("/trello", true)
         );
 
         http.addFilterAfter(jwtAuthorizationFilter(), JwtAuthenticationFilter.class)
