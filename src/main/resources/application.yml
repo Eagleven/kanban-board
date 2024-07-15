@@ -29,4 +29,8 @@ spring:
           characterEncoding: utf-8
           useUnicode: true
 
+  profiles:
+    include:
+      - aws
+
 jwt-secret-key: ${JWT-KEY}
