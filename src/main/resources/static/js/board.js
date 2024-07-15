@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function () {
               <div class="board-cards">
                 ${Array.isArray(column.cards) ? column.cards.map(card => `
                   <div class="board-card card" data-card-id="${card.id}">
-                    <p>${card.title}</p><button class="delete-card">&times;</button>
+                    <p>${card.title}</p><button class="delete-card" data-card-id="${card.id}">&times;</button>
                   </div>
                 `).join('') : ''}
                 <button class="add-card">Add Card</button>
@@ -197,6 +197,15 @@ document.addEventListener('DOMContentLoaded', function () {
       const columnId = $(this).closest('.board-column').data('column-id');
       if (confirm('삭제하는 경우 연결된 데이터가 전부 삭제됩니다. 정말 삭제하시겠습니까?')) {
         deleteColumn(columnId, columns, board);
+      }
+    });
+
+    // 카드 삭제 이벤트 추가
+    $('.delete-card').on('click', function () {
+      const cardId = $(this).data('card-id');
+      const columnId = $(this).closest('.board-column').data('column-id');
+      if (confirm('삭제하는 경우 작성한 데이터가 전부 삭제됩니다. 정말 삭제하시겠습니까?')) {
+        deleteCard(cardId, columnId, columns, board);
       }
     });
 
@@ -335,6 +344,31 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  function deleteCard(cardId, columnId, columns, board) {
+    const accessToken = localStorage.getItem('AccessToken');
+    $.ajax({
+      type: 'DELETE',
+      url: `/cards/${cardId}`,
+      headers: {
+        'AccessToken': `${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      success: function(response) {
+        console.log('카드 삭제 성공:', response);
+        // 삭제된 카드를 columns 배열에서 제거
+        const columnIndex = columns.findIndex(column => column.id === columnId);
+        if (columnIndex !== -1) {
+          columns[columnIndex].cards = columns[columnIndex].cards.filter(card => card.id !== cardId);
+        }
+        // 업데이트된 columns 배열로 보드 세부 정보를 다시 렌더링
+        displayBoardDetails(columns, board);
+      },
+      error: function(xhr, status, error) {
+        console.error('카드 삭제 실패:', error);
+      }
+    });
+  }
+
   function addNewCard(columnId, columnElement, columns, board) {
     const newCardTitle = prompt("Enter the title of the new card:");
     const accessToken = localStorage.getItem('AccessToken');
@@ -353,12 +387,16 @@ document.addEventListener('DOMContentLoaded', function () {
           console.log('새 카드 추가 성공:', response);
           const card = $(`
                     <div class="board-card card" data-card-id="${response.data.id}">
-                        <p>${newCardTitle}</p><button class="delete-card">&times;</button>
+                        <p>${newCardTitle}</p><button class="delete-card" data-card-id="${response.data.id}">&times;</button>
                     </div>
                 `);
           card.insertBefore(columnElement.find('.add-card'));
           card.find('.delete-card').on('click', function () {
-            $(this).parent().remove();
+            if (confirm('삭제하는 경우 작성한 데이터가 전부 삭제됩니다. 정말 삭제하시겠습니까?')) {
+              const cardId = $(this).data('card-id');
+              const columnId = $(this).closest('.board-column').data('column-id');
+              deleteCard(cardId, columnId, columns, board);
+            }
           });
 
           // Add the new card to the appropriate column in the global state
@@ -370,8 +408,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             columns[columnIndex].cards.push(response.data);
           }
-          // 보드 상세 정보를 다시 불러와서 업데이트
-          fetchBoardDetails(board.id, board);
         },
         error: function (xhr, status, error) {
           console.error('새 카드 추가 실패:', error);

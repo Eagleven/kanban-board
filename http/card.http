@@ -99,6 +99,6 @@ Content-Type: text/plain
 
 
 ### 카드 삭제
-DELETE http://localhost:8080/cards/1
+DELETE http://localhost:8080/cards/13
 AccessToken: {{AccessToken}}
 Content-Type: application/json
