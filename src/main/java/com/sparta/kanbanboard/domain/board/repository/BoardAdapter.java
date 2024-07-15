@@ -21,8 +21,7 @@ public class BoardAdapter {
     }
 
     public Board findById(Long id) {
-        return boardRepository.findById(id)
-                .filter(board -> board.getStatus() == CommonStatusEnum.ACTIVE)
+        return boardRepository.findByIdAndStatus(id, CommonStatusEnum.ACTIVE)
                 .orElseThrow(() -> new BoardNotFoundException(ResponseExceptionEnum.BOARD_NOT_FOUND));
     }
 
