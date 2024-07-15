@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // 첫 번째 보드를 자동으로 선택
         if (boards.length > 0) {
           const firstBoardId = boards[0].id;
-          fetchBoardDetails(firstBoardId);
+          fetchBoardDetails(firstBoardId, boards[0]);
         }
       },
       error: function (xhr, status, error) {
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
 // 보드 상세 정보 조회 함수
-  function fetchBoardDetails(boardId, board_name, board_explanation) {
+  function fetchBoardDetails(boardId, board) {
     // 로컬 스토리지에서 accessToken 가져오기
     const accessToken = localStorage.getItem('AccessToken');
 
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
       },
       success: function (response) {
         console.log('보드 상세 정보:', response.data);
-        displayBoardDetails(response.data, board_name, board_explanation);
+        displayBoardDetails(response.data, board);
       },
       error: function (xhr, status, error) {
         console.error('보드 상세 정보를 가져오는 데 실패했습니다:', error);
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
       boardItem.on('click', function (event) {
         if (!$(event.target).hasClass('trash-icon')) {
           const boardId = $(this).data('board-id');
-          fetchBoardDetails(boardId,board.name, board.explanation);
+          fetchBoardDetails(boardId,board);
         }
       });
       boardItem.find('.trash-icon').on('click', function () {
@@ -81,14 +81,15 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  function displayBoardDetails(columns, board_name, board_explanation) {
+  function displayBoardDetails(columns, board) {
     const selectedBoard = $('#selected-board');
     selectedBoard.empty();
 
     const boardContent = `
     <div class="board-details">
-    <h2>${board_name}</h2>
-      <p>${board_explanation}</p>
+    <h2>${board.name}
+    <i class="edit icon edit-icon" id="edit-board-icon"></i></h2>
+      <p>${board.explanation}</p>
       <div class="board-columns" id="board-columns">
         ${columns.map(column => `
           <div class="board-column" data-column-id="${column.id}">
@@ -106,6 +107,11 @@ document.addEventListener('DOMContentLoaded', function () {
     </div>
   `;
     selectedBoard.append(boardContent);
+
+    // 보드 편집 아이콘 클릭 이벤트 추가
+    $('#edit-board-icon').on('click', function() {
+      editBoardDetails(board);
+    });
 
     // 칼럼 드래그 앤 드롭 설정
     const columnDrake = dragula([document.getElementById('board-columns')], {
@@ -289,10 +295,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const newBoardName = prompt("Enter the new name of the board:", board.name);
     const newBoardExplanation = prompt(
         "Enter the new explanation of the board:", board.explanation);
+    const accessToken = localStorage.getItem('AccessToken');
     if (newBoardName && newBoardExplanation) {
       $.ajax({
         type: 'PATCH',
-        url: `/board/${board.id}`,
+        url: `/boards/${board.id}`,
+        headers: {
+          'AccessToken': `${accessToken}` // Authorization 헤더에 토큰 추가
+        },
         data: JSON.stringify({
           name: newBoardName,
           explanation: newBoardExplanation
@@ -301,11 +311,8 @@ document.addEventListener('DOMContentLoaded', function () {
         success: function (response) {
           console.log('보드 정보 업데이트 성공:', response);
           // 보드 정보를 업데이트한 후 보드 세부 정보를 다시 불러와서 업데이트
-          displayBoardDetails({
-            ...board,
-            name: newBoardName,
-            explanation: newBoardExplanation,
-          });
+          fetchBoardDetails(board.id, { ...board, name: newBoardName, explanation: newBoardExplanation });
+
         },
         error: function (xhr, status, error) {
           console.error('보드 정보 업데이트 실패:', error);

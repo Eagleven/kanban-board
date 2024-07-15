@@ -211,3 +211,14 @@
   cursor: pointer;
   width: 100%;
 }
+.edit-icon {
+  cursor: pointer;
+  margin-left: 10px;
+  color: #000;
+  font-size: 1.2em;
+  display: inline-block;
+}
+
+.edit-icon:hover {
+  color: #007bff;
+}

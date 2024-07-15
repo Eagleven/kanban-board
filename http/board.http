@@ -30,7 +30,7 @@ AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 ### 보드 수정
-PATCH http://localhost:8080/boards/3
+PATCH http://localhost:8080/boards/5
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
