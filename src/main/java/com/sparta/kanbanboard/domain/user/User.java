@@ -2,6 +2,7 @@ package com.sparta.kanbanboard.domain.user;
 
 
 import static com.sparta.kanbanboard.common.CommonStatusEnum.ACTIVE;
+import static com.sparta.kanbanboard.domain.user.utils.Role.MANAGER;
 import static com.sparta.kanbanboard.domain.user.utils.Role.USER;
 
 import com.sparta.kanbanboard.common.CommonStatusEnum;
@@ -66,7 +67,7 @@ public class User extends TimeStampEntity {
         this.email = email;
         // set up this in INACTIVE
         this.status = ACTIVE;
-        this.userRole = USER;
+        this.userRole = MANAGER;
     }
     /**
      * 연관관계 - Foreign Key 값을 따로 컬럼으로 정의하지 않고 연관 관계로 정의합니다.

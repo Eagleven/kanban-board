@@ -1,11 +1,8 @@
-// 보드 및 칼럼 관리
 document.addEventListener('DOMContentLoaded', function () {
   function fetchUserBoards() {
-    // 로컬 스토리지에서 accessToken 가져오기
     const accessToken = localStorage.getItem('AccessToken');
     console.log(accessToken);
 
-    // AJAX 요청을 통해 보드 리스트 가져오기
     $.ajax({
       crossOrigin: true,
       type: 'GET',
@@ -15,11 +12,9 @@ document.addEventListener('DOMContentLoaded', function () {
         'Content-Type': 'application/json'
       },
       success: function (response) {
-        // 서버에서 받은 데이터로 보드 리스트 표시
-        const boards = response.data.content; // 응답 데이터에서 보드 목록 추출
+        const boards = response.data.content;
         displayUserBoards(boards);
 
-        // 첫 번째 보드를 자동으로 선택
         if (boards.length > 0) {
           const firstBoardId = boards[0].id;
           fetchBoardDetails(firstBoardId, boards[0]);
@@ -31,9 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-// 보드 상세 정보 조회 함수
   function fetchBoardDetails(boardId, board) {
-    // 로컬 스토리지에서 accessToken 가져오기
     const accessToken = localStorage.getItem('AccessToken');
 
     $.ajax({
@@ -60,11 +53,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     boards.forEach(board => {
       const boardItem = $(`
-      <div class="board-item" data-board-id="${board.id}">
-        <h3 class="board-name">${board.name}</h3>
-        <i class="trash icon trash-icon" data-board-id="${board.id}"></i>
-      </div>
-    `);
+        <div class="board-item" data-board-id="${board.id}">
+          <h3 class="board-name">${board.name}</h3>
+          <i class="trash icon trash-icon" data-board-id="${board.id}"></i>
+        </div>
+      `);
       boardItem.on('click', function (event) {
         if (!$(event.target).hasClass('trash-icon')) {
           const boardId = $(this).data('board-id');
@@ -82,39 +75,49 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function displayBoardDetails(columns, board) {
+    if (!Array.isArray(columns)) {
+      console.error('Invalid columns data:', columns);
+      return;
+    }
+
     const selectedBoard = $('#selected-board');
     selectedBoard.empty();
 
     const boardContent = `
-    <div class="board-details">
-    <h2 class="board-header">${board.name}
-    <i class="edit icon edit-board-icon" id="edit-board-icon"></i></h2>
-      <p>${board.explanation}</p>
-      <div class="board-columns" id="board-columns">
-        ${columns.map(column => `
-          <div class="board-column" data-column-id="${column.id}">
-            <h3 class="list-title">
-              <span>${column.name}</span>
-              <div class="dropdown">
-                <i class="ellipsis horizontal icon dropdown-icon"></i>
-                <div class="dropdown-content">
-                  <button class="edit-column">Edit</button>
-                  <button class="delete-column">Delete</button>
+      <div class="board-details">
+        <h2 class="board-header">${board.name}
+        <i class="edit icon edit-board-icon" id="edit-board-icon"></i></h2>
+        <p>${board.explanation}</p>
+        <div class="board-columns" id="board-columns">
+          ${columns.map(column => `
+            <div class="board-column" data-column-id="${column.id}">
+              <h3 class="list-title">
+                <span>${column.name}</span>
+                <div class="dropdown">
+                  <i class="ellipsis horizontal icon dropdown-icon"></i>
+                  <div class="dropdown-content">
+                    <button class="edit-column">Edit</button>
+                    <button class="delete-column">Delete</button>
+                  </div>
                 </div>
+              </h3>
+              <div class="board-cards">
+                ${Array.isArray(column.cards) ? column.cards.map(card => `
+                  <div class="board-card card" data-card-id="${card.id}">
+                    <p>${card.title}</p><button class="delete-card">&times;</button>
+                  </div>
+                `).join('') : ''}
+                <button class="add-card">Add Card</button>
               </div>
-            </h3>
-            <div class="board-cards">
-              <button class="add-card">Add Card</button>
             </div>
+          `).join('')}
+          <div class="add-column" id="add-column">
+            <i class="plus icon"></i>
+            Add another list
           </div>
-        `).join('')}
-        <div class="add-column" id="add-column">
-          <i class="plus icon"></i>
-          Add another list
         </div>
       </div>
-    </div>
-  `;
+    `;
     selectedBoard.append(boardContent);
 
     // 드롭다운 토글 이벤트 추가
@@ -130,7 +133,6 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
-    // 보드 편집 아이콘 클릭 이벤트 추가
     $('#edit-board-icon').on('click', function () {
       editBoardDetails(board);
     });
@@ -149,24 +151,19 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
-    // 칼럼 드래그 앤 드롭 설정
     const columnDrake = dragula([document.getElementById('board-columns')], {
       direction: 'horizontal',
       moves: function (el, container, handle) {
-        return handle.classList.contains('board-column') || handle.tagName
-            === 'H3';
+        return handle.classList.contains('board-column') || handle.tagName === 'H3';
       },
       invalid: function (el, handle) {
-        return el.classList.contains('add-column') || handle.classList.contains(
-            'add-column'); // "Add another list" 칸은 드래그 불가
+        return el.classList.contains('add-column') || handle.classList.contains('add-column'); // "Add another list" 칸은 드래그 불가
       }
     });
     columnDrake.on('drop', (el, target, source, sibling) => {
-      if (el.nextElementSibling && el.nextElementSibling.classList.contains(
-          'add-column')) {
+      if (el.nextElementSibling && el.nextElementSibling.classList.contains('add-column')) {
         target.insertBefore(el, el.nextElementSibling);
-      } else if (el.parentNode === target && sibling
-          && sibling.classList.contains('add-column')) {
+      } else if (el.parentNode === target && sibling && sibling.classList.contains('add-column')) {
         target.insertBefore(el, sibling);
       } else if (!el.nextElementSibling) {
         target.insertBefore(el, document.getElementById('add-column'));
@@ -175,23 +172,19 @@ document.addEventListener('DOMContentLoaded', function () {
       const columnId = el.getAttribute('data-column-id');
       const newPosition = Array.prototype.indexOf.call(target.children, el);
 
-      // 위치 변경을 서버에 저장
       updateColumnPosition(columnId, newPosition);
     });
 
-    // 카드 클릭 이벤트 추가
     $('.board-card').on('click', function () {
       const boardId = $(this).data('board-id');
       const columnId = $(this).data('column-id');
       window.location.href = `/card.html?boardId=${boardId}&columnId=${columnId}`;
     });
 
-    // 새로운 칼럼 추가 이벤트 추가
     $('#add-column').on('click', function () {
       addNewColumn(columns, board); // 여기서 boardId는 부모 스코프에서 접근할 수 있도록 해야 함
     });
 
-    // 카드 삭제 이벤트 추가
     $('.delete-card').on('click', function () {
       $(this).parent().remove();
     });
@@ -207,7 +200,6 @@ document.addEventListener('DOMContentLoaded', function () {
       addNewCard(columnId, $(this).closest('.board-cards'));
     });
   }
-
 
   function updateCardPosition(cardId, columnId, position) {
     $.ajax({
@@ -262,9 +254,7 @@ document.addEventListener('DOMContentLoaded', function () {
         contentType: 'application/json',
         success: function (response) {
           console.log('새 칼럼 추가 성공:', response);
-          // 새로운 칼럼을 기존의 columns 배열에 추가
           columns.push(response.data);
-          // 업데이트된 columns 배열로 보드 세부 정보를 다시 렌더링
           displayBoardDetails(columns, board);
         },
         error: function (xhr, status, error) {
@@ -298,10 +288,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function addNewCard(columnId, columnElement) {
     const newCardTitle = prompt("Enter the title of the new card:");
+    const accessToken = localStorage.getItem('AccessToken');
     if (newCardTitle) {
       $.ajax({
         type: 'POST',
-        url: `/column/${columnId}`,
+        url: `/cards/${columnId}`,
+        headers: {
+          'AccessToken': `${accessToken}`
+        },
         data: JSON.stringify({
           title: newCardTitle
         }),
@@ -309,14 +303,20 @@ document.addEventListener('DOMContentLoaded', function () {
         success: function (response) {
           console.log('새 카드 추가 성공:', response);
           const card = $(`
-                        <div class="board-card card" data-card-id="${response.id}">
-                            <p>${newCardTitle}</p><button class="delete-card">&times;</button>
-                        </div>
-                    `);
+            <div class="board-card card" data-card-id="${response.data.id}">
+              <p>${newCardTitle}</p><button class="delete-card">&times;</button>
+            </div>
+          `);
           card.insertBefore(columnElement.find('.add-card'));
           card.find('.delete-card').on('click', function () {
             $(this).parent().remove();
           });
+
+          // Add the new card to the appropriate column in the global state
+          const columnIndex = columns.findIndex(column => column.id === columnId);
+          if (columnIndex !== -1) {
+            columns[columnIndex].cards.push(response.data);
+          }
         },
         error: function (xhr, status, error) {
           console.error('새 카드 추가 실패:', error);
@@ -328,18 +328,16 @@ document.addEventListener('DOMContentLoaded', function () {
   function addNewBoard() {
     console.log("addNewBoard");
     const newBoardName = prompt("Enter the name of the new board:");
-    const newBoardExplanation = prompt(
-        "Enter the explanation of the new board:");
+    const newBoardExplanation = prompt("Enter the explanation of the new board:");
 
     if (newBoardName && newBoardExplanation) {
-      // 로컬 스토리지에서 accessToken 가져오기
       const accessToken = localStorage.getItem('AccessToken');
 
       $.ajax({
         type: 'POST',
         url: '/boards',
         headers: {
-          'AccessToken': `${accessToken}` // Authorization 헤더에 토큰 추가
+          'AccessToken': `${accessToken}`
         },
         contentType: 'application/json',
         data: JSON.stringify({
@@ -348,7 +346,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }),
         success: function (response) {
           console.log('새 보드 추가 성공:', response);
-          // 새로운 보드를 추가한 후 보드 목록을 다시 불러와서 업데이트
           fetchUserBoards();
         },
         error: function (xhr, status, error) {
@@ -360,15 +357,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function editBoardDetails(board) {
     const newBoardName = prompt("Enter the new name of the board:", board.name);
-    const newBoardExplanation = prompt(
-        "Enter the new explanation of the board:", board.explanation);
+    const newBoardExplanation = prompt("Enter the new explanation of the board:", board.explanation);
     const accessToken = localStorage.getItem('AccessToken');
     if (newBoardName && newBoardExplanation) {
       $.ajax({
         type: 'PATCH',
         url: `/boards/${board.id}`,
         headers: {
-          'AccessToken': `${accessToken}` // Authorization 헤더에 토큰 추가
+          'AccessToken': `${accessToken}`
         },
         data: JSON.stringify({
           name: newBoardName,
@@ -377,9 +373,7 @@ document.addEventListener('DOMContentLoaded', function () {
         contentType: 'application/json',
         success: function (response) {
           console.log('보드 정보 업데이트 성공:', response);
-          // 보드 정보를 업데이트한 후 보드 세부 정보를 다시 불러와서 업데이트
-          fetchBoardDetails(board.id,
-              {...board, name: newBoardName, explanation: newBoardExplanation});
+          fetchBoardDetails(board.id, {...board, name: newBoardName, explanation: newBoardExplanation});
 
         },
         error: function (xhr, status, error) {
@@ -401,7 +395,6 @@ document.addEventListener('DOMContentLoaded', function () {
       },
       success: function (response) {
         console.log('보드 삭제 성공:', response);
-        // 보드를 삭제한 후 보드 목록을 다시 불러와서 업데이트
         fetchUserBoards();
       },
       error: function (xhr, status, error) {
@@ -437,13 +430,12 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
   }
+
   $(document).ready(function () {
     fetchUserBoards();
 
-    // 새로운 보드 추가 이벤트 추가
     $('#add-board-btn').on('click', function () {
       addNewBoard();
     });
   });
 });
-

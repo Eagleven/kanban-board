@@ -17,6 +17,7 @@ Content-Type: application/json
 ### 보드 생성
 POST http://localhost:8080/boards
 AccessToken: {{AccessToken}}
+RefreshToken: {{RefreshToken}}
 Content-Type: application/json
 
 {

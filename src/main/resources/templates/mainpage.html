@@ -7,8 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
-<!--  <link rel="stylesheet" th:href="@{/semantic-ui/2.4.1/semantic.min.css}" crossorigin="anonymous" referrerpolicy="no-referrer" />-->
-<!--  <link rel="stylesheet" th:href="@{/swiper/8/swiper-bundle.min.css}"/>-->
   <link rel="stylesheet" th:href="@{/css/reset.css}">
   <link rel="stylesheet" th:href="@{/css/bootstrap-grid.css}">
   <link rel="stylesheet" th:href="@{/css/main.css}">
@@ -16,17 +14,10 @@
   <link rel="stylesheet" th:href="@{/css/board.css}">
   <link rel="icon" th:href="@{/images/logo.png}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" integrity="sha512-8bHTC73gkZ7rZ7vpqUQThUDhqcNFyYi2xgDgPDHc+GXVGHXq+xPjynxIopALmOPqzo9JZj0k6OqqewdGO3EsrQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" integrity="sha512-8bHTC73gkZ7rZ7vpqUQThUDhqcNFyYi2xgDgPDHc+GXVGHXq+xPjynxIopALmOPqzo9JZj0k6OqqewdGO3EsrQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-  <!--  <link rel="stylesheet" th:href="@{/dragula/3.6.6/dragula.min.css}">-->
-<!--  <script th:src="@{/jquery/3.6.0/jquery.min.js}"></script>-->
-<!--  <script th:src="@{/js-cookie/3.0.1/js.cookie.min.js}"></script>-->
-<!--  <script th:src="@{/semantic-ui/2.4.1/semantic.min.js}"></script>-->
-<!--  <script th:src="@{/dragula/3.6.6/dragula.min.js}"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>-->
-<!--  <script th:src="@{/swiper/8/swiper-bundle.min.js}"></script>-->
   <style>
     .header__board-txt {
       font-size: 1.2em;
@@ -36,6 +27,7 @@
     .user__icon img {
       height: 40px;
       border-radius: 50%;
+      cursor: pointer;
     }
 
     .header__logo, .user__icon {
@@ -67,7 +59,7 @@
       <img th:src="@{/images/logo.png}" alt="logo">
     </a>
     <div class="user__icon">
-      <img th:src="@{/images/user.png}" alt="user">
+      <img src="/images/user.png" alt="user">
     </div>
   </div>
 </header>
@@ -96,17 +88,56 @@
   </div>
 </section>
 
-<!--<script th:src="@{/swiper/8/swiper-bundle.min.js}"></script>-->
+<!-- User Info Modal -->
+<div class="ui modal" id="user-info-modal">
+  <i class="close icon"></i>
+  <div class="header">User Information</div>
+  <div class="content">
+    <div class="description">
+      <p id="user-info"></p>
+    </div>
+  </div>
+  <div class="actions">
+    <div class="ui button" id="close-modal">Close</div>
+  </div>
+</div>
+
 <script th:src="@{/js/board.js}"></script>
-<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-<!--<script th:src="@{/js/column.js}"></script>-->
-<!--<script type="module" th:src="@{/js/main.js}"></script>-->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     var username = localStorage.getItem('username');  // Retrieve stored username
     if (username) {
       document.getElementById('boardTitle').textContent = `${username}'s Board`;  // Update text
     }
+
+    const accessToken = localStorage.getItem('AccessToken');
+
+    $('.user__icon img').on('click', function () {
+      $.ajax({
+        type: 'GET',
+        url: '/users/user',
+        headers: {
+          'AccessToken': accessToken,
+          'Content-Type': 'application/json'
+        },
+        success: function (response) {
+          const userInfo = response.data;
+          $('#user-info').html(`
+            <p><strong>Username:</strong> ${userInfo.username}</p>
+            <p><strong>Email:</strong> ${userInfo.email}</p>
+            <p><strong>Role:</strong> ${userInfo.role}</p>
+          `);
+          $('#user-info-modal').modal('show');
+        },
+        error: function (xhr, status, error) {
+          console.error('Failed to fetch user information:', error);
+        }
+      });
+    });
+
+    $('#close-modal').on('click', function () {
+      $('#user-info-modal').modal('hide');
+    });
   });
 </script>
 </body>

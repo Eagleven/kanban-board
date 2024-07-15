@@ -50,10 +50,9 @@ public class UserController {
 
     @GetMapping("/user")
     public ResponseEntity<HttpResponseDto> getUser(
-            @RequestParam Long userId,
             @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        return ResponseUtils.of(SUCCESS_GET_USER, userService.getUser(userId, userDetails));
+        return ResponseUtils.of(SUCCESS_GET_USER, userService.getUser(userDetails.getUser().getId(), userDetails));
     }
 
     @GetMapping

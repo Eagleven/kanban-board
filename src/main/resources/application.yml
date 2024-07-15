@@ -35,7 +35,8 @@ spring:
     suffix: .html
     prefix: classpath:templates/
 
+  profiles:
+    include:
+      - aws
 
 jwt-secret-key: ${JWT-KEY}
-
-
