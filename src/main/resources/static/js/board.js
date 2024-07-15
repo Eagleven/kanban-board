@@ -117,20 +117,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const columnDrake = dragula([document.getElementById('board-columns')], {
       direction: 'horizontal',
       moves: function (el, container, handle) {
-        return handle.classList.contains('board-column') || handle.tagName
-            === 'H3';
+        return handle.classList.contains('board-column') || handle.tagName === 'H3';
       },
       invalid: function (el, handle) {
-        return el.classList.contains('add-column') || handle.classList.contains(
-            'add-column'); // "Add another list" 칸은 드래그 불가
+        return el.classList.contains('add-column') || handle.classList.contains('add-column'); // "Add another list" 칸은 드래그 불가
       }
     });
     columnDrake.on('drop', (el, target, source, sibling) => {
-      if (el.nextElementSibling && el.nextElementSibling.classList.contains(
-          'add-column')) {
+      if (el.nextElementSibling && el.nextElementSibling.classList.contains('add-column')) {
         target.insertBefore(el, el.nextElementSibling);
-      } else if (el.parentNode === target && sibling
-          && sibling.classList.contains('add-column')) {
+      } else if (el.parentNode === target && sibling && sibling.classList.contains('add-column')) {
         target.insertBefore(el, sibling);
       } else if (!el.nextElementSibling) {
         target.insertBefore(el, document.getElementById('add-column'));
@@ -152,17 +148,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 새로운 칼럼 추가 이벤트 추가
     $('#add-column').on('click', function () {
-      addNewColumn(columns, board); // 여기서 boardId는 부모 스코프에서 접근할 수 있도록 해야 함
+      addNewColumn(columns, board); // columns와 board를 전달
+    });
+
+    // 칼럼 삭제 이벤트 추가
+    $('.delete-list').on('click', function () {
+      const columnId = $(this).closest('.board-column').data('column-id');
+      if (confirm('칼럼을 삭제하면 연결된 카드도 삭제됩니다. 정말 삭제하시겠습니까?')) {
+        deleteColumn(columnId, columns, board);
+      }
     });
 
     // 카드 삭제 이벤트 추가
     $('.delete-card').on('click', function () {
       $(this).parent().remove();
-    });
-
-    // 리스트 삭제 이벤트 추가
-    $('.delete-list').on('click', function () {
-      $(this).closest('.board-column').remove();
     });
 
     // 새로운 카드 추가 이벤트 추가
@@ -228,12 +227,35 @@ document.addEventListener('DOMContentLoaded', function () {
           // 새로운 칼럼을 기존의 columns 배열에 추가
           columns.push(response.data);
           // 업데이트된 columns 배열로 보드 세부 정보를 다시 렌더링
-          displayBoardDetails(columns, board);        },
+          displayBoardDetails(columns, board);
+        },
         error: function (xhr, status, error) {
           console.error('새 칼럼 추가 실패:', error);
         }
       });
     }
+  }
+
+  function deleteColumn(columnId, columns, board) {
+    const accessToken = localStorage.getItem('AccessToken');
+    $.ajax({
+      type: 'DELETE',
+      url: `/${board.id}/column/${columnId}`,
+      headers: {
+        'AccessToken': `${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      success: function(response) {
+        console.log('칼럼 삭제 성공:', response);
+        // 삭제된 칼럼을 columns 배열에서 제거
+        const updatedColumns = columns.filter(column => column.id !== columnId);
+        // 업데이트된 columns 배열로 보드 세부 정보를 다시 렌더링
+        displayBoardDetails(updatedColumns, board);
+      },
+      error: function(xhr, status, error) {
+        console.error('칼럼 삭제 실패:', error);
+      }
+    });
   }
 
   function addNewCard(columnId, columnElement) {
