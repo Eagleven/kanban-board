@@ -2,7 +2,7 @@
 document.addEventListener('DOMContentLoaded', function () {
   function fetchUserBoards() {
     // 로컬 스토리지에서 accessToken 가져오기
-    const accessToken = localStorage.getItem('accessToken');
+    const accessToken = localStorage.getItem('AccessToken');
     console.log(accessToken);
 
     // AJAX 요청을 통해 보드 리스트 가져오기
@@ -284,15 +284,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (newBoardName && newBoardExplanation) {
       // 로컬 스토리지에서 accessToken 가져오기
-      const accessToken = localStorage.getItem('accessToken');
+      const accessToken = localStorage.getItem('AccessToken');
 
       $.ajax({
         type: 'POST',
-        url: '/api/boards',
+        url: '/boards',
         headers: {
-          'AccessToken': `${accessToken}`, // Authorization 헤더에 토큰 추가
-          'Content-Type': 'application/json'
+          'AccessToken': `${accessToken}` // Authorization 헤더에 토큰 추가
         },
+        contentType: 'application/json',
         data: JSON.stringify({
           name: newBoardName,
           explanation: newBoardExplanation
@@ -300,7 +300,9 @@ document.addEventListener('DOMContentLoaded', function () {
         success: function(response) {
           console.log('새 보드 추가 성공:', response);
           // 새로운 보드를 추가한 후 보드 목록을 다시 불러와서 업데이트
-          fetchUserBoards();
+          if (response.data) {
+            displayUserBoards([response.data]);
+          }
         },
         error: function(xhr, status, error) {
           console.error('새 보드 추가 실패:', error);

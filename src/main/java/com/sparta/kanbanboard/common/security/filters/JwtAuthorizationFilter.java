@@ -45,7 +45,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final List<String> WHITE_LIST = List.of(
             "/trello",
             "/trello/signupPage",
-            "/board",
             "/static",
             "/image",
             "/css",
