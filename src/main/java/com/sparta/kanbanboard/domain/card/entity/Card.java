@@ -46,6 +46,10 @@ public class Card extends TimeStampEntity {
     @Column
     private int sequence;
 
+    // 파일 URL 저장
+    @Column
+    private String attachmentUrl;
+
     // 마감 기한
     @Column
     private LocalDateTime dueDate;
