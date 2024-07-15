@@ -15,12 +15,12 @@ Content-Type: application/json
 %}
 
 ### 칼럼생성
-POST http://localhost:8080/2/column
+POST http://localhost:8080/1/column
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 {
-  "name" : "test-1"
+  "name" : "test-3"
 }
 
 ### 칼럼선택조회
@@ -29,7 +29,7 @@ AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 ### 칼럼전체조회
-GET http://localhost:8080/2/column
+GET http://localhost:8080/1/column
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 

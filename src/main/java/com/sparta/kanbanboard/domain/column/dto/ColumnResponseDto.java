@@ -10,12 +10,14 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 public class ColumnResponseDto {
+    private Long id;
 
     private String name;
 
     private CommonStatusEnum status;
 
     public ColumnResponseDto(Column column) {
+        this.id = column.getId();
         this.name = column.getName();
         this.status = column.getStatus();
     }

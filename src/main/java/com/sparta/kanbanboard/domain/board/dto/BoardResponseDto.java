@@ -1,7 +1,6 @@
 package com.sparta.kanbanboard.domain.board.dto;
 
 import com.sparta.kanbanboard.domain.board.entity.Board;
-import java.time.LocalDateTime;
 import lombok.Getter;
 
 @Getter
