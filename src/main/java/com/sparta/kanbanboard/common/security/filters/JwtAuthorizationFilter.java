@@ -1,7 +1,5 @@
 package com.sparta.kanbanboard.common.security.filters;
 
-import static com.sparta.kanbanboard.common.ResponseCodeEnum.SUCCESS_LOGOUT;
-import static com.sparta.kanbanboard.common.ResponseCodeEnum.SUCCESS_TO_SINGOUT;
 import static com.sparta.kanbanboard.common.ResponseExceptionEnum.INVALID_REFRESHTOKEN;
 import static com.sparta.kanbanboard.common.ResponseExceptionEnum.NOT_FOUND_AUTHENTICATION_INFO;
 
@@ -29,7 +27,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -111,7 +108,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         try {
             setAuthentication(info.getSubject());
-            handleLogoutIfNeeded(request, response, info.getSubject());
             filterChain.doFilter(request, response);
         } catch (RuntimeException | ServletException e) {
             log.error("username = {}, message = {}", info.getSubject(), "인증 정보를 찾을 수 없습니다.");
@@ -172,57 +168,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         SecurityContextHolder.setContext(context);
     }
 
-    // 로그아웃 필요 시 처리
-    private void handleLogoutIfNeeded(HttpServletRequest request, HttpServletResponse response,
-            String username)
-            throws IOException {
-        String requestUri = request.getRequestURI();
-        if ("/users/logout".equals(requestUri) || ("/users".equals(requestUri)
-                && "PATCH".equalsIgnoreCase(request.getMethod()))) {
-            handleLogout(request, response, username);
-        }
-    }
 
-    // 로그아웃 처리
-    private void handleLogout(HttpServletRequest request, HttpServletResponse response,
-            String username)
-            throws IOException {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
-            invalidateTokens(request, username);
-        }
-
-        new SecurityContextLogoutHandler().logout(request, response, authentication);
-        writeLogoutResponse(request, response);
-        log.info("User logged out successfully");
-    }
-
-    // 토큰 무효화
-    private void invalidateTokens(HttpServletRequest request, String username) {
-        String accessToken = request.getHeader("AccessToken");
-        if (accessToken != null && accessToken.startsWith("Bearer ")) {
-            String token = accessToken.substring(7);
-            tokenProvider.invalidateTokens(username, token);
-        }
-    }
-
-    // 로그아웃 및 회원 탈퇴 응답 작성
-    private void writeLogoutResponse(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-
-        if ("/users".equals(request.getRequestURI())) {
-            response.getWriter().write(objectMapper.writeValueAsString(new HttpResponseDto(
-                    SUCCESS_TO_SINGOUT.getHttpStatus().value(), SUCCESS_TO_SINGOUT.getMessage())));
-        } else {
-            response.getWriter().write(objectMapper.writeValueAsString(new HttpResponseDto(
-                    SUCCESS_LOGOUT.getHttpStatus().value(), SUCCESS_LOGOUT.getMessage())));
-        }
-
-        response.getWriter().flush();
-        response.getWriter().close();
-    }
 
     private void setErrorResponse(HttpServletResponse res) throws IOException {
         res.setStatus(INVALID_REFRESHTOKEN.getHttpStatus().value());

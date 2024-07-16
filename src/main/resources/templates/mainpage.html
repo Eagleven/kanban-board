@@ -4,9 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
   <title>Trello</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
   <link rel="stylesheet" th:href="@{/css/reset.css}">
   <link rel="stylesheet" th:href="@{/css/bootstrap-grid.css}">
   <link rel="stylesheet" th:href="@{/css/main.css}">
@@ -47,6 +44,41 @@
       flex-grow: 1;
       text-align: center;
     }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgb(0,0,0);
+      background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+    }
+
+    .close-btn {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close-btn:hover,
+    .close-btn:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -82,6 +114,27 @@
       <div class="col-9">
         <div id="selected-board" class="selected-board-wrapper">
           <!-- 선택된 보드가 여기에 표시됩니다 -->
+          <div th:each="column : ${columns}">
+            <div class="board-column" th:attr="data-column-id=${column.id}">
+              <h3 class="list-title">
+                <span th:text="${column.name}">Column Name</span>
+                <div class="dropdown">
+                  <i class="ellipsis horizontal icon dropdown-icon"></i>
+                  <div class="dropdown-content">
+                    <button class="edit-column">Edit</button>
+                    <button class="delete-column">Delete</button>
+                  </div>
+                </div>
+              </h3>
+              <div class="board-cards">
+                <div th:each="card : ${column.cards}" class="board-card card" th:attr="data-card-id=${card.id}">
+                  <p th:text="${card.title}">Card Title</p>
+                  <button class="delete-card" th:attr="data-card-id=${card.id}">&times;</button>
+                </div>
+                <button class="add-card">Add Card</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -102,7 +155,18 @@
   </div>
 </div>
 
+<!-- Card Info Modal -->
+<div id="card-modal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn">&times;</span>
+    <h2 id="modal-title"></h2>
+    <p id="modal-contents"></p>
+    <p id="modal-author"></p>
+  </div>
+</div>
+
 <script th:src="@{/js/board.js}"></script>
+<!--<script th:src="@{/js/card.js}"></script>-->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     var username = localStorage.getItem('username');  // Retrieve stored username
@@ -123,10 +187,10 @@
         success: function (response) {
           const userInfo = response.data;
           $('#user-info').html(`
-            <p><strong>Username:</strong> ${userInfo.username}</p>
-            <p><strong>Email:</strong> ${userInfo.email}</p>
-            <p><strong>Role:</strong> ${userInfo.role}</p>
-          `);
+                        <p><strong>Username:</strong> ${userInfo.username}</p>
+                        <p><strong>Email:</strong> ${userInfo.email}</p>
+                        <p><strong>Role:</strong> ${userInfo.role}</p>
+                    `);
           $('#user-info-modal').modal('show');
         },
         error: function (xhr, status, error) {
@@ -139,6 +203,33 @@
       $('#user-info-modal').modal('hide');
     });
   });
+
+  function logout() {
+    const accessToken = localStorage.getItem('AccessToken');
+    const username = localStorage.getItem('Username'); // 사용자 이름이 저장된 경우
+
+    fetch('/users/logout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'AccessToken': accessToken
+      },
+      body: JSON.stringify({ username: username })
+    })
+    .then(response => {
+      if (response.status === 204 || response.status === 200) { // 204 No Content 또는 200 OK
+        // 서버에서 토큰 무효화가 완료되면 로컬 저장소에서 토큰 제거
+        localStorage.removeItem('AccessToken');
+        localStorage.removeItem('RefreshToken');
+        // 필요한 경우 다른 사용자 정보도 제거
+        localStorage.removeItem('Username');
+        window.location.href = '/login'; // 로그인 페이지로 리디렉션
+      } else {
+        console.error('Failed to logout:', response.statusText);
+      }
+    })
+    .catch(error => console.error('Error:', error));
+  }
 </script>
 </body>
 </html>

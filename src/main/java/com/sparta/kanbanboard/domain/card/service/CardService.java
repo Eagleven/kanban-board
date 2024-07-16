@@ -86,13 +86,19 @@ public class CardService {
 
         Card card = Card.builder()
                 .title(cardRequestDto.getTitle())
-//                .contents(cardRequestDto.getContents())
+                .contents(cardRequestDto.getContents())
                 .column(column)
                 .sequence(0) // 초기 순서 설정
                 .user(user) // 사용자 설정
-//                .fileUrl(fileUrl)
+                .fileUrl(fileUrl)
                 .build();
+
         Card savedCard = cardAdapter.save(card);
+        List<Card> cards = column.getCards();
+
+        cards.add(savedCard);
+        columnAdapter.save(column);
+
         return new CardResponseDto(savedCard);
     }
 
@@ -165,6 +171,12 @@ public class CardService {
             throw new UnauthorizedAccessException(
                     ResponseExceptionEnum.NOT_FOUND_AUTHENTICATION_INFO);
         }
+    }
+
+    public CardResponseDto getCardById(Long cardId) {
+        Card card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new RuntimeException("Card not found"));
+        return new CardResponseDto(card);
     }
 
 

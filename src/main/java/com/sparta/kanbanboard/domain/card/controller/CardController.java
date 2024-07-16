@@ -33,6 +33,13 @@ public class CardController {
     private final UserAdapter userAdapter;
 
 
+    @GetMapping("/{cardId}")
+    public ResponseEntity<HttpResponseDto> getCard(@PathVariable Long cardId) {
+        CardResponseDto card = cardService.getCardById(cardId);
+        return ResponseUtils.of(ResponseCodeEnum.CARD_GET_SUCCESS, card);
+    }
+
+
     // 카드 생성
     @PostMapping("/{columnId}")
     public ResponseEntity<HttpResponseDto> createCard(

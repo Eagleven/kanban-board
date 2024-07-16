@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.kanbanboard.common.security.details.UserDetailsServiceImpl;
 import com.sparta.kanbanboard.common.security.filters.JwtAuthenticationFilter;
 import com.sparta.kanbanboard.common.security.filters.JwtAuthorizationFilter;
+import com.sparta.kanbanboard.common.security.filters.TokenInvalidationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +29,7 @@ public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
     private final ObjectMapper objectMapper;
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final TokenInvalidationFilter tokenInvalidationFilter;  // TokenInvalidationFilter 주입
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -74,7 +76,8 @@ public class SecurityConfig {
         );
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtAuthorizationFilter(), jwtAuthenticationFilter.getClass());
+                .addFilterBefore(jwtAuthorizationFilter(), jwtAuthenticationFilter.getClass())
+                .addFilterBefore(tokenInvalidationFilter, JwtAuthorizationFilter.class); // TokenInvalidationFilter 추가
 
         return http.build();
     }

@@ -209,6 +209,12 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
+    // 카드 클릭 이벤트 추가
+    $('.board-card').on('click', function () {
+      const cardId = $(this).data('card-id');
+      fetchCardDetails(cardId);
+    });
+
     const columnDrake = dragula([document.getElementById('board-columns')], {
       direction: 'horizontal',
       moves: function (el, container, handle) {
@@ -233,12 +239,6 @@ document.addEventListener('DOMContentLoaded', function () {
       updateColumnPosition(columnId, newPosition);
     });
 
-    $('.board-card').on('click', function () {
-      const boardId = $(this).data('board-id');
-      const columnId = $(this).data('column-id');
-      window.location.href = `/card.html?boardId=${boardId}&columnId=${columnId}`;
-    });
-
     $('#add-column').on('click', function () {
       addNewColumn(columns, board);
     });
@@ -257,6 +257,32 @@ document.addEventListener('DOMContentLoaded', function () {
       const columnId = $(this).closest('.board-column').data('column-id');
       addNewCard(columnId, $(this).closest('.board-cards'), columns, board);
     });
+  }
+
+  function fetchCardDetails(cardId) {
+    const accessToken = localStorage.getItem('AccessToken');
+    $.ajax({
+      type: 'GET',
+      url: `/cards/${cardId}`,
+      headers: {
+        'AccessToken': `${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      success: function (response) {
+        const card = response.data;
+        showCardModal(card.title, card.contents, card.author);
+      },
+      error: function (xhr, status, error) {
+        console.error('Failed to fetch card details:', error);
+      }
+    });
+  }
+
+  function showCardModal(title, contents, author) {
+    $('#modal-title').text(title);
+    $('#modal-contents').text(contents);
+    $('#modal-author').text(author);
+    $('#card-modal').show();
   }
 
   function updateCardPosition(cardId, columnId, position) {
@@ -371,8 +397,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function addNewCard(columnId, columnElement, columns, board) {
     const newCardTitle = prompt("Enter the title of the new card:");
+    const newCardContents = prompt("Enter the contents of the new card:");
     const accessToken = localStorage.getItem('AccessToken');
-    if (newCardTitle) {
+
+    if (newCardTitle && newCardContents) {
       $.ajax({
         type: 'POST',
         url: `/cards/${columnId}`,
@@ -380,23 +408,34 @@ document.addEventListener('DOMContentLoaded', function () {
           'AccessToken': `${accessToken}`
         },
         data: JSON.stringify({
-          title: newCardTitle
+          title: newCardTitle,
+          contents: newCardContents
         }),
         contentType: 'application/json',
         success: function (response) {
           console.log('새 카드 추가 성공:', response);
+
+          // 새로운 카드 생성
           const card = $(`
-                    <div class="board-card card" data-card-id="${response.data.id}">
+                    <div class="board-card card" data-card-id="${response.data.id}" data-card-title="${newCardTitle}" data-card-author="${response.data.author}" data-card-contents="${newCardContents}">
                         <p>${newCardTitle}</p><button class="delete-card" data-card-id="${response.data.id}">&times;</button>
                     </div>
                 `);
           card.insertBefore(columnElement.find('.add-card'));
+
+          // 카드 삭제 버튼 이벤트 핸들러 연결
           card.find('.delete-card').on('click', function () {
             if (confirm('삭제하는 경우 작성한 데이터가 전부 삭제됩니다. 정말 삭제하시겠습니까?')) {
               const cardId = $(this).data('card-id');
               const columnId = $(this).closest('.board-column').data('column-id');
               deleteCard(cardId, columnId, columns, board);
             }
+          });
+
+          // 카드 클릭 이벤트 핸들러 연결
+          card.on('click', function () {
+            const cardId = $(this).data('card-id');
+            fetchCardDetails(cardId);
           });
 
           // Add the new card to the appropriate column in the global state
@@ -525,6 +564,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#add-board-btn').on('click', function () {
       addNewBoard();
+    });
+
+    // 모달 닫기 이벤트 추가
+    $('.close-btn').on('click', function () {
+      $('#card-modal').hide();
+    });
+
+    $(window).on('click', function (event) {
+      if ($(event.target).hasClass('modal')) {
+        $('#card-modal').hide();
+      }
     });
   });
 });

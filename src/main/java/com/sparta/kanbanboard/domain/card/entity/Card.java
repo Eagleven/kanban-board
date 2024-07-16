@@ -82,7 +82,6 @@ public class Card extends TimeStampEntity {
         this.sequence = sequence;
         this.dueDate = dueDate;
         this.fileUrl = fileUrl;
-
     }
 
     @Transactional

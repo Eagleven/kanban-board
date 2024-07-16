@@ -52,8 +52,8 @@ public enum ResponseCodeEnum {
     CHECKBOX_CREATED_SUCCESS(HttpStatus.OK, "체크박스가 성공적으로 생성되었습니다."),
     CHECKBOX_UPDATE_SUCCESS(HttpStatus.OK, "체크박스가 성공적으로 수정되었습니다."),
     CHECKBOX_DELETE_SUCCESS(HttpStatus.OK, "체크박스가 성공적으로 삭제되었습니다."),
-    CHECKBOX_CHECK_SUCCESS(HttpStatus.OK, "체크박스가 체크 되었습니다.")
-    ;
+    CHECKBOX_CHECK_SUCCESS(HttpStatus.OK, "체크박스가 체크 되었습니다."),
+    CARD_GET_SUCCESS(HttpStatus.OK, "카드 조회가 완료되었습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

@@ -43,6 +43,7 @@ public class CardAdapter {
     // 카드 저장
     public Card save(Card card) {
         validateCard(card);
+
         return cardRepository.save(card);
     }
 

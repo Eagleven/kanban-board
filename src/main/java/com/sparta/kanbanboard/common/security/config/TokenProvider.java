@@ -1,5 +1,7 @@
 package com.sparta.kanbanboard.common.security.config;
 
+import static com.sparta.kanbanboard.domain.user.utils.Role.MANAGER;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.kanbanboard.domain.refreshToken.RefreshTokenRepository;
@@ -28,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -63,7 +66,7 @@ public class TokenProvider {
         return "Bearer " + Jwts.builder()
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setSubject(username)
-                .claim("auth", role.name())
+                .claim("auth", "MANAGER")
                 .setIssuedAt(new Date())
                 .setExpiration(Date.from(Instant.now().plusMillis(expirationHours)))
                 .compact();
@@ -73,7 +76,7 @@ public class TokenProvider {
         String refreshToken = Jwts.builder()
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setSubject(username)
-                .claim("auth", role.name())
+                .claim("auth", "MANAGER")
                 .setIssuedAt(new Date())
                 .setExpiration(
                         Date.from(Instant.now().plusMillis(refreshExpirationHours)))
@@ -154,8 +157,15 @@ public class TokenProvider {
         return expiration.getTime() - now;
     }
 
-    public void invalidateTokens(String username, String accessToken) {
-        tokenService.invalidateAccessToken(accessToken);
+    public String invalidateAccessTokens(String username, String accessToken) {
+        tokenService.invalidateAccessToken(username);
+        return null;
+    }
+
+
+
+    public String invalidateRefreshTokens(String username, String refresh) {
         tokenService.invalidateRefreshToken(username);
+        return null;
     }
 }

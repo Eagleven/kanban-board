@@ -17,7 +17,6 @@ Content-Type: application/json
   "username":"{{username}}",
   "password":"{{password}}"
 }
-
 > {%
   client.log(response.headers.valueOf("AccessToken"));
   client.log(response.headers.valueOf("RefreshToken"));
@@ -25,22 +24,183 @@ Content-Type: application/json
   client.global.set("RefreshToken", response.headers.valueOf("RefreshToken"));
 %}
 
-### 역할 바꾸기
+### 역할 바꾸기(현재 매니저)
 PATCH http://localhost:8080/users/subscription
 AccessToken: {{AccessToken}}
 RefreshToken: {{RefreshToken}}
 Content-Type: application/json
 
-### 특정 유저 조회
-GET http://localhost:8080/users/user?userId=2
+
+### 본인 프로필 조회
+GET http://localhost:8080/users/user
 AccessToken: {{AccessToken}}
 RefreshToken: {{RefreshToken}}
 Content-Type: application/json
+
 
 ### 유저 목록 조회
 GET http://localhost:8080/users?page=0&size=5
 AccessToken: {{AccessToken}}
 RefreshToken: {{RefreshToken}}
+Content-Type: application/json
+
+### 보드 생성
+POST http://localhost:8080/boards
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+{
+  "name" : "board3",
+  "explanation" : "board3"
+}
+
+### 보드 초대
+POST http://localhost:8080/boards/1/invite/2
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 보드 조회
+GET http://localhost:8080/boards
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 보드 수정
+PATCH http://localhost:8080/boards/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+{
+  "name" : "board2",
+  "explanation" : "board2"
+}
+
+### 보드 삭제
+DELETE http://localhost:8080/boards/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 칼럼생성
+POST http://localhost:8080/1/column
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+{
+  "name" : "column5"
+}
+
+### 칼럼전체조회
+GET http://localhost:8080/1/column
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 칼럼수정
+PATCH http://localhost:8080/1/column/2
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+{
+  "name":"update test2"
+}
+
+### 칼럼삭제
+DELETE http://localhost:8080/1/column/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 카드 생성
+POST http://localhost:8080/cards/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+{
+  "title": "테스트 카드",
+  "contents": "카드 내용"
+}
+
+### 모든 카드 조회
+GET http://localhost:8080/cards
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 작업자별 카드 조회
+GET http://localhost:8080/cards/user/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 컬럼별 카드 조회
+GET http://localhost:8080/cards/column/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 카드 수정
+PUT http://localhost:8080/cards/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+{
+  "title": "수정된 카드 제목",
+  "contents": "수정된 카드 내용"
+}
+
+### 카드 삭제
+DELETE http://localhost:8080/cards/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 댓글 생성
+POST http://localhost:8080/comments/3
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+{
+  "content": "댓글 내용"
+}
+
+### 댓글 조회
+GET http://localhost:8080/comments/3
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 댓글 수정
+PATCH http://localhost:8080/comments/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+{
+  "content" : "댓글 수정"
+}
+
+### 댓글 삭제
+DELETE http://localhost:8080/comments/9
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 체크박스 생성
+POST http://localhost:8080/card/1/checkboxes
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+{
+  "text" : "test-1"
+}
+
+### 체크박스 수정
+PATCH http://localhost:8080/card/1/checkboxes/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+{
+  "text" : "update test"
+}
+
+### 체크박스 삭제
+DELETE http://localhost:8080/card/1/checkboxes/1
+AccessToken: {{AccessToken}}
+Content-Type: application/json
+
+### 체크박스 체크
+GET http://localhost:8080/card/1/checkboxes/2
+AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 

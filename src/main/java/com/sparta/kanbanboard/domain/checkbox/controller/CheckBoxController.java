@@ -1,5 +1,10 @@
 package com.sparta.kanbanboard.domain.checkbox.controller;
 
+import static com.sparta.kanbanboard.common.ResponseCodeEnum.CHECKBOX_CHECK_SUCCESS;
+import static com.sparta.kanbanboard.common.ResponseCodeEnum.CHECKBOX_CREATED_SUCCESS;
+import static com.sparta.kanbanboard.common.ResponseCodeEnum.CHECKBOX_DELETE_SUCCESS;
+import static com.sparta.kanbanboard.common.ResponseCodeEnum.CHECKBOX_UPDATE_SUCCESS;
+
 import com.sparta.kanbanboard.common.HttpResponseDto;
 import com.sparta.kanbanboard.common.ResponseCodeEnum;
 import com.sparta.kanbanboard.common.ResponseUtils;
@@ -25,11 +30,11 @@ public class CheckBoxController {
 
     private final CheckBoxService checkBoxService;
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<HttpResponseDto> createCheckBox(@PathVariable Long card_id,
             @RequestBody CheckBoxRequestDto requestDto,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return ResponseUtils.of(ResponseCodeEnum.CHECKBOX_CREATED_SUCCESS,
+        return ResponseUtils.of(CHECKBOX_CREATED_SUCCESS,
                 checkBoxService.createCheckBox(card_id, requestDto, userDetails.getUser()));
     }
 
@@ -37,7 +42,7 @@ public class CheckBoxController {
     public ResponseEntity<HttpResponseDto> updateCheckBox(@PathVariable Long card_id,
             @PathVariable Long checkbox_id, @RequestBody CheckBoxRequestDto requestDto,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return ResponseUtils.of(ResponseCodeEnum.CHECKBOX_UPDATE_SUCCESS,
+        return ResponseUtils.of(CHECKBOX_UPDATE_SUCCESS,
                 checkBoxService.updateCheckBox(card_id, checkbox_id, requestDto,
                         userDetails.getUser()));
     }
@@ -46,13 +51,13 @@ public class CheckBoxController {
     public ResponseEntity<HttpResponseDto> deleteCheckBox(@PathVariable Long card_id,
             @PathVariable Long checkbox_id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         checkBoxService.deleteCheckBox(card_id, checkbox_id, userDetails.getUser());
-        return ResponseUtils.of(ResponseCodeEnum.CHECKBOX_DELETE_SUCCESS);
+        return ResponseUtils.of(CHECKBOX_DELETE_SUCCESS);
     }
 
     @GetMapping("/{checkbox_id}")
     public ResponseEntity<HttpResponseDto> checkToggle(@PathVariable Long card_id,
             @PathVariable Long checkbox_id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         checkBoxService.checkToggle(card_id, checkbox_id, userDetails.getUser());
-        return ResponseUtils.of(ResponseCodeEnum.CHECKBOX_CHECK_SUCCESS);
+        return ResponseUtils.of(CHECKBOX_CHECK_SUCCESS);
     }
 }
