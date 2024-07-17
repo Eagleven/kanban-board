@@ -1,5 +1,7 @@
 package com.sparta.kanbanboard.common.security.config;
 
+import static com.sparta.kanbanboard.domain.user.utils.Role.MANAGER;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.kanbanboard.domain.refreshToken.RefreshTokenRepository;
@@ -28,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -61,9 +64,9 @@ public class TokenProvider {
 
     public String createAccessToken(String username, Role role) {
         return "Bearer " + Jwts.builder()
-                .signWith(key, SignatureAlgorithm.HS256)
+                .signWith(key, SignatureAlgorithm.HS512)
                 .setSubject(username)
-                .claim("auth", role.name())
+                .claim("auth", "MANAGER")
                 .setIssuedAt(new Date())
                 .setExpiration(Date.from(Instant.now().plusMillis(expirationHours)))
                 .compact();
@@ -71,15 +74,15 @@ public class TokenProvider {
 
     public String createRefreshToken(String username, Role role) {
         String refreshToken = Jwts.builder()
-                .signWith(key, SignatureAlgorithm.HS256)
+                .signWith(key, SignatureAlgorithm.HS512)
                 .setSubject(username)
-                .claim("auth", role.name())
+                .claim("auth", "MANAGER")
                 .setIssuedAt(new Date())
                 .setExpiration(
                         Date.from(Instant.now().plusMillis(refreshExpirationHours)))
                 .compact();
 
-        tokenService.saveRefreshToken(username, refreshToken, refreshExpirationHours);
+        tokenService.saveRefreshToken(username, refreshToken,refreshExpirationHours);
         UserRefreshToken userRefreshToken = new UserRefreshToken(username, refreshToken);
         refreshTokenRepository.save(userRefreshToken);
         return "Bearer " + refreshToken;
@@ -95,7 +98,7 @@ public class TokenProvider {
         try {
             Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token)
                     .getBody();
-            if (tokenService.isAccessTokenInvalidated(token)) {
+            if (tokenService.hasRefreshToken(token)) {
                 return false;
             }
             return !claims.getExpiration().before(new Date());
@@ -154,8 +157,15 @@ public class TokenProvider {
         return expiration.getTime() - now;
     }
 
-    public void invalidateTokens(String username, String accessToken) {
-        tokenService.invalidateAccessToken(accessToken);
+    public String invalidateAccessTokens(String username, String accessToken) {
+        tokenService.invalidateAccessToken(username);
+        return null;
+    }
+
+
+
+    public String invalidateRefreshTokens(String username, String refresh) {
         tokenService.invalidateRefreshToken(username);
+        return null;
     }
 }

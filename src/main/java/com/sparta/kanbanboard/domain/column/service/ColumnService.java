@@ -34,7 +34,6 @@ public class ColumnService {
     private final BoardAdapter boardAdapter;
     private final UserAndBoardAdapter userAndBoardAdapter;
     private final ColumnRepository columnRepository;
-    private final CardRepository cardRepository;
 
     @Transactional
     public ColumnResponseDto create(Long boardId, ColumnRequestDto requestDto, User user) {

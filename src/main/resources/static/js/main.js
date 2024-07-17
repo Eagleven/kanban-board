@@ -1,6 +1,6 @@
-import {swiperMode} from './responsive.js'
-import {createTodo} from './createCard.js'
-import {randomNum, userAvatar, userAvatarEdit, userName} from './usersGenerate.js'
+import {swiperMode} from '/static/js/responsive.js'
+import {createTodo} from '/static/js/createCard.js'
+import {randomNum, userAvatar, userAvatarEdit, userName} from '/static/js/usersGenerate.js'
 
 
 // on load

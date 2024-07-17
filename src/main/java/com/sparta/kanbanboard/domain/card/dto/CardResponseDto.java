@@ -15,6 +15,7 @@ public class CardResponseDto {
     private String contents;
     private int sequence;
     private String columnName;
+    private String fileUrl;
 
     public CardResponseDto(Card card) {
         this.id = card.getId();
@@ -22,5 +23,6 @@ public class CardResponseDto {
         this.contents = card.getContents();
         this.sequence = card.getSequence();
         this.columnName = card.getColumn().getName();
+        this.fileUrl = card.getFileUrl();
     }
 }

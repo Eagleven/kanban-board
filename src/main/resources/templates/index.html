@@ -9,11 +9,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" integrity="sha512-8bHTC73gkZ7rZ7vpqUQThUDhqcNFyYi2xgDgPDHc+GXVGHXq+xPjynxIopALmOPqzo9JZj0k6OqqewdGO3EsrQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css"/>
-  <link rel="stylesheet" href="/css/reset.css">
-  <link rel="stylesheet" href="/css/bootstrap-grid.css">
-  <link rel="stylesheet" href="/css/main.css">
-  <link rel="stylesheet" href="/css/responsive.css">
-  <link rel="icon" href="/images/favicon.ico.svg">
+  <link rel="stylesheet" href="../css/reset.css">
+  <link rel="stylesheet" href="../css/bootstrap-grid.css">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+  <link rel="icon" href="../images/favicon.ico.svg">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.6.6/dragula.min.css">
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
@@ -114,13 +114,13 @@
       <button type="submit" onclick="onLogin()">로그인</button>
     </form>
     <div class="signup-link">
-      <p>계정이 없으신가요? <a href="/users/signupPage">회원가입</a></p>
+      <p>계정이 없으신가요? <a href="/trello/signupPage">회원가입</a></p>
     </div>
   </div>
 </section>
 
 <script type="module">
-  import { randomNum, userAvatar, userAvatarEdit } from '/static/js/usersGenerate';
+  import { randomNum, userAvatar, userAvatarEdit } from '/static/js/usersGenerate.js';
 
   document.addEventListener('DOMContentLoaded', () => {
     userAvatar(randomNum);
@@ -158,18 +158,45 @@
         const accessToken = xhr.getResponseHeader('AccessToken');
         const refreshToken = xhr.getResponseHeader('RefreshToken');
 
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
+        localStorage.setItem('AccessToken', accessToken);
+        localStorage.setItem('RefreshToken', refreshToken);
         localStorage.setItem('username', username);  // Store username
 
         alert('Login successful!');
-        window.location.href = '/trello'; // Redirect to the dashboard
+        window.location.href = '/trello/board'; // Redirect to the dashboard
       },
       error: function(xhr) {
         alert("Login failed: " + xhr.responseText); // Detailed error message
       }
     });
   }
+  function logout() {
+    const accessToken = localStorage.getItem('AccessToken');
+    const username = localStorage.getItem('Username'); // 사용자 이름이 저장된 경우
+
+    fetch('/users/logout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'AccessToken': accessToken
+      },
+      body: JSON.stringify({ username: username })
+    })
+    .then(response => {
+      if (response.status === 204 || response.status === 200) { // 204 No Content 또는 200 OK
+        // 서버에서 토큰 무효화가 완료되면 로컬 저장소에서 토큰 제거
+        localStorage.removeItem('AccessToken');
+        localStorage.removeItem('RefreshToken');
+        // 필요한 경우 다른 사용자 정보도 제거
+        localStorage.removeItem('Username');
+        window.location.href = '/login'; // 로그인 페이지로 리디렉션
+      } else {
+        console.error('Failed to logout:', response.statusText);
+      }
+    })
+    .catch(error => console.error('Error:', error));
+  }
+
 </script>
 </body>
 </html>

@@ -1,10 +1,12 @@
 package com.sparta.kanbanboard.common.security.filters;
 
+import static com.sparta.kanbanboard.common.ResponseCodeEnum.SUCCESS_LOGIN;
+import static com.sparta.kanbanboard.common.ResponseExceptionEnum.NOT_FOUND_AUTHENTICATION_INFO;
 import static com.sparta.kanbanboard.common.security.AuthEnum.ACCESS_TOKEN;
 import static com.sparta.kanbanboard.common.security.AuthEnum.REFRESH_TOKEN;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.kanbanboard.common.security.AuthEnum;
+import com.sparta.kanbanboard.common.HttpResponseDto;
 import com.sparta.kanbanboard.common.security.config.TokenProvider;
 import com.sparta.kanbanboard.common.security.details.UserDetailsImpl;
 import com.sparta.kanbanboard.domain.user.dto.LoginRequestDto;
@@ -14,19 +16,22 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Slf4j
+@Order(1)
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final TokenProvider tokenProvider;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
-    public JwtAuthenticationFilter(TokenProvider tokenProvider) {
+    public JwtAuthenticationFilter(TokenProvider tokenProvider, ObjectMapper objectMapper) {
         this.tokenProvider = tokenProvider;
+        this.objectMapper = objectMapper;
         setFilterProcessesUrl("/users/login");
     }
 
@@ -54,7 +59,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request,
             HttpServletResponse response, FilterChain chain,
-            Authentication authResult) {
+            Authentication authResult) throws IOException {
         String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
         Role role = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getUserRole();
 
@@ -63,13 +68,30 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         response.addHeader(ACCESS_TOKEN.getValue(), accessToken);
         response.addHeader(REFRESH_TOKEN.getValue(), refreshToken);
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        response.getWriter().write(objectMapper.writeValueAsString(new HttpResponseDto(
+                SUCCESS_LOGIN.getHttpStatus().value(), SUCCESS_LOGIN.getMessage())));
+
+        response.getWriter().flush();
+        response.getWriter().close();
     }
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request,
             HttpServletResponse response,
-            AuthenticationException failed) {
+            AuthenticationException failed) throws IOException {
         log.error("Authentication failed: {}", failed.getMessage());
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        response.getWriter().write(objectMapper.writeValueAsString(new HttpResponseDto(
+                NOT_FOUND_AUTHENTICATION_INFO.getHttpStatus().value(), NOT_FOUND_AUTHENTICATION_INFO.getMessage())));
+
+        response.getWriter().flush();
+        response.getWriter().close();
     }
 }

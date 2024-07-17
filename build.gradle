@@ -49,6 +49,22 @@ dependencies {
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
+    // AWS S3
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+    /** 파일 업로드 */
+    // https://mvnrepository.com/artifact/commons-io/commons-io
+    implementation 'commons-io:commons-io:2.14.0'
+    // https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload
+    implementation 'commons-fileupload:commons-fileupload:1.5'
+
+    /** 파일 형식 체크를 위한 라이브러러 */
+    // https://mvnrepository.com/artifact/org.apache.tika/tika-core
+    implementation 'org.apache.tika:tika-core:2.9.1'
+
+    implementation 'net.datafaker:datafaker:2.3.1'
+    implementation 'org.apache.commons:commons-csv:1.9.0'
+
 }
 
 tasks.named('test') {

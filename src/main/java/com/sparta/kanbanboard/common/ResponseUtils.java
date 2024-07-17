@@ -13,6 +13,7 @@ public class ResponseUtils {
         return ResponseEntity.status(responseCodeEnum.getHttpStatus())
                 .body(new HttpResponseDto(responseCodeEnum.getHttpStatus().value(), responseCodeEnum.getMessage()));
     }
+
     public static ResponseEntity<HttpResponseDto> of(ResponseCodeEnum responseCodeEnum, Object data){
         return ResponseEntity.status(responseCodeEnum.getHttpStatus())
                 .body(new HttpResponseDto(responseCodeEnum.getHttpStatus().value(), responseCodeEnum.getMessage(), data));}

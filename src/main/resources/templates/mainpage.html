@@ -1,184 +1,235 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-   <meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
-   <title>Trello</title>
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" integrity="sha512-8bHTC73gkZ7rZ7vpqUQThUDhqcNFyYi2xgDgPDHc+GXVGHXq+xPjynxIopALmOPqzo9JZj0k6OqqewdGO3EsrQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-	<link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css"/>
-	<link rel="stylesheet" href="/css/reset.css">
-	<link rel="stylesheet" href="/css/bootstrap-grid.css">
-   	<link rel="stylesheet" href="/css/main.css">
-	<link rel="stylesheet" href="/css/responsive.css">
-	<link rel="icon" href="/images/favicon.ico.svg">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.6.6/dragula.min.css">
-	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.6.6/dragula.min.js" integrity="sha512-MrA7WH8h42LMq8GWxQGmWjrtalBjrfIzCQ+i2EZA26cZ7OBiBd/Uct5S3NP9IBqKx5b+MMNH1PhzTsk6J9nPQQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+  <title>Trello</title>
+  <link rel="stylesheet" th:href="@{/css/reset.css}">
+  <link rel="stylesheet" th:href="@{/css/bootstrap-grid.css}">
+  <link rel="stylesheet" th:href="@{/css/main.css}">
+  <link rel="stylesheet" th:href="@{/css/responsive.css}">
+  <link rel="stylesheet" th:href="@{/css/board.css}">
+  <link rel="icon" th:href="@{/images/logo.png}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" integrity="sha512-8bHTC73gkZ7rZ7vpqUQThUDhqcNFyYi2xgDgPDHc+GXVGHXq+xPjynxIopALmOPqzo9JZj0k6OqqewdGO3EsrQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js"></script>
+  <style>
+    .header__board-txt {
+      font-size: 1.2em;
+      margin: 0;
+    }
+
+    .user__icon img {
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .header__logo, .user__icon {
+      margin: 0 10px;
+    }
+
+    .header__wrapper {
+      justify-content: space-between;
+    }
+
+    .header__logo, .user__icon {
+      order: 1;
+    }
+
+    .header__board-txt {
+      order: 0;
+      flex-grow: 1;
+      text-align: center;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgb(0,0,0);
+      background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+    }
+
+    .close-btn {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close-btn:hover,
+    .close-btn:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
 <header class="header-area">
-	<div class="header__wrapper">
-		<div class="header__board">
-			<p class="header__board-txt" th:text="${username} + '\'s Board'">John's Board</p>
-		</div>
-		<a href="" class="header__logo">
-			<img src="/images/logo.png" alt="logo" class="header__logo">
-		</a>
-		<div class="wrapper">
-			<div class="search__box">
-				<input type="text" class="search__txt" placeholder="Search...">
-					<a href="#" class="search__btn"></a>
-			</div>
-			<div class="user__icon">
-				<img src="/images/user.png" alt="user" class="user__icon-foto">
-			</div>
-		</div>
-		<div class="user__icon-mobile">
-			<img src="/images/user.png" alt="user" class="user__icon-foto">
-		</div>
-		</div>
-	<div class="wrapper-mobile">
-		<div class="search__box">
-			<input type="text" class="search__txt" placeholder="Search...">
-			<a href="#" class="search__btn"></a>
-		</div>
-	</div>
+  <div class="header__wrapper">
+    <div class="header__board">
+      <p class="header__board-txt" id="boardTitle" th:text="${username} + '\'s Board'">John's Board</p>
+    </div>
+    <a href="#" class="header__logo">
+      <img th:src="@{/images/logo.png}" alt="logo">
+    </a>
+    <div class="user__icon">
+      <img src="/images/user.png" alt="user">
+    </div>
+  </div>
 </header>
+
 <section class="section-dashboard">
-	<div class="wrapper__dashboard swiper" id="root">
-		<div class="swiper-wrapper">
-			<div class="swiper-slide">
-				<div class="dashboard dashboard__toDo">
-					<div class="dashboard__content">
-						<h2 class="title1 dashboard__title">To Do</h2>
-					</div>
-					<div class="dashboard__cards-todo" id="todoCase" data-column-id = '1'></div>
-						<button class="btn__dashboard btn__add" id="btn-add"><i class="plus icon"></i>Add task</button>
-				</div>
-			</div>
-			<div class="swiper-slide">
-				<div class="dashboard dashboard__inProgress">
-					<div class="dashboard__content">
-						<h2 class="title1 dashboard__title">In Progress</h2>
-					</div>
-					<div class="dashboard__cards-inProgress" data-column-id = '2'></div>
-				</div>
-			</div>
-			<div class="swiper-slide">
-				<div class="dashboard dashboard__done">
-					<div class="dashboard__content">
-						<h2 class="title1 dashboard__title">Done</h2>
-					</div>
-					<div class="dashboard__cards-done" data-column-id = '3'></div>
-					<button class="btn__dashboard btn__delete">Delete all</button>
-				</div>
-			</div>
-		</div>
-	</div>
+  <div class="container">
+    <div class="row">
+      <div class="col-3">
+        <div class="board-list-wrapper">
+          <div class="board-list-title">Board List</div>
+          <div id="boards-list" class="boards-list">
+            <!-- 보드 목록이 여기에 추가됩니다 -->
+          </div>
+          <button class="add-board" id="add-board-btn">
+            <i class="plus icon"></i>
+            Add new board
+          </button>
+        </div>
+      </div>
+      <div class="col-9">
+        <div id="selected-board" class="selected-board-wrapper">
+          <!-- 선택된 보드가 여기에 표시됩니다 -->
+          <div th:each="column : ${columns}">
+            <div class="board-column" th:attr="data-column-id=${column.id}">
+              <h3 class="list-title">
+                <span th:text="${column.name}">Column Name</span>
+                <div class="dropdown">
+                  <i class="ellipsis horizontal icon dropdown-icon"></i>
+                  <div class="dropdown-content">
+                    <button class="edit-column">Edit</button>
+                    <button class="delete-column">Delete</button>
+                  </div>
+                </div>
+              </h3>
+              <div class="board-cards">
+                <div th:each="card : ${column.cards}" class="board-card card" th:attr="data-card-id=${card.id}">
+                  <p th:text="${card.title}">Card Title</p>
+                  <button class="delete-card" th:attr="data-card-id=${card.id}">&times;</button>
+                </div>
+                <button class="add-card">Add Card</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
-	<div class="ui modal pop-up pop-up__delete-all">
-		<div class="container__pop-up">
-			<div class="pop-up__image-wrap">
-				<img src="/images/remove.png" alt="remove-icon" class="pop-up__image">
-			</div>
-			<div class="pop-up__text-wrap">
-				<h1 class="title1">Are you sure?</h1>
-				<h2 class="title2">Do you really want to delete these records? This process cannot be undone.</h2>
-			</div>
-			<div class="actions pop-up__buttons-wrap">
-				<button class="negative ui btn btn--light">Cancel</button>
-				<button class="positive ui btn btn--dark">Delete</button>
-			</div>
-		</div>
-	</div>
-	<div class="ui modal pop-up__inprogress pop-up margin-remove">
-		<div class="container__pop-up">
-			<div class="image content">
-			<div class="ui medium image pop-up__image-wrap ">
-				<img src="/images/remove.png" alt="remove-icon" class="pop-up__image">
-			</div>
-			</div>
-			<div class="description">
-			<div class="ui header pop-up__text-wrap ">
-				<h1 class="title1">Are you sure?</h1>
-				<h2 class="title2">You added more than 6 tasks into «In Progress» column.</h2>
-			</div>
-			</div>
-			<div class="actions pop-up__buttons-wrap">
-				<button class="positive ui button btn-inprogress--dark" id="confirm-move">Confirm</button>
-			</div>
-		</div>
-	</div>
-<div class="ui modal add__todo" id="modal_edit">
-	<div class="gradient-line"></div>
-	<div class="header">Edit Trello Card</div>
-	<div class="content">
-		<form class="ui form" id="form-edit">
-			<div class="required field">
-				<input type="text" name="title" placeholder="Title" id="title-edit">
-			</div>
-			<div class="required field">
-				<textarea class="input-description" rows="5" name="description" placeholder="Description" id="desc-edit"></textarea>
-			</div>
-		</form>
-	</div>
-	<div class="actions">
-			<div class="edit ui fluid selection dropdown user-select" id="dropdown-edit">
-				<input type="hidden" name="user">
-				<i class="dropdown icon"></i>
-				<div class="default text">Select Friend</div>
-				<div class="menu" id="menu-edit">
-				</div>
-			</div>
-		<div class="button-agreement">
-			<div class="ui cancel button">Cancel</div>
-			<div class="positive ui approve button" id="editBtn">Edit</div>
-		</div>
-	</div>
+
+<!-- User Info Modal -->
+<div class="ui modal" id="user-info-modal">
+  <i class="close icon"></i>
+  <div class="header">User Information</div>
+  <div class="content">
+    <div class="description">
+      <p id="user-info"></p>
+    </div>
+  </div>
+  <div class="actions">
+    <div class="ui button" id="close-modal">Close</div>
+  </div>
 </div>
-	<div class="ui modal add__todo" id="modal_add">
-		<div class="gradient-line"></div>
-		<div class="header">Create Trello Card</div>
-		<div class="content">
-			<form class="ui form add" id="form-add">
-				<div class="field">
-					<input type="text" name="title" placeholder="Title" class="input-title" id="inputTitle" required>
-				</div>
-				<div class="field">
-					<textarea class="input-description" rows="5" name="description" placeholder="Description"
-							  id="inputDescription" required></textarea>
-				</div>
-			</form>
-		</div>
-		<div class="actions">
-			<div class="add ui fluid selection dropdown user-select required field" id="selection">
-				<input type="hidden" name="user">
-					<i class="dropdown icon"></i>
-					<div class="default text">Select User</div>
-					<div class="menu" id="menu"></div>
-		</div>
-			<div class="button-agreement">
-				<div class="ui cancel button">Cancel</div>
-				<div class="positive ok ui approve button" id="approveBtn">Confirm</div>
-			</div>
-	</div>
+
+<!-- Card Info Modal -->
+<div id="card-modal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn">&times;</span>
+    <h2 id="modal-title"></h2>
+    <p id="modal-contents"></p>
+    <p id="modal-author"></p>
+  </div>
 </div>
-<script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
-<script src="/js/main.js" type="module"></script>
+
+<script th:src="@{/js/board.js}"></script>
+<!--<script th:src="@{/js/card.js}"></script>-->
 <script>
-	document.addEventListener('DOMContentLoaded', function() {
-		var username = localStorage.getItem('username');  // Retrieve stored username
-		if (username) {
-			document.getElementById('boardTitle').textContent = `${username}'s Board`;  // Update text
-		}
-	});
+  document.addEventListener('DOMContentLoaded', function() {
+    var username = localStorage.getItem('username');  // Retrieve stored username
+    if (username) {
+      document.getElementById('boardTitle').textContent = `${username}'s Board`;  // Update text
+    }
+
+    const accessToken = localStorage.getItem('AccessToken');
+
+    $('.user__icon img').on('click', function () {
+      $.ajax({
+        type: 'GET',
+        url: '/users/user',
+        headers: {
+          'AccessToken': accessToken,
+          'Content-Type': 'application/json'
+        },
+        success: function (response) {
+          const userInfo = response.data;
+          $('#user-info').html(`
+                        <p><strong>Username:</strong> ${userInfo.username}</p>
+                        <p><strong>Email:</strong> ${userInfo.email}</p>
+                        <p><strong>Role:</strong> ${userInfo.role}</p>
+                    `);
+          $('#user-info-modal').modal('show');
+        },
+        error: function (xhr, status, error) {
+          console.error('Failed to fetch user information:', error);
+        }
+      });
+    });
+
+    $('#close-modal').on('click', function () {
+      $('#user-info-modal').modal('hide');
+    });
+  });
+
+  function logout() {
+    const accessToken = localStorage.getItem('AccessToken');
+    const username = localStorage.getItem('Username'); // 사용자 이름이 저장된 경우
+
+    fetch('/users/logout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'AccessToken': accessToken
+      },
+      body: JSON.stringify({ username: username })
+    })
+    .then(response => {
+      if (response.status === 204 || response.status === 200) { // 204 No Content 또는 200 OK
+        // 서버에서 토큰 무효화가 완료되면 로컬 저장소에서 토큰 제거
+        localStorage.removeItem('AccessToken');
+        localStorage.removeItem('RefreshToken');
+        // 필요한 경우 다른 사용자 정보도 제거
+        localStorage.removeItem('Username');
+        window.location.href = '/login'; // 로그인 페이지로 리디렉션
+      } else {
+        console.error('Failed to logout:', response.statusText);
+      }
+    })
+    .catch(error => console.error('Error:', error));
+  }
 </script>
 </body>
 </html>
-
-
-

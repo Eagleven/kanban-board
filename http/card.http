@@ -15,7 +15,7 @@ Content-Type: application/json
 %}
 
 ### 카드 생성
-POST http://localhost:8080/cards
+POST http://localhost:8080/cards/1
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
@@ -24,6 +24,32 @@ Content-Type: application/json
   "contents": "카드 내용",
   "columnId": 1
 }
+
+### 카드 생성 (첨부파일 포함)
+POST http://localhost:8080/cards/1
+AccessToken: {{AccessToken}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="title"
+
+테스트 카드 (첨부파일)
+--WebAppBoundary
+Content-Disposition: form-data; name="contents"
+
+카드 내용 (첨부파일 포함)
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="test.txt"
+Content-Type: text/plain
+
+< ./test.txt
+--WebAppBoundary--
+
+### 첨부파일 다운로드
+GET http://localhost:8080/cards/download/1
+AccessToken: {{AccessToken}}
+
+
 
 ### 모든 카드 조회
 GET http://localhost:8080/cards
@@ -36,12 +62,12 @@ AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 ### 컬럼별 카드 조회
-GET http://localhost:8080/cards/column/1
+GET http://localhost:8080/cards/column/9
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
 ### 카드 수정
-PUT http://localhost:8080/cards/7
+PUT http://localhost:8080/cards/1
 AccessToken: {{AccessToken}}
 Content-Type: application/json
 
@@ -51,7 +77,28 @@ Content-Type: application/json
   "columnId": 2
 }
 
+### 카드 수정 (첨부파일 포함)
+PUT http://localhost:8080/cards/1
+AccessToken: {{AccessToken}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="title"
+
+수정된 카드 제목
+--WebAppBoundary
+Content-Disposition: form-data; name="contents"
+
+수정된 카드 내용
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="updated.txt"
+Content-Type: text/plain
+
+< ./updated.txt
+--WebAppBoundary--
+
+
 ### 카드 삭제
-DELETE http://localhost:8080/cards/1
+DELETE http://localhost:8080/cards/13
 AccessToken: {{AccessToken}}
 Content-Type: application/json

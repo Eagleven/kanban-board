@@ -1,14 +1,8 @@
 package com.sparta.kanbanboard.domain.userandboard.repository;
 
-import com.sparta.kanbanboard.common.ResponseExceptionEnum;
 import com.sparta.kanbanboard.domain.userandboard.entity.UserAndBoard;
-import com.sparta.kanbanboard.exception.board.BoardForbiddenException;
-import com.sparta.kanbanboard.exception.userandboard.UserNotBoardMemberException;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 @Component

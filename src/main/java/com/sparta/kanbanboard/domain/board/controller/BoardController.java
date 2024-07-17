@@ -5,6 +5,7 @@ import com.sparta.kanbanboard.common.ResponseCodeEnum;
 import com.sparta.kanbanboard.common.ResponseUtils;
 import com.sparta.kanbanboard.common.security.details.UserDetailsImpl;
 import com.sparta.kanbanboard.domain.board.dto.BoardRequestDto;
+import com.sparta.kanbanboard.domain.board.dto.BoardResponseDto;
 import com.sparta.kanbanboard.domain.board.service.BoardService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,10 +32,9 @@ public class BoardController {
 
     // 보드 생성
     @PostMapping
-    public ResponseEntity<HttpResponseDto> createBoard(@RequestBody BoardRequestDto requestDto,
+    public ResponseEntity<BoardResponseDto> createBoard(@RequestBody BoardRequestDto requestDto,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return ResponseUtils.of(ResponseCodeEnum.BOARD_CREATED,
-                boardService.createBoard(requestDto, userDetails.getUser()));
+        return ResponseEntity.ok().body(boardService.createBoard(requestDto, userDetails.getUser()));
     }
 
     // 보드 리스트 조회
